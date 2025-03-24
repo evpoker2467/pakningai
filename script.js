@@ -1348,29 +1348,62 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Add mode switch button event listener
 document.getElementById('mode-switch-btn').addEventListener('click', () => {
+    toggleMode();
+});
+
+// Add welcome screen mode switch button event listener
+document.getElementById('welcome-mode-switch').addEventListener('click', () => {
+    toggleMode();
+});
+
+// Function to toggle mode
+function toggleMode() {
     const isDeepThink = document.body.classList.toggle('deepthink-mode');
     localStorage.setItem('mode', isDeepThink ? 'deepthink' : 'default');
     
-    // Update button appearance
+    // Update all mode switch buttons
+    updateModeButtons(isDeepThink);
+    
+    // Show mode change toast
+    showMessage(`Switched to ${isDeepThink ? 'DeepThink' : 'Default'} mode`, 'info');
+}
+
+// Function to update all mode switch buttons
+function updateModeButtons(isDeepThink) {
+    // Update question bar mode switch button
     const modeBtn = document.getElementById('mode-switch-btn');
     const modeIcon = modeBtn.querySelector('i');
     const modeText = document.getElementById('mini-mode-indicator');
     
+    // Update welcome screen mode switch button
+    const welcomeModeBtn = document.getElementById('welcome-mode-switch');
+    const welcomeModeIcon = welcomeModeBtn.querySelector('i');
+    const welcomeModeText = welcomeModeBtn.querySelector('span');
+    
     if (isDeepThink) {
+        // Update question bar button
         modeIcon.className = 'fas fa-brain';
         modeText.textContent = 'DeepThink';
         modeBtn.style.borderColor = 'var(--deepthink-color)';
         modeBtn.style.color = 'var(--deepthink-color)';
+        
+        // Update welcome screen button
+        welcomeModeIcon.className = 'fas fa-brain';
+        welcomeModeText.textContent = 'DeepThink Mode';
+        welcomeModeBtn.classList.add('active');
     } else {
+        // Update question bar button
         modeIcon.className = 'fas fa-balance-scale';
         modeText.textContent = 'Default';
         modeBtn.style.borderColor = 'var(--default-color)';
         modeBtn.style.color = 'var(--default-color)';
+        
+        // Update welcome screen button
+        welcomeModeIcon.className = 'fas fa-balance-scale';
+        welcomeModeText.textContent = 'Default Mode';
+        welcomeModeBtn.classList.remove('active');
     }
-    
-    // Show mode change toast
-    showMessage(`Switched to ${isDeepThink ? 'DeepThink' : 'Default'} mode`, 'info');
-});
+}
 
 // Update the initializeMode function
 function initializeMode() {
@@ -1382,22 +1415,8 @@ function initializeMode() {
         document.body.classList.add('deepthink-mode');
     }
     
-    // Update button appearance
-    const modeBtn = document.getElementById('mode-switch-btn');
-    const modeIcon = modeBtn.querySelector('i');
-    const modeText = document.getElementById('mini-mode-indicator');
-    
-    if (isDeepThink) {
-        modeIcon.className = 'fas fa-brain';
-        modeText.textContent = 'DeepThink';
-        modeBtn.style.borderColor = 'var(--deepthink-color)';
-        modeBtn.style.color = 'var(--deepthink-color)';
-    } else {
-        modeIcon.className = 'fas fa-balance-scale';
-        modeText.textContent = 'Default';
-        modeBtn.style.borderColor = 'var(--default-color)';
-        modeBtn.style.color = 'var(--default-color)';
-    }
+    // Update all mode switch buttons
+    updateModeButtons(isDeepThink);
 }
 
 
