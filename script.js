@@ -1479,4 +1479,69 @@ function updateChatSession() {
     }
 }
 
+// Function to share the application
+async function shareApplication() {
+    const shareData = {
+        title: 'PAKNING R1 - Advanced AI Assistant',
+        text: 'Check out PAKNING R1, an advanced AI assistant with exceptional problem-solving capabilities!',
+        url: window.location.href
+    };
+
+    try {
+        // Check if the Web Share API is available
+        if (navigator.share) {
+            await navigator.share(shareData);
+        } else {
+            // Fallback for browsers that don't support Web Share API
+            const shareMenu = document.createElement('div');
+            shareMenu.className = 'share-menu';
+            shareMenu.innerHTML = `
+                <div class="share-options">
+                    <a href="https://wa.me/?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}" target="_blank" class="share-option whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </a>
+                    <a href="https://www.instagram.com/share?url=${encodeURIComponent(shareData.url)}" target="_blank" class="share-option instagram">
+                        <i class="fab fa-instagram"></i>
+                        <span>Instagram</span>
+                    </a>
+                    <button class="share-option copy-link">
+                        <i class="fas fa-link"></i>
+                        <span>Copy Link</span>
+                    </button>
+                </div>
+            `;
+
+            // Add click event for copy link
+            const copyLinkBtn = shareMenu.querySelector('.copy-link');
+            copyLinkBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(shareData.url);
+                showMessage('Link copied to clipboard!', 'success');
+            });
+
+            // Position the share menu
+            const shareBtn = document.getElementById('share-btn');
+            const rect = shareBtn.getBoundingClientRect();
+            shareMenu.style.top = `${rect.bottom + 10}px`;
+            shareMenu.style.right = `${window.innerWidth - rect.right}px`;
+
+            // Add to document
+            document.body.appendChild(shareMenu);
+
+            // Remove menu when clicking outside
+            const closeMenu = (e) => {
+                if (!shareMenu.contains(e.target) && e.target !== shareBtn) {
+                    shareMenu.remove();
+                }
+            };
+            document.addEventListener('click', closeMenu);
+        }
+    } catch (error) {
+        console.error('Error sharing:', error);
+    }
+}
+
+// Add share button event listener
+document.getElementById('share-btn').addEventListener('click', shareApplication);
+
 

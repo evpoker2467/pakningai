@@ -2405,4 +2405,91 @@ body.resizing .sidebar-resizer {
 
 .mobile-mode body:not(.deepthink-mode) #mode-switch-btn:hover {
     background: rgba(106, 90, 249, 0.1);
+}
+
+/* Share Menu Styles */
+.share-menu {
+    position: fixed;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    animation: slideIn 0.2s ease-out;
+}
+
+.share-options {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.share-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    color: var(--text-color);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.share-option:hover {
+    background-color: var(--hover-color);
+}
+
+.share-option i {
+    font-size: 1.2em;
+}
+
+.share-option.whatsapp i {
+    color: #25D366;
+}
+
+.share-option.instagram i {
+    color: #E4405F;
+}
+
+.share-option.copy-link i {
+    color: var(--accent-color);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile-specific share menu styles */
+@media (max-width: 768px) {
+    .share-menu {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        border-radius: 12px 12px 0 0;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .share-options {
+        padding: 16px;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
 } 
