@@ -661,8 +661,11 @@
                                  const newContent = parsed.choices[0].delta.content;
                                  fullResponse += newContent;
                                  
+                                 // Clean up the content before formatting
+                                 const cleanedContent = sanitizeText(fullResponse);
+                                 
                                  // Update the message content with markdown formatting
-                                 contentDiv.innerHTML = formatMarkdown(fullResponse);
+                                 contentDiv.innerHTML = formatMarkdown(cleanedContent);
                                  
                                  // Scroll to bottom
                                  chatMessages.scrollTop = chatMessages.scrollHeight;
