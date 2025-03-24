@@ -648,7 +648,8 @@
                  'model': 'qwen/qwq-32b:free',
                  'messages': messagesHistory,
                  'temperature': reasoningModes[currentMode].temperature,
-                 'max_tokens': reasoningModes[currentMode].maxTokens
+                 'max_tokens': reasoningModes[currentMode].maxTokens,
+                 'stream': true // Enable streaming
              })
          };
          
@@ -656,89 +657,92 @@
              console.log(`Sending request to ${API_URL}...`);
              const response = await fetch(API_URL, requestOptions);
              
-             const responseText = await response.text();
-             console.log(`API response status: ${response.status}, response:`, responseText);
-             
              if (!response.ok) {
-                 console.error(`API Error, retry ${retryCount}:`, responseText);
+                 const errorText = await response.text();
+                 console.error(`API Error, retry ${retryCount}:`, errorText);
                  
-                 // If we still have retries left, try again after a delay
                  if (retryCount < maxRetries) {
-                     const delayMs = 1000 * (retryCount + 1); // Exponential backoff
-                     console.log(`Waiting ${delayMs}ms before retry...`);
+                     const delayMs = 1000 * (retryCount + 1);
                      await new Promise(resolve => setTimeout(resolve, delayMs));
-                     continue; // Try again
+                     continue;
                  }
                  
-                 // If all retries failed, show error and return null
                  removeTypingIndicator();
                  handleAPIConnectionError(`API returned error: ${response.status}`);
                  return null;
              }
              
-             // Try to parse the response JSON
-             let data;
-             try {
-                 data = JSON.parse(responseText);
-             } catch (e) {
-                 console.error("Error parsing JSON response:", e);
-                 if (retryCount < maxRetries) {
-                     const delayMs = 1000 * (retryCount + 1);
-                     await new Promise(resolve => setTimeout(resolve, delayMs));
-                     continue; // Try again
+             // Create a new message div for streaming response
+             const messageDiv = addMessageToChat('', 'bot');
+             const contentDiv = messageDiv.querySelector('.message-content');
+             let fullResponse = '';
+             
+             // Read the response as a stream
+             const reader = response.body.getReader();
+             const decoder = new TextDecoder();
+             
+             while (true) {
+                 const { done, value } = await reader.read();
+                 if (done) break;
+                 
+                 // Decode the chunk and parse it
+                 const chunk = decoder.decode(value);
+                 const lines = chunk.split('\n');
+                 
+                 for (const line of lines) {
+                     if (line.startsWith('data: ')) {
+                         const data = line.slice(6);
+                         if (data === '[DONE]') {
+                             // Stream complete
+                             break;
+                         }
+                         
+                         try {
+                             const parsed = JSON.parse(data);
+                             if (parsed.choices && parsed.choices[0].delta.content) {
+                                 const newContent = parsed.choices[0].delta.content;
+                                 fullResponse += newContent;
+                                 
+                                 // Update the message content with markdown formatting
+                                 contentDiv.innerHTML = formatMarkdown(fullResponse);
+                                 
+                                 // Scroll to bottom
+                                 chatMessages.scrollTop = chatMessages.scrollHeight;
+                             }
+                         } catch (e) {
+                             console.error('Error parsing chunk:', e);
+                         }
+                     }
                  }
-                 removeTypingIndicator();
-                 handleAPIConnectionError("Invalid response format from API");
-                 return null;
              }
              
-             if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-                 console.error("Unexpected API response format:", data);
-                 if (retryCount < maxRetries) {
-                     const delayMs = 1000 * (retryCount + 1);
-                     await new Promise(resolve => setTimeout(resolve, delayMs));
-                     continue; // Try again
-                 }
-                 removeTypingIndicator();
-                 handleAPIConnectionError("Unexpected response format from API");
-                 return null;
-             }
-             
-             const assistantResponse = data.choices[0].message.content;
-             
-             // Add response to history
+             // Add complete response to history
              messagesHistory.push({
                  role: 'assistant',
-                 content: assistantResponse
+                 content: fullResponse
              });
-             
-             // Display response
-             addMessageToChat(assistantResponse, 'bot');
              
              // Update chat session in storage
              updateChatSession();
              
              console.log(`Successfully received response from API`);
-             return assistantResponse;
+             return fullResponse;
+             
          } catch (error) {
              console.error(`API Error, retry ${retryCount}:`, error);
              
-             // If we still have retries left, try again after a delay
              if (retryCount < maxRetries) {
-                 const delayMs = 1000 * (retryCount + 1); // Exponential backoff
-                 console.log(`Waiting ${delayMs}ms before retry...`);
+                 const delayMs = 1000 * (retryCount + 1);
                  await new Promise(resolve => setTimeout(resolve, delayMs));
-                 continue; // Try again
+                 continue;
              }
              
-             // If all retries failed, show error and return null
              removeTypingIndicator();
              handleAPIConnectionError(error.message || "Network error connecting to API");
              return null;
          }
      }
      
-     // This point should never be reached as the function should return from within the loop
      return null;
  }
  
