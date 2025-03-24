@@ -1,0 +1,14 @@
+{
+  "name": "pakning-r1",
+  "version": "1.0.0",
+  "description": "Advanced AI Assistant",
+  "main": "index.html",
+  "scripts": {
+    "start": "netlify dev",
+    "build": "node build.js",
+    "deploy": "netlify deploy --prod"
+  },
+  "devDependencies": {
+    "netlify-cli": "^15.11.0"
+  }
+}

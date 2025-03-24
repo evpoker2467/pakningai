@@ -1,0 +1,55 @@
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build directories
+dist/
+build/
+
+# Temporary files
+.tmp/
+.temp/
+*.tmp
+*.bak
+*.swp
+
+# Netlify
+netlify_deploy/
+.netlify/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Node modules
+node_modules/
+
+# Misc
+.DS_Store
+Thumbs.db
+
+# Local Netlify folder
+.netlify 

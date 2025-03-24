@@ -1,0 +1,29 @@
+[build]
+  publish = "."
+  command = "npm run build"
+
+# Redirect all URLs to index.html for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.environment]
+  # These are build-time environment variables
+  NODE_ENV = "production"
+
+[context.production]
+  # Production context settings
+  environment = { API_KEY = "" }  # Will be overridden by Netlify UI settings
+
+[context.deploy-preview]
+  # Deploy preview context settings
+  environment = { API_KEY = "" }  # Will be overridden by Netlify UI settings
+
+[context.branch-deploy]
+  # Branch deploy context settings
+  environment = { API_KEY = "" }  # Will be overridden by Netlify UI settings
+
+# Required for client-side access to environment variables
+[template.environment]
+  API_KEY = "API Key for OpenRouter" 

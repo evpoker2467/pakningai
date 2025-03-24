@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAKNING R1 - Advanced AI Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add Google Fonts with Chinese language support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Add font preloading for better performance with CJK text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Netlify Identity Widget -->
+    <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <!-- Initialize Netlify Identity -->
+    <script>
+        // Initialize window.ENV object
+        window.ENV = {};
+        
+        // Function to load environment variables from Netlify
+        function loadNetlifyEnv() {
+            if (window.netlifyIdentity) {
+                window.netlifyIdentity.on('init', user => {
+                    if (!user) {
+                        window.netlifyIdentity.on('login', () => {
+                            document.location.href = "/";
+                        });
+                    }
+                });
+                
+                // Get environment variables
+                fetch('/.netlify/functions/env')
+                    .then(response => response.json())
+                    .then(data => {
+                        window.ENV = data;
+                        console.log('Environment variables loaded from Netlify');
+                    })
+                    .catch(error => {
+                        console.error('Error loading environment variables:', error);
+                    });
+            }
+        }
+        
+        // Load environment variables
+        loadNetlifyEnv();
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-resizer" id="sidebar-resizer"></div>
+            <button class="hide-sidebar-btn" id="hide-sidebar-btn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="logo">
+                <div class="ning-logo">P</div>
+                <span>PAKNING R1</span>
+            </div>
+            <div class="new-chat">
+                <button id="new-chat-btn">
+                    <i class="fas fa-plus"></i>
+                    <span>New Chat</span>
+                </button>
+            </div>
+            <div class="chat-history">
+                <!-- Chat history items will be added here dynamically -->
+            </div>
+            <div class="sidebar-footer">
+                <div class="sidebar-link" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </div>
+            </div>
+        </div>
+        
+        <button class="show-sidebar-btn" id="show-sidebar-btn">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="mobile-menu">
+                    <i class="fas fa-bars" id="sidebar-toggle"></i>
+                </div>
+                <div class="session-actions">
+                    <button id="clear-chat" title="Delete conversation">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="top-nav">
+                    <a href="#pricing" class="nav-link">Pricing</a>
+                    <a href="#contact" class="nav-link">Contact Us</a>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="welcome-screen">
+                    <div class="welcome-content">
+                        <div class="welcome-logo">
+                            <div class="ning-logo large">P</div>
+                        </div>
+                        <h1>PAKNING R1</h1>
+                        <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>
+                        
+                        <div class="select-mode-container">
+                            <div class="mode-selection">
+                                <p class="mode-title">Select Reasoning Mode:</p>
+                                <div class="mode-buttons">
+                                    <button class="mode-btn active" data-mode="default">
+                                        <i class="fas fa-balance-scale"></i>
+                                        <span>Default</span>
+                                    </button>
+                                    <button class="mode-btn" data-mode="deepthink">
+                                        <i class="fas fa-brain"></i>
+                                        <span>DeepThink</span>
+                                    </button>
+                                </div>
+                                <div class="mode-description">
+                                    <p id="mode-description-text">Medium Reasoning Effort: Balanced depth and efficiency for well-thought-out responses.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-points">
+                            <div class="feature-point">
+                                <i class="fas fa-brain"></i>
+                                <span>Deep analytical thinking for complex problem-solving</span>
+                            </div>
+                            <div class="feature-point">
+                                <i class="fas fa-code"></i>
+                                <span>Superior performance in mathematics and coding tasks</span>
+                            </div>
+                            <div class="feature-point">
+                                <i class="fas fa-tools"></i>
+                                <span>Adapts reasoning based on environmental feedback</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Messages will be added here dynamically -->
+            </div>
+            
+            <div class="current-mode-indicator" id="current-mode-indicator">
+                <span id="current-mode-icon"><i class="fas fa-balance-scale"></i></span>
+                <span id="current-mode-text">Default Mode</span>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea id="user-input" placeholder="Send a message..." rows="1" autofocus></textarea>
+                    <div class="input-buttons">
+                        <button id="mode-switch-btn" title="Switch Reasoning Mode">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span id="mini-mode-indicator">Default</span>
+                        </button>
+                        <button id="send-button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-footer">
+                    <span class="disclaimer">PAKNING R1 - Powered by advanced reinforcement learning</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- API Key Form (only shown when needed) -->
+    <div id="api-key-form-container" class="hidden">
+        <form id="apiKeyForm">
+            <div class="api-key-form-header">
+                <h3>API Key Configuration</h3>
+                <p>API keys can only be set via Netlify environment variables.</p>
+                <p>Please contact your administrator to configure the API_KEY variable in Netlify.</p>
+            </div>
+        </form>
+    </div>
+    <script src="env-config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
