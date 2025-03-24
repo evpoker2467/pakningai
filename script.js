@@ -18,6 +18,7 @@
  const chatContainer = document.querySelector('.app-container');
  const modeSwitchBtn = document.getElementById('mode-switch-btn');
  const miniModeIndicator = document.getElementById('mini-mode-indicator');
+ const sidebarOverlay = document.querySelector('.sidebar-overlay');
  
  // Initialize API key variable 
  let apiKey = '';
@@ -987,10 +988,17 @@
  
  // Function to toggle sidebar visibility
  function toggleSidebar() {
+     const sidebar = document.querySelector('.sidebar');
+     const showSidebarBtn = document.getElementById('show-sidebar-btn');
+     
      if (sidebar.classList.contains('collapsed')) {
-         showSidebar();
+         sidebar.classList.remove('collapsed');
+         sidebar.classList.add('open');
+         showSidebarBtn.classList.remove('visible');
      } else {
-         hideSidebar();
+         sidebar.classList.add('collapsed');
+         sidebar.classList.remove('open');
+         showSidebarBtn.classList.add('visible');
      }
  }
  
@@ -1808,6 +1816,59 @@ function populateChatHistory() {
             chatHistory.appendChild(historyItem);
         });
     }
+}
+
+// Add click handler for the overlay
+if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', () => {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar.classList.contains('open')) {
+            toggleSidebar();
+        }
+    });
+}
+
+// Add touch event handlers for better mobile interaction
+document.addEventListener('touchstart', handleTouchStart);
+document.addEventListener('touchmove', handleTouchMove);
+
+let xDown = null;
+let yDown = null;
+
+function handleTouchStart(evt) {
+    const firstTouch = evt.touches[0];
+    xDown = firstTouch.clientX;
+    yDown = firstTouch.clientY;
+}
+
+function handleTouchMove(evt) {
+    if (!xDown || !yDown) {
+        return;
+    }
+
+    const xUp = evt.touches[0].clientX;
+    const yUp = evt.touches[0].clientY;
+
+    const xDiff = xDown - xUp;
+    const yDiff = yDown - yUp;
+
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+        const sidebar = document.querySelector('.sidebar');
+        if (xDiff > 0) {
+            // Swiping left
+            if (sidebar.classList.contains('open')) {
+                toggleSidebar();
+            }
+        } else {
+            // Swiping right
+            if (!sidebar.classList.contains('open')) {
+                toggleSidebar();
+            }
+        }
+    }
+
+    xDown = null;
+    yDown = null;
 } 
 
 

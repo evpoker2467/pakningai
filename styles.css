@@ -58,6 +58,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Söhne', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -209,18 +210,20 @@ body.resizing .sidebar-resizer::after {
 /* Hide/show sidebar button */
 .hide-sidebar-btn {
     position: fixed;
-    bottom: 300px; /* Position much higher up */
-    left: 20px; /* Place on the left side like the show button */
+    bottom: auto;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    z-index: 900;
     background: var(--primary-color);
     color: white;
-    width: 45px;
-    height: 45px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 100;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     border: none;
     transition: all 0.2s ease;
@@ -249,18 +252,20 @@ body.resizing .sidebar-resizer::after {
 /* Show sidebar button that appears when sidebar is hidden */
 .show-sidebar-btn {
     position: fixed;
-    bottom: 300px; /* Position at the same height as hide button */
+    bottom: auto;
+    top: 20px;
     left: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    z-index: 900;
     background: var(--primary-color);
     color: white;
-    width: 45px;
-    height: 45px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 90;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     border: none;
     transform: scale(0);
@@ -285,36 +290,168 @@ body.resizing .sidebar-resizer::after {
 }
 
 @media (max-width: 768px) {
-    .hide-sidebar-btn {
-        display: none;
-    }
-    
-    .sidebar-resizer {
-        display: none;
-    }
-    
-    .show-sidebar-btn {
-        display: none;
-    }
-    
-    /* The existing mobile menu should still work */
-    .mobile-menu {
-        display: block;
-    }
-    
+    /* Improve sidebar behavior */
     .sidebar {
-        position: absolute;
+        position: fixed;
         top: 0;
-        bottom: 0;
         left: 0;
+        width: 85%;
+        max-width: 300px;
+        height: 100%;
         transform: translateX(-100%);
-        z-index: 1000;
-        width: 260px !important; /* Override any inline width */
         transition: transform 0.3s ease;
+        z-index: 1000;
     }
-    
+
     .sidebar.open {
         transform: translateX(0);
+    }
+
+    /* Improve button positioning */
+    .hide-sidebar-btn {
+        bottom: auto;
+        top: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+        z-index: 900;
+    }
+
+    .show-sidebar-btn {
+        bottom: auto;
+        top: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+        z-index: 900;
+    }
+
+    /* Improve chat input area */
+    .chat-input-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        background-color: var(--main-bg);
+        border-top: 1px solid var(--border-color);
+    }
+
+    .input-wrapper {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 8px;
+    }
+
+    #user-input {
+        min-height: 44px;
+        padding: 12px;
+        font-size: 16px; /* Better for mobile touch */
+    }
+
+    #send-button, #mode-switch-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    /* Improve chat messages area */
+    .chat-messages {
+        padding-bottom: 80px; /* Space for input */
+        margin-top: 70px; /* Space for header */
+    }
+
+    /* Improve message bubbles */
+    .message-content {
+        padding: 12px;
+        font-size: 15px;
+        line-height: 1.5;
+        max-width: 100%;
+    }
+
+    /* Improve code blocks */
+    .message-content pre {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    /* Improve welcome screen */
+    .welcome-screen {
+        padding: 20px;
+        margin-top: 60px;
+    }
+
+    .welcome-screen h1 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    .welcome-screen p {
+        font-size: 15px;
+        margin-bottom: 20px;
+    }
+
+    /* Improve feature points */
+    .feature-points {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .feature-point {
+        padding: 15px;
+    }
+
+    /* Add touch-friendly overlay when sidebar is open */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .sidebar.open + .sidebar-overlay {
+        display: block;
+    }
+
+    /* Improve top navigation */
+    .top-nav {
+        padding: 10px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--main-bg);
+        z-index: 800;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Improve mode selection */
+    .mode-selection {
+        padding: 15px;
+    }
+
+    .mode-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .mode-btn {
+        width: 100%;
+        padding: 15px;
+        font-size: 16px;
     }
 
     .welcome-screen h1 {
