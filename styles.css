@@ -2075,6 +2075,25 @@ body.resizing .sidebar-resizer {
     display: none;
 }
 
+.mobile-mode .api-key-form-container {
+    display: none !important;
+}
+
+.mobile-mode .chat-input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-color);
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+    z-index: 100;
+}
+
+.mobile-mode .chat-messages {
+    padding-bottom: 80px; /* Add space for the fixed input container */
+}
+
 /* Web Mode Styles (current layout) */
 .web-mode .app-container {
     flex-direction: row;
