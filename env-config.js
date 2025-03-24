@@ -7,24 +7,22 @@ async function getEnvVar(key, defaultValue = '') {
         window.envVars = {};
         
         try {
-            // First try to get from Netlify injected env
-            if (window.ENV && window.ENV.API_KEY) {
-                console.log('Found API key in Netlify ENV');
-                window.envVars.API_KEY = window.ENV.API_KEY;
-            } 
-            // Then try from process.env (for local development)
-            else if (process.env && process.env.API_KEY) {
-                console.log('Found API key in process.env');
-                window.envVars.API_KEY = process.env.API_KEY;
+            // Try to get from Netlify function
+            const response = await fetch('/.netlify/functions/env');
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Received environment data:', { hasApiKey: !!data.API_KEY });
+                window.envVars = data;
+            } else {
+                console.error('Failed to fetch environment variables:', response.status);
             }
-            // Finally check for REACT_APP prefix (create-react-app style)
-            else if (process.env && process.env.REACT_APP_API_KEY) {
-                console.log('Found API key in REACT_APP env');
-                window.envVars.API_KEY = process.env.REACT_APP_API_KEY;
-            }
-            else {
+            
+            // Log environment status
+            if (window.envVars.API_KEY) {
+                console.log('API key is set and has length:', window.envVars.API_KEY.length);
+                console.log('API key starts with:', window.envVars.API_KEY.substring(0, 8) + '...');
+            } else {
                 console.warn('No API key found in environment variables');
-                window.envVars.API_KEY = '';
             }
         } catch (error) {
             console.error('Error accessing environment variables:', error);
