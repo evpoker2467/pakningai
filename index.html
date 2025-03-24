@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#202123">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PAKNING R1</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -65,23 +64,21 @@
                 <!-- Chat history items will be added here -->
             </div>
             <div class="sidebar-footer">
-                <a href="#" class="sidebar-link" id="clear-history">
-                    <i class="fas fa-trash"></i>
-                    Clear History
+                <a href="#pricing" class="sidebar-link">
+                    <i class="fas fa-tag"></i>
+                    Pricing
                 </a>
-                <a href="#" class="sidebar-link" id="toggle-theme">
-                    <i class="fas fa-moon"></i>
-                    Toggle Theme
+                <a href="#contact" class="sidebar-link">
+                    <i class="fas fa-envelope"></i>
+                    Contact
                 </a>
             </div>
+            <div id="sidebar-resizer"></div>
             <button class="hide-sidebar-btn" id="hide-sidebar-btn">
                 <i class="fas fa-chevron-left"></i>
             </button>
         </div>
-        
-        <!-- Sidebar overlay for mobile -->
-        <div class="sidebar-overlay"></div>
-        
+
         <!-- Show sidebar button -->
         <button class="show-sidebar-btn" id="show-sidebar-btn">
             <i class="fas fa-chevron-right"></i>
@@ -89,42 +86,68 @@
 
         <!-- Main content -->
         <div class="main-content">
-            <!-- Welcome screen -->
-            <div class="welcome-screen">
-                <h1>Welcome to PAKNING R1</h1>
-                <p>Your advanced AI assistant powered by state-of-the-art language models.</p>
-                
-                <div class="feature-points">
-                    <div class="feature-point">
-                        <h3><i class="fas fa-brain"></i> Advanced Reasoning</h3>
-                        <p>Capable of complex problem-solving and detailed explanations</p>
-                    </div>
-                    <div class="feature-point">
-                        <h3><i class="fas fa-history"></i> Chat History</h3>
-                        <p>Your conversations are saved locally for future reference</p>
-                    </div>
-                    <div class="feature-point">
-                        <h3><i class="fas fa-mobile-alt"></i> Mobile Friendly</h3>
-                        <p>Optimized for both desktop and mobile devices</p>
-                    </div>
+            <div class="top-bar">
+                <div class="top-nav">
+                    <a href="#" class="nav-link" id="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                        <span>Dark Mode</span>
+                    </a>
+                </div>
+                <div class="session-actions">
+                    <button id="clear-chat">
+                        <i class="fas fa-trash"></i>
+                        Clear Chat
+                    </button>
                 </div>
             </div>
 
-            <!-- Chat container -->
-            <div class="chat-container" style="display: none;">
-                <div class="chat-messages">
-                    <!-- Messages will be added here -->
-                </div>
+            <!-- Current mode indicator -->
+            <div class="current-mode-indicator" id="current-mode-indicator">
+                <span id="current-mode-icon"><i class="fas fa-balance-scale"></i></span>
+                <span id="current-mode-text">Default Mode</span>
             </div>
 
-            <!-- Input area -->
+            <!-- Chat messages -->
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will be added here -->
+            </div>
+
+            <!-- Chat input -->
             <div class="chat-input-container">
                 <div class="input-wrapper">
                     <textarea id="user-input" placeholder="Type your message..." rows="1"></textarea>
-                    <button id="send-button">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+                    <div class="input-buttons">
+                        <button id="mode-switch-btn">
+                            <i class="fas fa-brain"></i>
+                            <span id="mini-mode-indicator">Default</span>
+                        </button>
+                        <button id="send-button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
                 </div>
+                <div class="input-footer">
+                    <p class="disclaimer">Messages are processed using AI. Do not share sensitive information.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Key Modal -->
+    <div id="apiKeyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Enter API Key</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="apiKeyForm">
+                    <div class="form-group">
+                        <label for="apiKey">API Key:</label>
+                        <input type="password" id="apiKey" required>
+                    </div>
+                    <button type="submit" class="submit-button">Save API Key</button>
+                </form>
             </div>
         </div>
     </div>

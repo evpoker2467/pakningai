@@ -1,71 +1,41 @@
 :root {
-    --primary-color: #6a5af9;
-    --secondary-color: #21d07c;
-    --sidebar-bg: #202123;
-    --main-bg: #343541;
-    --chat-bg: #343541;
-    --user-msg-bg: #444654;
-    --bot-msg-bg: #343541;
-    --input-bg: #40414f;
-    --border-color: #3a3a48;
-    --text-color: #e0e0e0;
-    --secondary-text: #a0a0a0;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    --highlight-color: #21d07c;
-    --welcome-bg: #343541;
-    --thinking-bg: #23232e;
-    --thinking-step-bg: #2a2a3a;
-    --thinking-icon-color: #21d07c;
-    --code-bg: #1e1e2e;
-    --primary-bg: #1e1e2e;
-    --secondary-bg: #292938;
-    --primary-text: #e0e0e0;
-    --hover-bg: #353545;
-    --accent-color: #6a5af9;
-    --accent-color-dark: #5749d7;
-    
-    /* Mode-specific colors */
-    --default-color: #6a5af9;
-    --default-color-dark: #5749d7;
-    --deepthink-color: #21d07c;
-    --deepthink-color-dark: #1bb76b;
-    
-    --font-family: 'Söhne', 'Segoe UI', -apple-system, system-ui, sans-serif;
+    --primary-color: #202123;
+    --secondary-color: #343541;
+    --text-color: #ffffff;
+    --border-color: #4a4b53;
+    --hover-color: #2a2b32;
+    --active-color: #343541;
+    --error-color: #ff4444;
+    --success-color: #00c851;
+    --warning-color: #ffbb33;
+    --info-color: #33b5e5;
+    --sidebar-width: 260px;
+    --chat-max-width: 800px;
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --cjk-font-family: "Noto Sans SC", var(--font-family);
 }
 
 .light-theme {
-    --sidebar-bg: #f7f7f8;
-    --main-bg: #ffffff;
-    --chat-bg: #ffffff;
-    --user-msg-bg: #f7f7f8;
-    --bot-msg-bg: #ffffff;
-    --input-bg: #ffffff;
+    --primary-color: #ffffff;
+    --secondary-color: #f7f7f8;
+    --text-color: #000000;
     --border-color: #e5e5e5;
-    --text-color: #343541;
-    --secondary-text: #6e6e80;
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --welcome-bg: #f7f7f8;
-    --thinking-bg: #f0f0f5;
-    --thinking-step-bg: #e6e6ef;
-    --thinking-icon-color: #21d07c;
-    --code-bg: #f6f6f6;
-    --secondary-bg: #f0f0f5;
-    --hover-bg: #e6e6ef;
+    --hover-color: #f0f0f0;
+    --active-color: #e5e5e5;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Söhne', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    -webkit-overflow-scrolling: touch;
 }
 
 body {
-    background-color: var(--main-bg);
+    font-family: var(--font-family);
+    background-color: var(--primary-color);
     color: var(--text-color);
-    height: 100vh;
-    overflow: hidden;
+    line-height: 1.5;
+    transition: background-color 0.3s ease;
 }
 
 .app-container {
@@ -74,17 +44,14 @@ body {
     overflow: hidden;
 }
 
-/* Sidebar Styles */
 .sidebar {
-    width: 260px;
-    background-color: var(--sidebar-bg);
+    width: var(--sidebar-width);
+    background-color: var(--primary-color);
+    border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    border-right: 1px solid var(--border-color);
-    transition: transform 0.3s ease, width 0.3s ease;
-    z-index: 100;
+    transition: width 0.3s ease;
     position: relative;
-    overflow: hidden;
 }
 
 .logo {
@@ -289,206 +256,12 @@ body.resizing .sidebar-resizer::after {
     background: var(--primary-color);
 }
 
-@media (max-width: 768px) {
-    /* Main container adjustments */
-    .app-container {
-        flex-direction: column;
-        height: 100vh;
-        position: relative;
-    }
-
-    /* Header improvements */
-    .top-nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 60px;
-        background-color: var(--main-bg);
-        border-bottom: 1px solid var(--border-color);
-        z-index: 900;
-        display: flex;
-        align-items: center;
-        padding: 0 15px;
-    }
-
-    /* Welcome screen fixes */
-    .welcome-screen {
-        padding: 20px;
-        margin-top: 60px; /* Space for header */
-        margin-bottom: 70px; /* Space for input */
-        height: calc(100vh - 130px);
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .welcome-screen h1 {
-        font-size: 24px;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-
-    .welcome-screen p {
-        font-size: 16px;
-        line-height: 1.5;
-        margin-bottom: 25px;
-        text-align: center;
-    }
-
-    /* Feature points improvement */
-    .feature-points {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 15px;
-        padding: 0 15px;
-    }
-
-    .feature-point {
-        background: var(--secondary-bg);
-        padding: 20px;
-        border-radius: 10px;
-        text-align: left;
-    }
-
-    /* Sidebar improvements */
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 280px;
-        height: 100vh;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        z-index: 1000;
-        background-color: var(--sidebar-bg);
-    }
-
-    .sidebar.open {
-        transform: translateX(0);
-    }
-
-    /* Improved sidebar toggle button */
-    .show-sidebar-btn {
-        position: fixed;
-        top: 8px;
-        left: 8px;
-        width: 44px;
-        height: 44px;
-        border-radius: 8px;
-        background: var(--primary-color);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 901;
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    }
-
-    .hide-sidebar-btn {
-        position: fixed;
-        top: 8px;
-        left: 8px;
-        width: 44px;
-        height: 44px;
-        border-radius: 8px;
-        background: var(--primary-color);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1001;
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Chat container improvements */
-    .chat-container {
-        margin-top: 60px; /* Space for header */
-        margin-bottom: 70px; /* Space for input */
-        height: calc(100vh - 130px);
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .chat-messages {
-        padding: 15px;
-    }
-
-    /* Input area improvements */
-    .chat-input-container {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--main-bg);
-        padding: 10px;
-        border-top: 1px solid var(--border-color);
-        z-index: 900;
-    }
-
-    .input-wrapper {
-        display: flex;
-        gap: 10px;
-        max-width: 100%;
-        margin: 0 auto;
-    }
-
-    #user-input {
-        flex: 1;
-        min-height: 44px;
-        padding: 10px 15px;
-        font-size: 16px;
-        border-radius: 8px;
-        background: var(--input-bg);
-        color: var(--text-color);
-        border: 1px solid var(--border-color);
-    }
-
-    #send-button {
-        width: 44px;
-        height: 44px;
-        border-radius: 8px;
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }
-
-    /* Overlay improvements */
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        backdrop-filter: blur(2px);
-    }
-
-    .sidebar.open + .sidebar-overlay {
-        display: block;
-    }
-
-    /* Hide resizer on mobile */
-    .sidebar-resizer {
-        display: none;
-    }
-}
-
 /* Main Content Styles */
 .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: var(--main-bg);
+    background-color: var(--primary-color);
     overflow: hidden;
     transition: margin-left 0.3s ease;
 }
@@ -573,7 +346,7 @@ body.resizing .sidebar-resizer::after {
     padding: 0;
     display: flex;
     flex-direction: column;
-    background-color: var(--chat-bg);
+    background-color: var(--primary-color);
     scroll-behavior: smooth;
 }
 
@@ -585,7 +358,7 @@ body.resizing .sidebar-resizer::after {
     justify-content: center;
     height: 100%;
     padding: 20px;
-    background-color: var(--welcome-bg);
+    background-color: var(--primary-color);
     overflow-y: auto;
 }
 
@@ -916,7 +689,7 @@ body.resizing .sidebar-resizer::after {
     padding: 20px;
     border-bottom: 1px solid var(--border-color);
     align-items: center;
-    background-color: var(--bot-msg-bg);
+    background-color: var(--primary-color);
 }
 
 .typing-indicator .message-avatar {
@@ -954,7 +727,7 @@ body.resizing .sidebar-resizer::after {
 /* Thicker input area */
 .chat-input-container {
     padding: 15px 30px 25px;
-    background-color: var(--main-bg);
+    background-color: var(--primary-color);
     border-top: 1px solid var(--border-color);
 }
 
@@ -1040,7 +813,7 @@ body.resizing .sidebar-resizer::after {
 }
 
 #mode-switch-btn:hover {
-    background: var(--hover-bg);
+    background: var(--hover-color);
     color: var(--primary-text);
 }
 
@@ -1069,81 +842,6 @@ body.deepthink-mode #mini-mode-indicator {
 .disclaimer {
     font-size: 12px;
     color: var(--secondary-text);
-}
-
-@media (max-width: 768px) {
-    .welcome-screen h1 {
-        font-size: 2.4em;
-    }
-    
-    .welcome-screen p {
-        font-size: 0.9em;
-        margin-bottom: 10px;
-    }
-    
-    .select-mode-container {
-        margin-bottom: 15px;
-    }
-    
-    .feature-points {
-        gap: 8px;
-    }
-    
-    .feature-point {
-        padding: 10px 12px;
-    }
-    
-    .sidebar {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        transform: translateX(-100%);
-        z-index: 1000;
-        width: 260px !important; /* Override any inline width */
-        transition: transform 0.3s ease;
-    }
-    
-    .sidebar.open {
-        transform: translateX(0);
-    }
-    
-    .mobile-menu {
-        display: block;
-    }
-    
-    .top-nav {
-        gap: 10px;
-    }
-    
-    .nav-link {
-        font-size: 12px;
-        padding: 4px 8px;
-    }
-    
-    .chat-input-container {
-        padding: 10px 15px 15px;
-    }
-    
-    .input-wrapper {
-        padding: 12px 15px;
-        min-height: 56px;
-    }
-    
-    #mini-mode-indicator {
-        display: none;
-    }
-    
-    #mode-switch-btn {
-        width: 44px;
-        padding: 0;
-        border-radius: 50%;
-    }
-    
-    #send-button, #mode-switch-btn {
-        width: 40px;
-        height: 40px;
-    }
 }
 
 /* Fade In Animation */
@@ -1586,11 +1284,11 @@ body.deepthink-mode #mini-mode-indicator {
 }
 
 .user {
-    background-color: var(--user-msg-bg);
+    background-color: var(--primary-color);
 }
 
 .bot {
-    background-color: var(--bot-msg-bg);
+    background-color: var(--primary-color);
 }
 
 .message-avatar {
@@ -1745,7 +1443,7 @@ body.resizing .sidebar-resizer {
 }
 
 .modal-content {
-    background-color: var(--main-bg);
+    background-color: var(--primary-color);
     border-radius: 10px;
     max-width: 800px;
     width: 90%;
