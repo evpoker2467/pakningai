@@ -718,6 +718,13 @@
      userInput.value = '';
      userInput.style.height = 'auto';
      
+     // If this is the first message and we don't have a current session, create one
+     if (!currentSessionId) {
+         currentSessionId = Date.now().toString();
+         const defaultTitle = 'New Chat ' + formatDate(new Date());
+         addNewChatToHistory(defaultTitle);
+     }
+     
      // Add user message to chat (this will update the title if it's the first message)
      addMessageToChat(message, 'user');
      
@@ -726,6 +733,9 @@
          role: 'user',
          content: message
      });
+     
+     // Update chat session in storage immediately after adding user message
+     updateChatSession();
      
      // Check if we have a valid API key
      if (!hasValidApiKey()) {
