@@ -529,7 +529,6 @@
              contentDiv.innerHTML = tempDiv.innerHTML.replace(/\n/g, '<br>');
              
              // Check if this is the first user message in the chat
-             // Look for user messages in the chat messages container
              const existingUserMessages = chatMessages.querySelectorAll('.message.user');
              if (existingUserMessages.length === 0) {
                  const shortTitle = content.length > 30 ? content.substring(0, 30) + '...' : content;
@@ -563,11 +562,6 @@
  
  // Function to show thinking indicator with appropriate steps
  function showThinkingIndicator() {
-     // Don't show thinking indicator in mobile mode
-     if (document.body.classList.contains('mobile-mode')) {
-         return;
-     }
-     
      // Remove any existing thinking indicators first
      const existingThinkingIndicators = document.querySelectorAll('.message.bot.thinking');
      existingThinkingIndicators.forEach(indicator => {

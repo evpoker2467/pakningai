@@ -2079,6 +2079,43 @@ body.resizing .sidebar-resizer {
     background: var(--secondary-bg);
 }
 
+.mobile-mode .message.thinking {
+    opacity: 0.8;
+}
+
+.mobile-mode .thinking-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.mobile-mode .thinking-icon {
+    animation: spin 1s linear infinite;
+}
+
+.mobile-mode .thinking-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mobile-mode .thinking-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.mobile-mode .thinking-step i {
+    font-size: 12px;
+    animation: spin 1s linear infinite;
+}
+
 .mobile-mode .message-avatar {
     width: 32px;
     height: 32px;
