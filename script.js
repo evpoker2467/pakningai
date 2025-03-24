@@ -184,57 +184,7 @@
      ];
      
      // Clear messages on screen
-     chatMessages.innerHTML = `
-         <div class="welcome-screen">
-             <div class="welcome-content">
-                 <div class="welcome-logo">
-                     <div class="ning-logo large">P</div>
-                 </div>
-                 <h1>PAKNING R1</h1>
-                 <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>
-                 
-                 <div class="select-mode-container">
-                     <div class="mode-selection">
-                         <p class="mode-title">Select Reasoning Mode:</p>
-                         <div class="mode-buttons">
-                             <button class="mode-btn ${currentMode === 'default' ? 'active' : ''}" data-mode="default">
-                                 <i class="fas fa-balance-scale"></i>
-                                 <span>Default</span>
-                             </button>
-                             <button class="mode-btn ${currentMode === 'deepthink' ? 'active' : ''}" data-mode="deepthink">
-                                 <i class="fas fa-brain"></i>
-                                 <span>DeepThink</span>
-                             </button>
-                         </div>
-                         <div class="mode-description">
-                             <p id="mode-description-text">${reasoningModes[currentMode].description}</p>
-                         </div>
-                     </div>
-                 </div>
-                 
-                 <div class="feature-points">
-                     <div class="feature-point">
-                         <i class="fas fa-brain"></i>
-                         <span>Deep analytical thinking for complex problem-solving</span>
-                     </div>
-                     <div class="feature-point">
-                         <i class="fas fa-code"></i>
-                         <span>Superior performance in mathematics and coding tasks</span>
-                     </div>
-                     <div class="feature-point">
-                         <i class="fas fa-tools"></i>
-                         <span>Adapts reasoning based on environmental feedback</span>
-                     </div>
-                 </div>
-             </div>
-         </div>
-     `;
-     
-     // Update chat title
-     document.title = 'New Conversation - PAKNING R1';
-     
-     // Hide mode indicator
-     currentModeIndicator.classList.remove('visible');
+     chatMessages.innerHTML = '';
      
      // Add new chat to history sidebar with a placeholder title
      const defaultTitle = 'New Chat ' + formatDate(new Date());
@@ -262,17 +212,18 @@
      
      // Add to sidebar
      const chatHistory = document.querySelector('.chat-history');
-     
-     // Remove 'active' class from all history items
-     document.querySelectorAll('.history-item').forEach(item => {
-         item.classList.remove('active');
-     });
-     
-     // Add 'active' class to this new item
-     historyItem.classList.add('active');
-     
-     // Add to DOM - insert at the top for newest chats
-     chatHistory.insertBefore(historyItem, chatHistory.firstChild);
+     if (chatHistory) {
+         // Remove 'active' class from all history items
+         document.querySelectorAll('.history-item').forEach(item => {
+             item.classList.remove('active');
+         });
+         
+         // Add 'active' class to this new item
+         historyItem.classList.add('active');
+         
+         // Add to DOM - insert at the top for newest chats
+         chatHistory.insertBefore(historyItem, chatHistory.firstChild);
+     }
      
      // Store in chat sessions array
      chatSessions.push({
@@ -283,7 +234,7 @@
          created: new Date().toISOString()
      });
      
-     // Save to localStorage (optional)
+     // Save to localStorage
      saveChatsToLocalStorage();
  }
  
@@ -311,27 +262,29 @@
              
              // Populate sidebar with saved chats
              const chatHistory = document.querySelector('.chat-history');
-             chatHistory.innerHTML = ''; // Clear existing
-             
-             // Sort chats by creation date (newest first)
-             chatSessions.sort((a, b) => new Date(b.created) - new Date(a.created));
-             
-             chatSessions.forEach(session => {
-                 const historyItem = document.createElement('div');
-                 historyItem.classList.add('history-item');
-                 historyItem.dataset.id = session.id;
+             if (chatHistory) {
+                 chatHistory.innerHTML = ''; // Clear existing
                  
-                 const icon = document.createElement('i');
-                 icon.classList.add('fas', 'fa-comment');
+                 // Sort chats by creation date (newest first)
+                 chatSessions.sort((a, b) => new Date(b.created) - new Date(a.created));
                  
-                 const span = document.createElement('span');
-                 span.textContent = session.title;
-                 
-                 historyItem.appendChild(icon);
-                 historyItem.appendChild(span);
-                 
-                 chatHistory.appendChild(historyItem);
-             });
+                 chatSessions.forEach(session => {
+                     const historyItem = document.createElement('div');
+                     historyItem.classList.add('history-item');
+                     historyItem.dataset.id = session.id;
+                     
+                     const icon = document.createElement('i');
+                     icon.classList.add('fas', 'fa-comment');
+                     
+                     const span = document.createElement('span');
+                     span.textContent = session.title;
+                     
+                     historyItem.appendChild(icon);
+                     historyItem.appendChild(span);
+                     
+                     chatHistory.appendChild(historyItem);
+                 });
+             }
          }
      } catch (error) {
          console.error('Error loading chats from localStorage:', error);
@@ -1376,7 +1329,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize API key from Netlify environment variables
     await initializeApiKey();
     
-    // Rest of your initialization code...
+    // Load saved chats
+    loadChatsFromLocalStorage();
+    
+    // Initialize mode
+    initializeMode();
+    
+    // Load theme preference
+    loadThemePreference();
+    
+    // Load sidebar state
+    loadSidebarState();
+    
+    // Initialize sidebar resize
+    initSidebarResize();
+    
+    // Focus on input
+    userInput.focus();
 });
 
 // Add mode switch button event listener
@@ -1470,6 +1439,23 @@ function initializeMode() {
     
     // Update all mode switch buttons
     updateModeButtons(isDeepThink);
+}
+
+// Function to update chat session in storage
+function updateChatSession() {
+    if (!currentSessionId) return;
+    
+    const sessionIndex = chatSessions.findIndex(s => s.id === currentSessionId);
+    if (sessionIndex !== -1) {
+        chatSessions[sessionIndex] = {
+            id: currentSessionId,
+            title: document.title.replace(' - PAKNING R1', ''),
+            mode: currentMode,
+            messages: [...messagesHistory],
+            created: chatSessions[sessionIndex].created || new Date().toISOString()
+        };
+        saveChatsToLocalStorage();
+    }
 }
 
 
