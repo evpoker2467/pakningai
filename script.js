@@ -1346,4 +1346,58 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Rest of your initialization code...
 });
 
+// Add mode switch button event listener
+document.getElementById('mode-switch-btn').addEventListener('click', () => {
+    const isDeepThink = document.body.classList.toggle('deepthink-mode');
+    localStorage.setItem('mode', isDeepThink ? 'deepthink' : 'default');
+    
+    // Update button appearance
+    const modeBtn = document.getElementById('mode-switch-btn');
+    const modeIcon = modeBtn.querySelector('i');
+    const modeText = document.getElementById('mini-mode-indicator');
+    
+    if (isDeepThink) {
+        modeIcon.className = 'fas fa-brain';
+        modeText.textContent = 'DeepThink';
+        modeBtn.style.borderColor = 'var(--deepthink-color)';
+        modeBtn.style.color = 'var(--deepthink-color)';
+    } else {
+        modeIcon.className = 'fas fa-balance-scale';
+        modeText.textContent = 'Default';
+        modeBtn.style.borderColor = 'var(--default-color)';
+        modeBtn.style.color = 'var(--default-color)';
+    }
+    
+    // Show mode change toast
+    showMessage(`Switched to ${isDeepThink ? 'DeepThink' : 'Default'} mode`, 'info');
+});
+
+// Update the initializeMode function
+function initializeMode() {
+    const savedMode = localStorage.getItem('mode') || 'default';
+    const isDeepThink = savedMode === 'deepthink';
+    
+    // Set initial mode
+    if (isDeepThink) {
+        document.body.classList.add('deepthink-mode');
+    }
+    
+    // Update button appearance
+    const modeBtn = document.getElementById('mode-switch-btn');
+    const modeIcon = modeBtn.querySelector('i');
+    const modeText = document.getElementById('mini-mode-indicator');
+    
+    if (isDeepThink) {
+        modeIcon.className = 'fas fa-brain';
+        modeText.textContent = 'DeepThink';
+        modeBtn.style.borderColor = 'var(--deepthink-color)';
+        modeBtn.style.color = 'var(--deepthink-color)';
+    } else {
+        modeIcon.className = 'fas fa-balance-scale';
+        modeText.textContent = 'Default';
+        modeBtn.style.borderColor = 'var(--default-color)';
+        modeBtn.style.color = 'var(--default-color)';
+    }
+}
+
 

@@ -946,7 +946,7 @@ body.resizing .sidebar-resizer::after {
 
 /* Mode-specific styles for the mini indicator */
 body.deepthink-mode #mini-mode-indicator {
-    color: var(--deep-color);
+    color: var(--deepthink-color);
 }
 
 .input-footer {
@@ -2021,7 +2021,7 @@ body.resizing .sidebar-resizer {
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--bg-color);
+    background: var(--main-bg);
     padding: 10px;
     border-top: 1px solid var(--border-color);
     z-index: 1000;
@@ -2033,7 +2033,7 @@ body.resizing .sidebar-resizer {
     align-items: center;
     gap: 8px;
     padding: 8px;
-    background: var(--bg-color);
+    background: var(--main-bg);
 }
 
 .mobile-mode #user-input {
@@ -2043,7 +2043,7 @@ body.resizing .sidebar-resizer {
     padding: 8px 12px;
     margin: 0;
     border-radius: 20px;
-    background: var(--secondary-bg);
+    background: var(--input-bg);
     border: 1px solid var(--border-color);
     resize: none;
 }
@@ -2163,7 +2163,7 @@ body.resizing .sidebar-resizer {
 .mobile-mode .chat-input-container {
     bottom: 60px;
     padding: 8px;
-    background: var(--bg-color);
+    background: var(--main-bg);
     border-top: 1px solid var(--border-color);
 }
 
@@ -2195,7 +2195,7 @@ body.resizing .sidebar-resizer {
     left: 0;
     right: 0;
     height: 60px;
-    background: var(--bg-color);
+    background: var(--main-bg);
     border-top: 1px solid var(--border-color);
     z-index: 1001;
     padding: 0 16px;
@@ -2205,6 +2205,7 @@ body.resizing .sidebar-resizer {
 
 .mobile-mode .mobile-nav {
     display: flex;
+    background: var(--main-bg);
 }
 
 .nav-btn {
@@ -2222,7 +2223,7 @@ body.resizing .sidebar-resizer {
 }
 
 .nav-btn:active {
-    background-color: var(--secondary-bg);
+    background-color: var(--input-bg);
 }
 
 .nav-btn.danger {
@@ -2294,7 +2295,7 @@ body.resizing .sidebar-resizer {
     left: 0;
     right: 0;
     height: 60px;
-    background: var(--bg-color);
+    background: var(--main-bg);
     border-top: 1px solid var(--border-color);
     z-index: 1001;
     padding: 0 16px;
@@ -2304,6 +2305,7 @@ body.resizing .sidebar-resizer {
 
 .mobile-mode .mobile-nav {
     display: flex;
+    background: var(--main-bg);
 }
 
 .nav-btn {
@@ -2321,7 +2323,7 @@ body.resizing .sidebar-resizer {
 }
 
 .nav-btn:active {
-    background-color: var(--secondary-bg);
+    background-color: var(--input-bg);
 }
 
 /* Adjust chat container padding for mobile nav */
@@ -2356,4 +2358,51 @@ body.resizing .sidebar-resizer {
     .mobile-mode .welcome-screen {
         margin-bottom: 60px;
     }
+}
+
+/* Mobile Mode Styles for Mode Switch Button */
+.mobile-mode #mode-switch-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    transition: all 0.2s ease;
+}
+
+.mobile-mode #mode-switch-btn:hover {
+    background: var(--hover-bg);
+}
+
+.mobile-mode #mode-switch-btn i {
+    font-size: 16px;
+    margin: 0;
+}
+
+.mobile-mode #mini-mode-indicator {
+    display: none;
+}
+
+/* Mode-specific styles for mobile mode switch button */
+.mobile-mode body.deepthink-mode #mode-switch-btn {
+    border-color: var(--deepthink-color);
+    color: var(--deepthink-color);
+}
+
+.mobile-mode body.deepthink-mode #mode-switch-btn:hover {
+    background: rgba(33, 208, 124, 0.1);
+}
+
+.mobile-mode body:not(.deepthink-mode) #mode-switch-btn {
+    border-color: var(--default-color);
+    color: var(--default-color);
+}
+
+.mobile-mode body:not(.deepthink-mode) #mode-switch-btn:hover {
+    background: rgba(106, 90, 249, 0.1);
 } 
