@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAKNING R1 - Advanced AI Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#202123">
+    <title>PAKNING R1</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Add Google Fonts with Chinese language support -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Add font preloading for better performance with CJK text -->
@@ -48,133 +49,87 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Sidebar -->
         <div class="sidebar">
-            <div class="sidebar-resizer" id="sidebar-resizer"></div>
-            <button class="hide-sidebar-btn" id="hide-sidebar-btn">
-                <i class="fas fa-chevron-left"></i>
-            </button>
             <div class="logo">
-                <div class="ning-logo">P</div>
+                <img src="logo.png" alt="Logo">
                 <span>PAKNING R1</span>
             </div>
             <div class="new-chat">
                 <button id="new-chat-btn">
                     <i class="fas fa-plus"></i>
-                    <span>New Chat</span>
+                    New Chat
                 </button>
             </div>
             <div class="chat-history">
-                <!-- Chat history items will be added here dynamically -->
+                <!-- Chat history items will be added here -->
             </div>
             <div class="sidebar-footer">
-                <div class="sidebar-link" id="theme-toggle">
+                <a href="#" class="sidebar-link" id="clear-history">
+                    <i class="fas fa-trash"></i>
+                    Clear History
+                </a>
+                <a href="#" class="sidebar-link" id="toggle-theme">
                     <i class="fas fa-moon"></i>
-                    <span>Dark Mode</span>
-                </div>
+                    Toggle Theme
+                </a>
             </div>
+            <button class="hide-sidebar-btn" id="hide-sidebar-btn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
         </div>
+        
+        <!-- Sidebar overlay for mobile -->
         <div class="sidebar-overlay"></div>
+        
+        <!-- Show sidebar button -->
         <button class="show-sidebar-btn" id="show-sidebar-btn">
             <i class="fas fa-chevron-right"></i>
         </button>
-        
+
+        <!-- Main content -->
         <div class="main-content">
-            <div class="top-bar">
-                <div class="mobile-menu">
-                    <i class="fas fa-bars" id="sidebar-toggle"></i>
-                </div>
-                <div class="session-actions">
-                    <button id="clear-chat" title="Delete conversation">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-                <div class="top-nav">
-                    <a href="#pricing" class="nav-link">Pricing</a>
-                    <a href="#contact" class="nav-link">Contact Us</a>
-                </div>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages">
-                <div class="welcome-screen">
-                    <div class="welcome-content">
-                        <div class="welcome-logo">
-                            <div class="ning-logo large">P</div>
-                        </div>
-                        <h1>PAKNING R1</h1>
-                        <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>
-                        
-                        <div class="select-mode-container">
-                            <div class="mode-selection">
-                                <p class="mode-title">Select Reasoning Mode:</p>
-                                <div class="mode-buttons">
-                                    <button class="mode-btn active" data-mode="default">
-                                        <i class="fas fa-balance-scale"></i>
-                                        <span>Default</span>
-                                    </button>
-                                    <button class="mode-btn" data-mode="deepthink">
-                                        <i class="fas fa-brain"></i>
-                                        <span>DeepThink</span>
-                                    </button>
-                                </div>
-                                <div class="mode-description">
-                                    <p id="mode-description-text">Medium Reasoning Effort: Balanced depth and efficiency for well-thought-out responses.</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-points">
-                            <div class="feature-point">
-                                <i class="fas fa-brain"></i>
-                                <span>Deep analytical thinking for complex problem-solving</span>
-                            </div>
-                            <div class="feature-point">
-                                <i class="fas fa-code"></i>
-                                <span>Superior performance in mathematics and coding tasks</span>
-                            </div>
-                            <div class="feature-point">
-                                <i class="fas fa-tools"></i>
-                                <span>Adapts reasoning based on environmental feedback</span>
-                            </div>
-                        </div>
+            <!-- Welcome screen -->
+            <div class="welcome-screen">
+                <h1>Welcome to PAKNING R1</h1>
+                <p>Your advanced AI assistant powered by state-of-the-art language models.</p>
+                
+                <div class="feature-points">
+                    <div class="feature-point">
+                        <h3><i class="fas fa-brain"></i> Advanced Reasoning</h3>
+                        <p>Capable of complex problem-solving and detailed explanations</p>
+                    </div>
+                    <div class="feature-point">
+                        <h3><i class="fas fa-history"></i> Chat History</h3>
+                        <p>Your conversations are saved locally for future reference</p>
+                    </div>
+                    <div class="feature-point">
+                        <h3><i class="fas fa-mobile-alt"></i> Mobile Friendly</h3>
+                        <p>Optimized for both desktop and mobile devices</p>
                     </div>
                 </div>
-                <!-- Messages will be added here dynamically -->
             </div>
-            
-            <div class="current-mode-indicator" id="current-mode-indicator">
-                <span id="current-mode-icon"><i class="fas fa-balance-scale"></i></span>
-                <span id="current-mode-text">Default Mode</span>
+
+            <!-- Chat container -->
+            <div class="chat-container" style="display: none;">
+                <div class="chat-messages">
+                    <!-- Messages will be added here -->
+                </div>
             </div>
-            
+
+            <!-- Input area -->
             <div class="chat-input-container">
                 <div class="input-wrapper">
-                    <textarea id="user-input" placeholder="Send a message..." rows="1" autofocus></textarea>
-                    <div class="input-buttons">
-                        <button id="mode-switch-btn" title="Switch Reasoning Mode">
-                            <i class="fas fa-exchange-alt"></i>
-                            <span id="mini-mode-indicator">Default</span>
-                        </button>
-                        <button id="send-button">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="input-footer">
-                    <span class="disclaimer">PAKNING R1 - Powered by advanced reinforcement learning</span>
+                    <textarea id="user-input" placeholder="Type your message..." rows="1"></textarea>
+                    <button id="send-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- API Key Form (only shown when needed) -->
-    <div id="api-key-form-container" class="hidden">
-        <form id="apiKeyForm">
-            <div class="api-key-form-header">
-                <h3>API Key Configuration</h3>
-                <p>API keys can only be set via Netlify environment variables.</p>
-                <p>Please contact your administrator to configure the API_KEY variable in Netlify.</p>
-            </div>
-        </form>
-    </div>
+
+    <!-- Scripts -->
     <script src="env-config.js"></script>
     <script src="script.js"></script>
 </body>

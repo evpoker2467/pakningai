@@ -1869,6 +1869,85 @@ function handleTouchMove(evt) {
 
     xDown = null;
     yDown = null;
-} 
+}
+
+// Add these functions near the top of your script
+function initializeMobileUI() {
+    const sidebar = document.querySelector('.sidebar');
+    const showSidebarBtn = document.getElementById('show-sidebar-btn');
+    const hideSidebarBtn = document.getElementById('hide-sidebar-btn');
+    const sidebarOverlay = document.querySelector('.sidebar-overlay');
+    
+    // Initialize sidebar state
+    if (window.innerWidth <= 768) {
+        sidebar.classList.add('collapsed');
+        showSidebarBtn.classList.add('visible');
+    }
+
+    // Handle sidebar toggle buttons
+    showSidebarBtn.addEventListener('click', () => {
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.add('open');
+        showSidebarBtn.classList.remove('visible');
+    });
+
+    hideSidebarBtn.addEventListener('click', () => {
+        sidebar.classList.add('collapsed');
+        sidebar.classList.remove('open');
+        showSidebarBtn.classList.add('visible');
+    });
+
+    // Handle overlay click
+    sidebarOverlay.addEventListener('click', () => {
+        sidebar.classList.add('collapsed');
+        sidebar.classList.remove('open');
+        showSidebarBtn.classList.add('visible');
+    });
+
+    // Handle swipe gestures
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, false);
+    
+    document.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, false);
+    
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        // Swipe right to open sidebar
+        if (swipeDistance > swipeThreshold && sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('open');
+            showSidebarBtn.classList.remove('visible');
+        }
+        
+        // Swipe left to close sidebar
+        if (swipeDistance < -swipeThreshold && sidebar.classList.contains('open')) {
+            sidebar.classList.add('collapsed');
+            sidebar.classList.remove('open');
+            showSidebarBtn.classList.add('visible');
+        }
+    }
+
+    // Adjust UI on resize
+    window.addEventListener('resize', () => {
+        if (window.innerWidth <= 768) {
+            if (!sidebar.classList.contains('open')) {
+                sidebar.classList.add('collapsed');
+                showSidebarBtn.classList.add('visible');
+            }
+        } else {
+            sidebar.classList.remove('collapsed', 'open');
+            showSidebarBtn.classList.remove('visible');
+        }
+    });
+}
 
 
