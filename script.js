@@ -617,9 +617,6 @@
  
  // Function to send message to API
  async function sendMessageToAPI(userMessage) {
-     // Note: Thinking message is already created by showThinkingIndicator()
-     // and user message is already added to history in handleSendMessage()
-     
      // Check for valid API key
      if (!hasValidApiKey()) {
          console.error('No valid API key available');
@@ -716,14 +713,16 @@
                  }
              }
              
-             // Add complete response to history
-             messagesHistory.push({
-                 role: 'assistant',
-                 content: fullResponse
-             });
-             
-             // Update chat session in storage
-             updateChatSession();
+             // Add complete response to history only once
+             if (fullResponse) {
+                 messagesHistory.push({
+                     role: 'assistant',
+                     content: fullResponse
+                 });
+                 
+                 // Update chat session in storage
+                 updateChatSession();
+             }
              
              console.log(`Successfully received response from API`);
              return fullResponse;
@@ -1365,6 +1364,15 @@ function toggleMode() {
     const isDeepThink = document.body.classList.toggle('deepthink-mode');
     localStorage.setItem('mode', isDeepThink ? 'deepthink' : 'default');
     
+    // Update current mode variable
+    currentMode = isDeepThink ? 'deepthink' : 'default';
+    
+    // Update system prompt in message history
+    messagesHistory[0] = {
+        role: "system",
+        content: reasoningModes[currentMode].systemPrompt
+    };
+    
     // Update all mode switch buttons
     updateModeButtons(isDeepThink);
     
@@ -1376,37 +1384,48 @@ function toggleMode() {
 function updateModeButtons(isDeepThink) {
     // Update question bar mode switch button
     const modeBtn = document.getElementById('mode-switch-btn');
-    const modeIcon = modeBtn.querySelector('i');
-    const modeText = document.getElementById('mini-mode-indicator');
+    if (modeBtn) {
+        const modeIcon = modeBtn.querySelector('i');
+        const modeText = document.getElementById('mini-mode-indicator');
+        
+        if (isDeepThink) {
+            modeIcon.className = 'fas fa-brain';
+            modeText.textContent = 'DeepThink';
+            modeBtn.style.borderColor = 'var(--deepthink-color)';
+            modeBtn.style.color = 'var(--deepthink-color)';
+        } else {
+            modeIcon.className = 'fas fa-balance-scale';
+            modeText.textContent = 'Default';
+            modeBtn.style.borderColor = 'var(--default-color)';
+            modeBtn.style.color = 'var(--default-color)';
+        }
+    }
     
     // Update welcome screen mode switch button
     const welcomeModeBtn = document.getElementById('welcome-mode-switch');
-    const welcomeModeIcon = welcomeModeBtn.querySelector('i');
-    const welcomeModeText = welcomeModeBtn.querySelector('span');
-    
-    if (isDeepThink) {
-        // Update question bar button
-        modeIcon.className = 'fas fa-brain';
-        modeText.textContent = 'DeepThink';
-        modeBtn.style.borderColor = 'var(--deepthink-color)';
-        modeBtn.style.color = 'var(--deepthink-color)';
+    if (welcomeModeBtn) {
+        const welcomeModeIcon = welcomeModeBtn.querySelector('i');
+        const welcomeModeText = welcomeModeBtn.querySelector('span');
         
-        // Update welcome screen button
-        welcomeModeIcon.className = 'fas fa-brain';
-        welcomeModeText.textContent = 'DeepThink Mode';
-        welcomeModeBtn.classList.add('active');
-    } else {
-        // Update question bar button
-        modeIcon.className = 'fas fa-balance-scale';
-        modeText.textContent = 'Default';
-        modeBtn.style.borderColor = 'var(--default-color)';
-        modeBtn.style.color = 'var(--default-color)';
-        
-        // Update welcome screen button
-        welcomeModeIcon.className = 'fas fa-balance-scale';
-        welcomeModeText.textContent = 'Default Mode';
-        welcomeModeBtn.classList.remove('active');
+        if (isDeepThink) {
+            welcomeModeIcon.className = 'fas fa-brain';
+            welcomeModeText.textContent = 'DeepThink Mode';
+            welcomeModeBtn.classList.add('active');
+        } else {
+            welcomeModeIcon.className = 'fas fa-balance-scale';
+            welcomeModeText.textContent = 'Default Mode';
+            welcomeModeBtn.classList.remove('active');
+        }
     }
+    
+    // Update mode buttons in welcome screen
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        if (btn.dataset.mode === (isDeepThink ? 'deepthink' : 'default')) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
 }
 
 // Update the initializeMode function
