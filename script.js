@@ -1206,16 +1206,27 @@
      }, 5000);
  }
  
- // Mobile mode handling
+ // Function to set interface mode
  function setInterfaceMode(mode) {
+     // Check if we're on a mobile device
+     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+     
+     // If it's a mobile device, force mobile mode
+     if (isMobileDevice && mode === 'web-mode') {
+         console.log('Mobile device detected, forcing mobile mode');
+         mode = 'mobile-mode';
+     }
+     
      // Remove existing mode classes
      document.body.classList.remove('web-mode', 'mobile-mode');
      
      // Add new mode class
      document.body.classList.add(mode);
      
-     // Save preference
-     localStorage.setItem('preferredMode', mode);
+     // Save preference only if not forcing mobile mode
+     if (!isMobileDevice) {
+         localStorage.setItem('preferredMode', mode);
+     }
      
      // Update UI elements for mobile mode
      if (mode === 'mobile-mode') {
@@ -1240,6 +1251,12 @@
          document.querySelectorAll('.desktop-only').forEach(el => {
              el.style.display = 'none';
          });
+         
+         // Hide mode toggle button on mobile
+         const modeToggle = document.getElementById('modeToggle');
+         if (modeToggle) {
+             modeToggle.style.display = 'none';
+         }
      } else {
          // Restore desktop layout
          if (sidebar) {
@@ -1260,6 +1277,12 @@
          document.querySelectorAll('.desktop-only').forEach(el => {
              el.style.display = '';
          });
+         
+         // Show mode toggle button on desktop
+         const modeToggle = document.getElementById('modeToggle');
+         if (modeToggle) {
+             modeToggle.style.display = '';
+         }
      }
      
      // Update mode toggle button
@@ -1274,15 +1297,22 @@
 
 // Function to initialize mobile detection
 function initializeMobileMode() {
-    // Check for saved preference
-    const savedMode = localStorage.getItem('preferredMode');
+    // Check if we're on a mobile device
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    if (savedMode) {
-        setInterfaceMode(savedMode);
+    if (isMobileDevice) {
+        // Force mobile mode on mobile devices
+        setInterfaceMode('mobile-mode');
     } else {
-        // Auto-detect based on screen size
-        const shouldBeMobile = window.innerWidth <= 768;
-        setInterfaceMode(shouldBeMobile ? 'mobile-mode' : 'web-mode');
+        // For desktop, check saved preference or use default
+        const savedMode = localStorage.getItem('preferredMode');
+        if (savedMode) {
+            setInterfaceMode(savedMode);
+        } else {
+            // Auto-detect based on screen size
+            const shouldBeMobile = window.innerWidth <= 768;
+            setInterfaceMode(shouldBeMobile ? 'mobile-mode' : 'web-mode');
+        }
     }
 }
 
