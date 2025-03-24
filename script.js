@@ -1224,615 +1224,140 @@
      }, 5000);
  }
  
- // Initialize the app
- document.addEventListener('DOMContentLoaded', async () => {
+ // Mobile mode handling
+ function setInterfaceMode(mode) {
+     // Remove existing mode classes
+     document.body.classList.remove('web-mode', 'mobile-mode');
+     
+     // Add new mode class
+     document.body.classList.add(mode);
+     
+     // Save preference
+     localStorage.setItem('preferredMode', mode);
+     
+     // Update UI elements for mobile mode
+     if (mode === 'mobile-mode') {
+         // Hide sidebar by default on mobile
+         if (sidebar) {
+             sidebar.classList.add('collapsed');
+         }
+         
+         // Adjust chat container padding
+         const chatContainer = document.querySelector('.chat-messages');
+         if (chatContainer) {
+             chatContainer.style.paddingBottom = '120px';
+         }
+         
+         // Move input container to bottom
+         const inputContainer = document.querySelector('.chat-input-container');
+         if (inputContainer) {
+             inputContainer.classList.add('mobile-fixed');
+         }
+         
+         // Hide desktop-only elements
+         document.querySelectorAll('.desktop-only').forEach(el => {
+             el.style.display = 'none';
+         });
+     } else {
+         // Restore desktop layout
+         if (sidebar) {
+             sidebar.classList.remove('collapsed');
+         }
+         
+         const chatContainer = document.querySelector('.chat-messages');
+         if (chatContainer) {
+             chatContainer.style.paddingBottom = '20px';
+         }
+         
+         const inputContainer = document.querySelector('.chat-input-container');
+         if (inputContainer) {
+             inputContainer.classList.remove('mobile-fixed');
+         }
+         
+         // Show desktop-only elements
+         document.querySelectorAll('.desktop-only').forEach(el => {
+             el.style.display = '';
+         });
+     }
+     
+     // Update mode toggle button
+     const modeToggle = document.getElementById('modeToggle');
+     if (modeToggle) {
+         const icon = modeToggle.querySelector('i');
+         if (icon) {
+             icon.className = mode === 'web-mode' ? 'fas fa-mobile-alt' : 'fas fa-desktop';
+         }
+     }
+ }
+
+// Function to initialize mobile detection
+function initializeMobileMode() {
+    // Check for saved preference
+    const savedMode = localStorage.getItem('preferredMode');
+    
+    if (savedMode) {
+        setInterfaceMode(savedMode);
+    } else {
+        // Auto-detect based on screen size
+        const shouldBeMobile = window.innerWidth <= 768;
+        setInterfaceMode(shouldBeMobile ? 'mobile-mode' : 'web-mode');
+    }
+}
+
+// Add mobile navigation handlers
+function setupMobileNavigation() {
+    // Toggle sidebar
+    document.getElementById('toggleSidebar')?.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        if (sidebar.classList.contains('open')) {
+            // Add overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            
+            // Close sidebar when overlay is clicked
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.remove();
+            });
+        } else {
+            // Remove overlay
+            document.querySelector('.sidebar-overlay')?.remove();
+        }
+    });
+    
+    // New chat button
+    document.getElementById('newChatMobile')?.addEventListener('click', () => {
+        createNewChat();
+        // Close sidebar if open
+        sidebar.classList.remove('open');
+        document.querySelector('.sidebar-overlay')?.remove();
+    });
+    
+    // Mode toggle
+    document.getElementById('modeToggleMobile')?.addEventListener('click', () => {
+        const currentMode = document.body.classList.contains('web-mode') ? 'mobile-mode' : 'web-mode';
+        setInterfaceMode(currentMode);
+    });
+    
+    // Theme toggle
+    document.getElementById('themeToggleMobile')?.addEventListener('click', toggleTheme);
+}
+
+// Update the DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM loaded, initializing app...');
+    
+    // Initialize mobile mode
+    initializeMobileMode();
+    
+    // Setup mobile navigation
+    setupMobileNavigation();
     
     // Initialize API key from Netlify environment variables
     await initializeApiKey();
     
-    // Log the API key status 
-    console.log('API key loaded, checking validity...');
-    console.log('API key valid:', hasValidApiKey());
-    
-    // If we don't have a valid API key, log an error and show message to user
-    if (!hasValidApiKey()) {
-        console.error('No valid API key found. Please set up API_KEY in Netlify environment variables.');
-        showMessage('API Key Missing: Please check Netlify environment variables', 'error');
-    } else {
-        console.log('API key successfully loaded');
-    }
-    
-    // Set up event listeners
-    setupEventListeners();
-    
-    // Load saved chats from localStorage
-    loadChatsFromLocalStorage();
-    
-    // Populate chat history
-    populateChatHistory();
-    
-    // Get theme preference
-    loadThemePreference();
-    
-    // Load sidebar state
-    loadSidebarState();
-    
-    // Initialize sidebar resize
-    initSidebarResize();
-    
-    // Test API connectivity silently without showing errors to the user
-    try {
-        await testAPIConnectionSilent();
-        console.log('API connection test successful');
-    } catch (error) {
-        console.error('API connection test failed:', error);
-        // Don't show error to user in initial load
-    }
-    
-    // Initialize with an existing chat or create a new one
-    if (chatSessions.length > 0) {
-        // Load the most recent chat
-        const mostRecentChat = chatSessions[0]; // Assuming chats are sorted by date
-        loadChatSession(mostRecentChat.id);
-        
-        // Mark the most recent chat as active in the sidebar
-        const historyItem = document.querySelector(`.history-item[data-id="${mostRecentChat.id}"]`);
-        if (historyItem) {
-            historyItem.classList.add('active');
-        }
-    } else {
-        // Create a new chat if none exists
-        createNewChat();
-    }
-    
-    // Set focus to input
-    userInput.focus();
- });
- 
- // Set up event listeners
- function setupEventListeners() {
-     // Send message when send button is clicked
-     sendButton.addEventListener('click', handleSendMessage);
-     
-     // Send message when Enter key is pressed (without Shift)
-     userInput.addEventListener('keydown', (e) => {
-         if (e.key === 'Enter' && !e.shiftKey) {
-             e.preventDefault();
-             handleSendMessage();
-         }
-     });
-     
-     // Create new chat when new chat button is clicked
-     newChatBtn.addEventListener('click', createNewChat);
-     
-     // Clear chat when clear button is clicked
-     clearChatBtn.addEventListener('click', () => {
-         if (confirm('Are you sure you want to clear this conversation?')) {
-             clearChat();
-         }
-     });
-     
-     // Toggle sidebar on mobile
-     sidebarToggle?.addEventListener('click', () => {
-         sidebar.classList.toggle('open');
-     });
-     
-     // Toggle dark/light theme
-     themeToggle?.addEventListener('click', toggleTheme);
-     
-     // Handle mode switch button click
-     modeSwitchBtn?.addEventListener('click', cycleReasoningMode);
-     
-     // Auto-resize textarea as user types
-     userInput.addEventListener('input', () => {
-         userInput.style.height = 'auto';
-         userInput.style.height = (userInput.scrollHeight) + 'px';
-     });
-     
-     // Handle mode selection buttons in welcome screen (using event delegation)
-     chatMessages.addEventListener('click', (e) => {
-         const modeBtn = e.target.closest('.mode-btn');
-         if (modeBtn) {
-             const mode = modeBtn.dataset.mode;
-             if (mode) {
-                 setReasoningMode(mode);
-                 
-                 // Update active state of buttons
-                 document.querySelectorAll('.mode-btn').forEach(btn => {
-                     btn.classList.remove('active');
-                 });
-                 modeBtn.classList.add('active');
-                 
-                 // Update mode description
-                 const modeDescText = document.getElementById('mode-description-text');
-                 if (modeDescText) {
-                     modeDescText.textContent = reasoningModes[mode].description;
-                 }
-             }
-         }
-     });
-     
-     // Setup chat history item click event (using event delegation)
-     document.querySelector('.chat-history').addEventListener('click', (e) => {
-         const historyItem = e.target.closest('.history-item');
-         if (historyItem) {
-             const sessionId = historyItem.dataset.id;
-             if (sessionId) {
-                 loadChatSession(sessionId);
-                 
-                 // Update active state in sidebar
-                 document.querySelectorAll('.history-item').forEach(item => {
-                     item.classList.remove('active');
-                 });
-                 historyItem.classList.add('active');
-                 
-                 // Close sidebar on mobile after selection
-                 if (window.innerWidth <= 768) {
-                     sidebar.classList.remove('open');
-                 }
-             }
-         }
-     });
-     
-     // Hide sidebar button
-     hideSidebarBtn.addEventListener('click', hideSidebar);
-     
-     // Show sidebar button
-     showSidebarBtn.addEventListener('click', showSidebar);
-     
-     // Sidebar resizer
-     initSidebarResize();
-     
-     // Pricing and Contact links
-     document.querySelector('a[href="#pricing"]').addEventListener('click', (e) => {
-         e.preventDefault();
-         showPricingModal();
-     });
-     
-     document.querySelector('a[href="#contact"]').addEventListener('click', (e) => {
-         e.preventDefault();
-         showContactModal();
-     });
- }
- 
- // Load a chat session from storage and display it
- function loadChatSession(sessionId) {
-     const session = chatSessions.find(s => s.id === sessionId);
-     if (!session) return;
-     
-     // Set current session ID
-     currentSessionId = sessionId;
-     
-     // Set current mode from the session
-     if (session.mode) {
-         setReasoningMode(session.mode);
-     }
-     
-     // Load messages from session
-     messagesHistory = [...session.messages];
-     
-     // Clear chat UI
-     chatMessages.innerHTML = '';
-     
-     // Add messages to UI
-     let userMessageCount = 0;
-     
-     messagesHistory.forEach(msg => {
-         if (msg.role !== 'system') {
-             // Count user messages
-             if (msg.role === 'user') {
-                 userMessageCount++;
-             }
-             
-             addMessageToChat(msg.content, msg.role === 'user' ? 'user' : 'bot');
-         }
-     });
-     
-     // Update chat title
-     document.title = session.title || 'Conversation';
-     
-     // Show current mode indicator if there are messages
-     if (userMessageCount > 0) {
-         currentModeIndicator.classList.add('visible');
-     } else {
-         currentModeIndicator.classList.remove('visible');
-     }
-     
-     // Focus input
-     userInput.focus();
- }
- 
- // Update chat sessions with latest messages
- function updateChatSession() {
-     const sessionIndex = chatSessions.findIndex(s => s.id === currentSessionId);
-     if (sessionIndex !== -1) {
-         chatSessions[sessionIndex].messages = [...messagesHistory];
-         chatSessions[sessionIndex].mode = currentMode;
-         saveChatsToLocalStorage();
-     }
- }
- 
- // Function to test API connection
-async function testAPIConnection() {
-    // Show loading message
-    showMessage('Testing API connection...', 'info');
-    
-    if (!hasValidApiKey()) {
-        showMessage('API key not configured in Netlify environment variables. Please contact your administrator.', 'error');
-        return false;
-    }
-    
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'HTTP-Referer': window.location.href,
-                'X-Title': 'PAKNING R1 Chatbot',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                'model': 'qwen/qwq-32b:free',
-                'messages': [
-                    {
-                        'role': 'system',
-                        'content': 'You are PAKNING R1, a helpful AI assistant. Keep your response very brief for this connection test.'
-                    },
-                    {
-                        'role': 'user',
-                        'content': 'Hello, this is a connection test. Please respond with "Connection successful!"'
-                    }
-                ],
-                'temperature': 0.7,
-                'max_tokens': 20
-            })
-        });
-        
-        if (response.ok) {
-            showMessage('API connection successful!', 'success');
-            return true;
-        } else {
-            const errorText = await response.text();
-            console.error(`API Error: ${response.status}`, errorText);
-            showMessage(`API connection failed: ${response.status} error`, 'error');
-            return false;
-        }
-    } catch (error) {
-        console.error('API connection error:', error);
-        showMessage('API connection failed. Check your network and API key.', 'error');
-        return false;
-    }
-}
-
-// Function to test API connection silently (without UI feedback)
-async function testAPIConnectionSilent() {
-    console.log('Testing API connection silently...');
-    
-    if (!hasValidApiKey()) {
-        console.error('No valid API key found for silent test');
-        return false;
-    }
-    
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'HTTP-Referer': window.location.href,
-                'X-Title': 'PAKNING R1 Chatbot',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                'model': 'qwen/qwq-32b:free',
-                'messages': [
-                    {
-                        'role': 'system',
-                        'content': 'You are PAKNING R1, a helpful AI assistant. Keep your response very brief for this connection test.'
-                    },
-                    {
-                        'role': 'user',
-                        'content': 'Hello, this is a silent connection test.'
-                    }
-                ],
-                'temperature': 0.7,
-                'max_tokens': 20
-            })
-        });
-        
-        // Try to read the response regardless of success/failure
-        const responseText = await response.text();
-        console.log(`Silent API test response: ${response.status}`, responseText);
-        
-        if (response.ok) {
-            console.log(`Silent API test successful!`);
-            return true;
-        } else {
-            console.error(`Silent API test failed: ${response.status}`, responseText);
-            return false;
-        }
-    } catch (error) {
-        console.error('Silent API test error:', error);
-        return false;
-    }
-}
-
-// Function to handle API connection error
-function handleAPIConnectionError(error) {
-    // Remove thinking indicator if present
-    removeTypingIndicator();
-    
-    console.error('API Connection Error:', error);
-    
-    // Create error notification in chat
-    const errorDiv = document.createElement('div');
-    errorDiv.classList.add('api-error-notification');
-    errorDiv.innerHTML = `
-        <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
-        <div class="error-content">
-            <h3>API Connection Error</h3>
-            <p>Unable to connect to AI service. This is usually due to:</p>
-            <ul>
-                <li>Missing or invalid API key in Netlify environment variables</li>
-                <li>Network connectivity issues</li>
-                <li>The AI service being temporarily unavailable</li>
-            </ul>
-            <p>Please contact your administrator to ensure the API_KEY is correctly set in Netlify.</p>
-        </div>
-    `;
-    
-    chatMessages.appendChild(errorDiv);
-    
-    // Scroll to bottom
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// Function to cycle through modes
-function cycleReasoningMode() {
-    const modes = Object.keys(reasoningModes);
-    const currentIndex = modes.indexOf(currentMode);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    const nextMode = modes[nextIndex];
-    
-    setReasoningMode(nextMode);
-    
-    // Update UI in welcome screen if it's visible
-    const welcomeModeBtns = document.querySelectorAll('.mode-btn');
-    welcomeModeBtns.forEach(btn => {
-        if (btn.dataset.mode === nextMode) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
-    
-    // Update mode description if visible
-    if (modeDescriptionText) {
-        modeDescriptionText.textContent = reasoningModes[nextMode].description;
-    }
-}
-
-// Add functions to show modal dialogs for Pricing and Contact
-function showPricingModal() {
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Pricing Plans</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="pricing-plan">
-                    <h3>Starter</h3>
-                    <div class="price">$9.99<span>/month</span></div>
-                    <ul>
-                        <li>1,000 messages per month</li>
-                        <li>Basic features</li>
-                        <li>Email support</li>
-                    </ul>
-                    <button class="plan-button">Get Started</button>
-                </div>
-                <div class="pricing-plan featured">
-                    <div class="popular-badge">Most Popular</div>
-                    <h3>Professional</h3>
-                    <div class="price">$19.99<span>/month</span></div>
-                    <ul>
-                        <li>5,000 messages per month</li>
-                        <li>All features</li>
-                        <li>Priority support</li>
-                        <li>Advanced analytics</li>
-                    </ul>
-                    <button class="plan-button">Get Started</button>
-                </div>
-                <div class="pricing-plan">
-                    <h3>Enterprise</h3>
-                    <div class="price">$49.99<span>/month</span></div>
-                    <ul>
-                        <li>Unlimited messages</li>
-                        <li>All features</li>
-                        <li>24/7 support</li>
-                        <li>Custom integrations</li>
-                        <li>Dedicated account manager</li>
-                    </ul>
-                    <button class="plan-button">Contact Sales</button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Close button functionality
-    modal.querySelector('.close-modal').addEventListener('click', () => {
-        modal.classList.add('closing');
-        setTimeout(() => {
-            document.body.removeChild(modal);
-        }, 300);
-    });
-    
-    // Close on click outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.add('closing');
-            setTimeout(() => {
-                document.body.removeChild(modal);
-            }, 300);
-        }
-    });
-    
-    // Animate in
-    setTimeout(() => {
-        modal.classList.add('open');
-    }, 10);
-}
-
-function showContactModal() {
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Contact Us</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="contact-form">
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" placeholder="Your name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" placeholder="Your email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="subject">Subject</label>
-                        <input type="text" id="subject" placeholder="Subject" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea id="message" placeholder="Your message" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="submit-button">Send Message</button>
-                </form>
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <i class="fas fa-envelope"></i>
-                        <span>support@pakning.ai</span>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-phone"></i>
-                        <span>+1 (555) 123-4567</span>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>123 AI Street, San Francisco, CA</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Close button functionality
-    modal.querySelector('.close-modal').addEventListener('click', () => {
-        modal.classList.add('closing');
-        setTimeout(() => {
-            document.body.removeChild(modal);
-        }, 300);
-    });
-    
-    // Close on click outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.add('closing');
-            setTimeout(() => {
-                document.body.removeChild(modal);
-            }, 300);
-        }
-    });
-    
-    // Form submission
-    const form = modal.querySelector('#contact-form');
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const submitButton = form.querySelector('.submit-button');
-        submitButton.textContent = 'Sending...';
-        submitButton.disabled = true;
-        
-        // Simulate sending (would be replaced with actual API call)
-        setTimeout(() => {
-            form.innerHTML = '<div class="success-message"><i class="fas fa-check-circle"></i><p>Thank you for your message! We\'ll get back to you soon.</p></div>';
-        }, 1500);
-    });
-    
-    // Animate in
-    setTimeout(() => {
-        modal.classList.add('open');
-    }, 10);
-}
-
-// Function to populate chat history in the sidebar
-function populateChatHistory() {
-    const chatHistory = document.querySelector('.chat-history');
-    if (!chatHistory) return;
-    
-    // Clear existing content
-    chatHistory.innerHTML = '';
-    
-    // Make sure chatSessions array exists and has entries
-    if (chatSessions && chatSessions.length > 0) {
-        // Sort chats by creation date (newest first)
-        chatSessions.sort((a, b) => new Date(b.created) - new Date(a.created));
-        
-        // Create history items for each chat session
-        chatSessions.forEach(session => {
-            const historyItem = document.createElement('div');
-            historyItem.classList.add('history-item');
-            historyItem.dataset.id = session.id;
-            
-            const icon = document.createElement('i');
-            icon.classList.add('fas', 'fa-comment');
-            
-            const span = document.createElement('span');
-            span.textContent = session.title;
-            
-            historyItem.appendChild(icon);
-            historyItem.appendChild(span);
-            
-            chatHistory.appendChild(historyItem);
-        });
-    }
-}
-
-// Add this near the top of your script.js file
-document.addEventListener('DOMContentLoaded', function() {
-    // Mode toggle functionality
-    const modeToggle = document.getElementById('modeToggle');
-    if (modeToggle) {
-        modeToggle.addEventListener('click', function() {
-            const currentMode = document.body.classList.contains('web-mode') ? 'mobile-mode' : 'web-mode';
-            setInterfaceMode(currentMode);
-            
-            // Update icon
-            const icon = modeToggle.querySelector('i');
-            icon.className = currentMode === 'web-mode' ? 'fas fa-mobile-alt' : 'fas fa-desktop';
-        });
-    }
-
-    // Handle window resize
-    let resizeTimeout;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(function() {
-            if (!localStorage.getItem('preferredMode')) {
-                const shouldBeMobile = window.innerWidth <= 768;
-                setInterfaceMode(shouldBeMobile ? 'mobile-mode' : 'web-mode');
-            }
-        }, 250);
-    });
-}); 
+    // Rest of your initialization code...
+});
 
 

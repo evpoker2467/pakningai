@@ -1999,77 +1999,21 @@ body.resizing .sidebar-resizer {
 
 /* Mobile Mode Styles */
 .mobile-mode .app-container {
+    display: flex;
     flex-direction: column;
     height: 100vh;
-}
-
-.mobile-mode .sidebar {
-    width: 100%;
-    height: 60px;
-    flex-direction: row;
-    align-items: center;
+    width: 100vw;
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
-    right: 0;
-    z-index: 1000;
-    border-top: 1px solid var(--border-color);
-    border-right: none;
 }
 
-.mobile-mode .logo {
-    padding: 8px;
-    border-bottom: none;
-    border-right: 1px solid var(--border-color);
-    height: 100%;
-}
-
-.mobile-mode .new-chat {
-    padding: 8px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-}
-
-.mobile-mode #new-chat-btn {
-    padding: 8px;
-    height: 44px;
-    width: auto;
-}
-
-.mobile-mode .chat-history {
-    display: none;
-}
-
-.mobile-mode .sidebar-footer {
-    display: none;
-}
-
-.mobile-mode .main-content {
-    margin-left: 0;
-    padding-bottom: 60px; /* Space for the bottom bar */
-    height: 100vh;
-}
-
-.mobile-mode .chat-container {
-    padding-bottom: 120px; /* Extra space for input area */
-}
-
-.mobile-mode .input-container {
-    bottom: 70px;
-}
-
-.mobile-mode .sidebar-resizer {
-    display: none;
-}
-
-.mobile-mode .hide-sidebar-btn,
-.mobile-mode .show-sidebar-btn {
-    display: none;
-}
-
-.mobile-mode .api-key-form-container {
-    display: none !important;
+.mobile-mode .chat-messages {
+    flex: 1;
+    padding-bottom: 120px !important;
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .mobile-mode .chat-input-container {
@@ -2080,11 +2024,153 @@ body.resizing .sidebar-resizer {
     background: var(--bg-color);
     padding: 10px;
     border-top: 1px solid var(--border-color);
-    z-index: 100;
+    z-index: 1000;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.mobile-mode .chat-messages {
-    padding-bottom: 80px; /* Add space for the fixed input container */
+.mobile-mode .input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: var(--bg-color);
+}
+
+.mobile-mode #user-input {
+    flex: 1;
+    min-height: 40px;
+    max-height: 120px;
+    padding: 8px 12px;
+    margin: 0;
+    border-radius: 20px;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    resize: none;
+}
+
+.mobile-mode #send-button {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    border: none;
+    color: white;
+}
+
+.mobile-mode .message {
+    padding: 8px 12px;
+    margin: 8px;
+    border-radius: 12px;
+    max-width: 85%;
+}
+
+.mobile-mode .message.user {
+    margin-left: auto;
+    background: var(--primary-color);
+    color: white;
+}
+
+.mobile-mode .message.bot {
+    margin-right: auto;
+    background: var(--secondary-bg);
+}
+
+.mobile-mode .message-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+.mobile-mode .sidebar {
+    position: fixed;
+    left: -100%;
+    width: 80%;
+    max-width: 300px;
+    height: 100vh;
+    z-index: 2000;
+    transition: left 0.3s ease;
+}
+
+.mobile-mode .sidebar.open {
+    left: 0;
+}
+
+.mobile-mode .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+}
+
+.mobile-mode .sidebar.open + .sidebar-overlay {
+    display: block;
+}
+
+.mobile-mode .top-bar {
+    padding: 8px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-color);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.mobile-mode #mode-switch-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.mobile-mode .message-toast {
+    display: none !important;
+}
+
+/* Hide desktop-specific elements in mobile mode */
+.mobile-mode .desktop-only {
+    display: none !important;
+}
+
+/* Adjust welcome screen for mobile */
+.mobile-mode .welcome-screen {
+    padding: 20px;
+}
+
+.mobile-mode .welcome-content {
+    max-width: 100%;
+    padding: 20px;
+}
+
+.mobile-mode .mode-buttons {
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mobile-mode .mode-btn {
+    width: 100%;
+}
+
+.mobile-mode .feature-points {
+    flex-direction: column;
+    gap: 15px;
 }
 
 /* Web Mode Styles (current layout) */
@@ -2112,5 +2198,77 @@ body.resizing .sidebar-resizer {
 
     .web-mode .main-content {
         margin-left: 0;
+    }
+}
+
+/* Mobile Navigation */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--bg-color);
+    border-top: 1px solid var(--border-color);
+    z-index: 1001;
+    padding: 0 16px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.mobile-mode .mobile-nav {
+    display: flex;
+}
+
+.nav-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: background-color 0.2s;
+}
+
+.nav-btn:active {
+    background-color: var(--secondary-bg);
+}
+
+/* Adjust chat container padding for mobile nav */
+.mobile-mode .chat-messages {
+    padding-bottom: 180px !important;
+}
+
+.mobile-mode .chat-input-container {
+    bottom: 60px;
+}
+
+/* Mobile mode specific adjustments */
+@media (max-width: 768px) {
+    .mobile-mode .app-container {
+        padding-bottom: 60px;
+    }
+    
+    .mobile-mode .chat-input-container {
+        border-radius: 0;
+        margin: 0;
+    }
+    
+    .mobile-mode #user-input {
+        font-size: 16px;
+    }
+    
+    .mobile-mode .message {
+        font-size: 15px;
+        line-height: 1.4;
+    }
+    
+    .mobile-mode .welcome-screen {
+        margin-bottom: 60px;
     }
 } 
