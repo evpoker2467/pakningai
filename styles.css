@@ -2115,33 +2115,81 @@ body.resizing .sidebar-resizer {
 }
 
 .mobile-mode .top-bar {
-    padding: 8px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--bg-color);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 999;
+    display: none;
 }
 
-.mobile-mode #mode-switch-btn {
-    width: 40px;
-    height: 40px;
-    padding: 0;
+.mobile-mode .chat-messages {
+    padding-top: 0;
+    height: calc(100vh - 120px);
+}
+
+.mobile-mode .chat-input-container {
+    bottom: 60px;
+    padding: 8px;
+    background: var(--bg-color);
+    border-top: 1px solid var(--border-color);
+}
+
+.mobile-mode .input-wrapper {
+    margin: 0;
+    padding: 8px;
+}
+
+.mobile-mode #user-input {
+    min-height: 44px;
+    padding: 12px;
+    margin: 0;
+    font-size: 16px;
+}
+
+.mobile-mode .message.thinking {
+    display: none;
+}
+
+.mobile-mode .message.bot {
+    animation: none;
+    transition: none;
+}
+
+.mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--bg-color);
+    border-top: 1px solid var(--border-color);
+    z-index: 1001;
+    padding: 0 16px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.mobile-mode .mobile-nav {
+    display: flex;
+}
+
+.nav-btn {
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
+    font-size: 20px;
+    transition: background-color 0.2s;
 }
 
-.mobile-mode .message-toast {
-    display: none !important;
+.nav-btn:active {
+    background-color: var(--secondary-bg);
+}
+
+.nav-btn.danger {
+    color: #ff4444;
 }
 
 /* Hide desktop-specific elements in mobile mode */

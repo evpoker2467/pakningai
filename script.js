@@ -563,6 +563,11 @@
  
  // Function to show thinking indicator with appropriate steps
  function showThinkingIndicator() {
+     // Don't show thinking indicator in mobile mode
+     if (document.body.classList.contains('mobile-mode')) {
+         return;
+     }
+     
      // Remove any existing thinking indicators first
      const existingThinkingIndicators = document.querySelectorAll('.message.bot.thinking');
      existingThinkingIndicators.forEach(indicator => {
@@ -606,26 +611,6 @@
              chatMessages.scrollTop = chatMessages.scrollHeight;
          }, stepDelay * (index + 1));
      });
-     
-     // Add a final step after a longer delay
-     setTimeout(() => {
-         const finalStep = document.createElement('div');
-         finalStep.classList.add('thinking-step');
-         
-         const icon = document.createElement('i');
-         icon.classList.add('fas', 'fa-check-circle');
-         
-         const text = document.createElement('span');
-         text.textContent = 'Completing response';
-         
-         finalStep.appendChild(icon);
-         finalStep.appendChild(text);
-         
-         thinkingContentDiv.appendChild(finalStep);
-         
-         // Scroll to bottom
-         chatMessages.scrollTop = chatMessages.scrollHeight;
-     }, (steps.length + 1) * stepDelay);
  }
  
  // Function to remove typing indicator
@@ -1342,6 +1327,13 @@ function setupMobileNavigation() {
     
     // Theme toggle
     document.getElementById('themeToggleMobile')?.addEventListener('click', toggleTheme);
+    
+    // Clear chat
+    document.getElementById('clearChatMobile')?.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear this conversation?')) {
+            clearChat();
+        }
+    });
 }
 
 // Update the DOMContentLoaded event listener
