@@ -1320,10 +1320,9 @@ function setupMobileNavigation() {
         document.querySelector('.sidebar-overlay')?.remove();
     });
     
-    // Mode toggle
-    document.getElementById('modeToggleMobile')?.addEventListener('click', () => {
-        const currentMode = document.body.classList.contains('web-mode') ? 'mobile-mode' : 'web-mode';
-        setInterfaceMode(currentMode);
+    // Share button
+    document.getElementById('shareMobile')?.addEventListener('click', () => {
+        shareApplication();
     });
     
     // Theme toggle
