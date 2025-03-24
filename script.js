@@ -1207,23 +1207,20 @@
  
  // Function to show a message to the user
  function showMessage(message, type = 'info') {
+     // Don't show messages in mobile mode
+     if (document.body.classList.contains('mobile-mode')) {
+         console.log('Message suppressed in mobile mode:', message);
+         return;
+     }
+
      const messageDiv = document.createElement('div');
      messageDiv.className = `message-toast ${type}`;
      messageDiv.textContent = message;
-     
      document.body.appendChild(messageDiv);
-     
-     // Show the message
+
+     // Remove the message after 5 seconds
      setTimeout(() => {
-         messageDiv.classList.add('visible');
-     }, 100);
-     
-     // Hide and remove after 5 seconds
-     setTimeout(() => {
-         messageDiv.classList.remove('visible');
-         setTimeout(() => {
-             document.body.removeChild(messageDiv);
-         }, 300);
+         messageDiv.remove();
      }, 5000);
  }
  

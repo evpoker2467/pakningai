@@ -1921,40 +1921,33 @@ body.resizing .sidebar-resizer {
     right: 20px;
     padding: 12px 20px;
     border-radius: 8px;
-    background-color: var(--secondary-bg);
-    color: var(--text-color);
+    background-color: #333;
+    color: white;
     font-size: 14px;
-    box-shadow: 0 4px 12px var(--shadow-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    max-width: calc(100% - 40px);
+    opacity: 1;
+    transition: opacity 0.3s ease;
 }
 
-.message-toast.visible {
-    opacity: 1;
-    transform: translateY(0);
+.mobile-mode .message-toast {
+    display: none !important;
 }
 
 .message-toast.error {
     background-color: #ff4444;
-    color: white;
 }
 
 .message-toast.success {
     background-color: #00C851;
-    color: white;
 }
 
 .message-toast.info {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: #33b5e5;
 }
 
 .message-toast.warning {
     background-color: #ffbb33;
-    color: white;
 }
 
 @media (max-width: 768px) {
