@@ -172,6 +172,14 @@
  
  // Function to create a new chat session
  function createNewChat() {
+     // Remove any existing new chat boxes
+     const existingNewChats = document.querySelectorAll('.history-item');
+     existingNewChats.forEach(chat => {
+         if (chat.querySelector('span').textContent.startsWith('New Chat')) {
+             chat.remove();
+         }
+     });
+     
      // Generate a unique ID for this session
      currentSessionId = Date.now().toString();
      
