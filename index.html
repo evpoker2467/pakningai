@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAKNING R1</title>
+    <title>PAKNING R1 - Advanced AI Assistant</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Add Google Fonts with Chinese language support -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Add font preloading for better performance with CJK text -->
@@ -47,78 +47,143 @@
     </script>
 </head>
 <body>
+    <!-- Mode detection and initialization -->
+    <script>
+        // Function to detect if user is on mobile
+        function isMobileDevice() {
+            return (window.innerWidth <= 768) || 
+                   (navigator.maxTouchPoints > 0) || 
+                   (navigator.msMaxTouchPoints > 0);
+        }
+
+        // Function to set the interface mode
+        function setInterfaceMode(mode) {
+            document.body.classList.remove('web-mode', 'mobile-mode');
+            document.body.classList.add(mode);
+            localStorage.setItem('preferredMode', mode);
+        }
+
+        // Initialize mode based on device and saved preference
+        function initializeMode() {
+            const savedMode = localStorage.getItem('preferredMode');
+            const defaultMode = isMobileDevice() ? 'mobile-mode' : 'web-mode';
+            setInterfaceMode(savedMode || defaultMode);
+        }
+
+        // Initialize on load
+        initializeMode();
+    </script>
+
+    <!-- Mode toggle button (visible only on tablets and larger devices) -->
+    <button id="modeToggle" class="mode-toggle" aria-label="Toggle interface mode">
+        <i class="fas fa-mobile-alt"></i>
+    </button>
+
     <div class="app-container">
-        <!-- Sidebar -->
         <div class="sidebar">
+            <div class="sidebar-resizer" id="sidebar-resizer"></div>
+            <button class="hide-sidebar-btn" id="hide-sidebar-btn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
             <div class="logo">
-                <img src="logo.png" alt="Logo">
+                <div class="ning-logo">P</div>
                 <span>PAKNING R1</span>
             </div>
             <div class="new-chat">
                 <button id="new-chat-btn">
                     <i class="fas fa-plus"></i>
-                    New Chat
+                    <span>New Chat</span>
                 </button>
             </div>
             <div class="chat-history">
-                <!-- Chat history items will be added here -->
+                <!-- Chat history items will be added here dynamically -->
             </div>
             <div class="sidebar-footer">
-                <a href="#pricing" class="sidebar-link">
-                    <i class="fas fa-tag"></i>
-                    Pricing
-                </a>
-                <a href="#contact" class="sidebar-link">
-                    <i class="fas fa-envelope"></i>
-                    Contact
-                </a>
+                <div class="sidebar-link" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </div>
             </div>
-            <div id="sidebar-resizer"></div>
-            <button class="hide-sidebar-btn" id="hide-sidebar-btn">
-                <i class="fas fa-chevron-left"></i>
-            </button>
         </div>
-
-        <!-- Show sidebar button -->
+        
         <button class="show-sidebar-btn" id="show-sidebar-btn">
             <i class="fas fa-chevron-right"></i>
         </button>
-
-        <!-- Main content -->
+        
         <div class="main-content">
             <div class="top-bar">
-                <div class="top-nav">
-                    <a href="#" class="nav-link" id="theme-toggle">
-                        <i class="fas fa-moon"></i>
-                        <span>Dark Mode</span>
-                    </a>
+                <div class="mobile-menu">
+                    <i class="fas fa-bars" id="sidebar-toggle"></i>
                 </div>
                 <div class="session-actions">
-                    <button id="clear-chat">
+                    <button id="clear-chat" title="Delete conversation">
                         <i class="fas fa-trash"></i>
-                        Clear Chat
                     </button>
                 </div>
+                <div class="top-nav">
+                    <a href="#pricing" class="nav-link">Pricing</a>
+                    <a href="#contact" class="nav-link">Contact Us</a>
+                </div>
             </div>
-
-            <!-- Current mode indicator -->
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="welcome-screen">
+                    <div class="welcome-content">
+                        <div class="welcome-logo">
+                            <div class="ning-logo large">P</div>
+                        </div>
+                        <h1>PAKNING R1</h1>
+                        <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>
+                        
+                        <div class="select-mode-container">
+                            <div class="mode-selection">
+                                <p class="mode-title">Select Reasoning Mode:</p>
+                                <div class="mode-buttons">
+                                    <button class="mode-btn active" data-mode="default">
+                                        <i class="fas fa-balance-scale"></i>
+                                        <span>Default</span>
+                                    </button>
+                                    <button class="mode-btn" data-mode="deepthink">
+                                        <i class="fas fa-brain"></i>
+                                        <span>DeepThink</span>
+                                    </button>
+                                </div>
+                                <div class="mode-description">
+                                    <p id="mode-description-text">Medium Reasoning Effort: Balanced depth and efficiency for well-thought-out responses.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-points">
+                            <div class="feature-point">
+                                <i class="fas fa-brain"></i>
+                                <span>Deep analytical thinking for complex problem-solving</span>
+                            </div>
+                            <div class="feature-point">
+                                <i class="fas fa-code"></i>
+                                <span>Superior performance in mathematics and coding tasks</span>
+                            </div>
+                            <div class="feature-point">
+                                <i class="fas fa-tools"></i>
+                                <span>Adapts reasoning based on environmental feedback</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Messages will be added here dynamically -->
+            </div>
+            
             <div class="current-mode-indicator" id="current-mode-indicator">
                 <span id="current-mode-icon"><i class="fas fa-balance-scale"></i></span>
                 <span id="current-mode-text">Default Mode</span>
             </div>
-
-            <!-- Chat messages -->
-            <div class="chat-messages" id="chat-messages">
-                <!-- Messages will be added here -->
-            </div>
-
-            <!-- Chat input -->
+            
             <div class="chat-input-container">
                 <div class="input-wrapper">
-                    <textarea id="user-input" placeholder="Type your message..." rows="1"></textarea>
+                    <textarea id="user-input" placeholder="Send a message..." rows="1" autofocus></textarea>
                     <div class="input-buttons">
-                        <button id="mode-switch-btn">
-                            <i class="fas fa-brain"></i>
+                        <button id="mode-switch-btn" title="Switch Reasoning Mode">
+                            <i class="fas fa-exchange-alt"></i>
                             <span id="mini-mode-indicator">Default</span>
                         </button>
                         <button id="send-button">
@@ -127,32 +192,21 @@
                     </div>
                 </div>
                 <div class="input-footer">
-                    <p class="disclaimer">Messages are processed using AI. Do not share sensitive information.</p>
+                    <span class="disclaimer">PAKNING R1 - Powered by advanced reinforcement learning</span>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- API Key Modal -->
-    <div id="apiKeyModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Enter API Key</h2>
-                <button class="close-modal">&times;</button>
+    <!-- API Key Form (only shown when needed) -->
+    <div id="api-key-form-container" class="hidden">
+        <form id="apiKeyForm">
+            <div class="api-key-form-header">
+                <h3>API Key Configuration</h3>
+                <p>API keys can only be set via Netlify environment variables.</p>
+                <p>Please contact your administrator to configure the API_KEY variable in Netlify.</p>
             </div>
-            <div class="modal-body">
-                <form id="apiKeyForm">
-                    <div class="form-group">
-                        <label for="apiKey">API Key:</label>
-                        <input type="password" id="apiKey" required>
-                    </div>
-                    <button type="submit" class="submit-button">Save API Key</button>
-                </form>
-            </div>
-        </div>
+        </form>
     </div>
-
-    <!-- Scripts -->
     <script src="env-config.js"></script>
     <script src="script.js"></script>
 </body>

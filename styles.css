@@ -1971,4 +1971,134 @@ body.resizing .sidebar-resizer {
     .message-toast.visible {
         transform: translateX(-50%) translateY(0);
     }
+}
+
+/* Mode toggle button */
+.mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: transform 0.2s;
+}
+
+.mode-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Show mode toggle only on larger screens */
+@media (min-width: 769px) {
+    .mode-toggle {
+        display: flex;
+    }
+}
+
+/* Mobile Mode Styles */
+.mobile-mode .app-container {
+    flex-direction: column;
+    height: 100vh;
+}
+
+.mobile-mode .sidebar {
+    width: 100%;
+    height: 60px;
+    flex-direction: row;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    border-top: 1px solid var(--border-color);
+    border-right: none;
+}
+
+.mobile-mode .logo {
+    padding: 8px;
+    border-bottom: none;
+    border-right: 1px solid var(--border-color);
+    height: 100%;
+}
+
+.mobile-mode .new-chat {
+    padding: 8px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.mobile-mode #new-chat-btn {
+    padding: 8px;
+    height: 44px;
+    width: auto;
+}
+
+.mobile-mode .chat-history {
+    display: none;
+}
+
+.mobile-mode .sidebar-footer {
+    display: none;
+}
+
+.mobile-mode .main-content {
+    margin-left: 0;
+    padding-bottom: 60px; /* Space for the bottom bar */
+    height: 100vh;
+}
+
+.mobile-mode .chat-container {
+    padding-bottom: 120px; /* Extra space for input area */
+}
+
+.mobile-mode .input-container {
+    bottom: 70px;
+}
+
+.mobile-mode .sidebar-resizer {
+    display: none;
+}
+
+.mobile-mode .hide-sidebar-btn,
+.mobile-mode .show-sidebar-btn {
+    display: none;
+}
+
+/* Web Mode Styles (current layout) */
+.web-mode .app-container {
+    flex-direction: row;
+}
+
+.web-mode .sidebar {
+    width: 260px;
+    height: 100vh;
+    flex-direction: column;
+}
+
+/* Preserve current responsive design for web mode */
+@media (max-width: 768px) {
+    .web-mode .sidebar {
+        position: fixed;
+        height: 100%;
+        transform: translateX(-100%);
+    }
+
+    .web-mode .sidebar.visible {
+        transform: translateX(0);
+    }
+
+    .web-mode .main-content {
+        margin-left: 0;
+    }
 } 
