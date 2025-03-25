@@ -2599,19 +2599,32 @@ body.resizing .sidebar-resizer {
 @media (max-width: 768px) {
     .message-actions {
         opacity: 1;
-        position: relative;
-        top: auto;
-        right: auto;
-        margin-top: 8px;
-        display: flex;
-        justify-content: flex-end;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        margin: 0;
     }
     
     .copy-button {
-        padding: 8px 12px;
+        padding: 4px;
+        min-width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        background: var(--bg-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
     
     .copy-button i {
-        font-size: 16px;
+        font-size: 12px;
+    }
+    
+    .copy-button span {
+        display: none;
+    }
+    
+    /* Add subtle hover effect for touch devices */
+    .copy-button:active {
+        transform: scale(0.95);
+        background: var(--hover-color);
     }
 } 
