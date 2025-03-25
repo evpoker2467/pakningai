@@ -1467,8 +1467,9 @@ body.deepthink-mode #mini-mode-indicator {
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
 }
 
-/* Message styles */
+/* Message styles with improved spacing */
 .message {
+    position: relative;
     display: flex;
     padding: 20px;
     border-bottom: 1px solid var(--border-color);
@@ -1515,6 +1516,7 @@ body.deepthink-mode #mini-mode-indicator {
     max-width: 100%;
     hyphens: auto;
     text-align: left;
+    padding-right: 40px; /* Add padding for copy button */
 }
 
 /* CJK language specific styles */
@@ -2557,16 +2559,13 @@ body.resizing .sidebar-resizer {
 }
 
 /* Message copy button styles */
-.message {
-    position: relative;
-}
-
 .message-actions {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 20px;
+    right: 20px;
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
+    z-index: 10;
 }
 
 .message:hover .message-actions {
@@ -2584,11 +2583,13 @@ body.resizing .sidebar-resizer {
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .copy-button:hover {
     background: var(--hover-color);
     transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
 .copy-button i {
@@ -2597,6 +2598,10 @@ body.resizing .sidebar-resizer {
 
 /* Mobile-specific copy button styles */
 @media (max-width: 768px) {
+    .message-content {
+        padding-right: 35px; /* Smaller padding for mobile */
+    }
+    
     .message-actions {
         opacity: 1;
         position: absolute;
