@@ -1307,31 +1307,6 @@ function initializeMobileMode() {
     if (isMobileDevice) {
         // Force mobile mode on mobile devices
         setInterfaceMode('mobile-mode');
-        
-        // Ensure input container is properly structured for mobile
-        const inputContainer = document.querySelector('.input-container');
-        if (inputContainer) {
-            // Make sure all buttons are present and in correct order
-            const textarea = inputContainer.querySelector('textarea');
-            const voiceBtn = inputContainer.querySelector('#voice-input-btn');
-            const modeBtn = inputContainer.querySelector('#mode-switch-btn');
-            const sendBtn = inputContainer.querySelector('#send-button');
-            
-            if (!voiceBtn || !modeBtn || !sendBtn) {
-                inputContainer.innerHTML = `
-                    <textarea id="user-input" rows="1" placeholder="Type your message..."></textarea>
-                    <button id="voice-input-btn" class="voice-btn" title="Voice input">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <button id="mode-switch-btn">
-                        <i class="fas fa-balance-scale"></i>
-                    </button>
-                    <button id="send-button" disabled>
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                `;
-            }
-        }
     } else {
         // For desktop, check saved preference or use default
         const savedMode = localStorage.getItem('preferredMode');
@@ -1395,11 +1370,8 @@ function setupMobileNavigation() {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM loaded, initializing app...');
     
-    // Initialize mobile mode first
+    // Initialize mobile mode
     initializeMobileMode();
-    
-    // Setup voice input after mobile mode is initialized
-    setupVoiceInput();
     
     // Setup mobile navigation
     setupMobileNavigation();
@@ -1421,12 +1393,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize sidebar resize
     initSidebarResize();
-    
-    // Re-add event listeners for mode switching
-    const modeSwitchBtn = document.getElementById('mode-switch-btn');
-    if (modeSwitchBtn) {
-        modeSwitchBtn.addEventListener('click', toggleMode);
-    }
     
     // Focus on input
     userInput.focus();
@@ -1606,75 +1572,5 @@ async function shareApplication() {
 
 // Add share button event listener
 document.getElementById('share-btn').addEventListener('click', shareApplication);
-
-// Voice input functionality
-let recognition = null;
-let isRecording = false;
-
-function setupVoiceInput() {
-    const voiceBtn = document.getElementById('voice-input-btn');
-    
-    // Check if browser supports speech recognition
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
-        
-        // Configure recognition
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-        
-        // Add event listeners
-        recognition.onstart = () => {
-            isRecording = true;
-            voiceBtn.classList.add('recording');
-            showMessage('Listening...', 'info');
-        };
-        
-        recognition.onend = () => {
-            isRecording = false;
-            voiceBtn.classList.remove('recording');
-        };
-        
-        recognition.onresult = (event) => {
-            const transcript = Array.from(event.results)
-                .map(result => result[0].transcript)
-                .join('');
-            
-            userInput.value = transcript;
-            userInput.dispatchEvent(new Event('input')); // Trigger input event for auto-resize
-            sendButton.disabled = !transcript.trim();
-        };
-        
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            isRecording = false;
-            voiceBtn.classList.remove('recording');
-            
-            if (event.error === 'not-allowed') {
-                showMessage('Microphone access denied', 'error');
-            } else {
-                showMessage('Error with voice input', 'error');
-            }
-        };
-        
-        // Add click handler for voice input button
-        if (voiceBtn) {
-            voiceBtn.addEventListener('click', toggleVoiceInput);
-        }
-    } else {
-        // Hide voice input button if not supported
-        if (voiceBtn) {
-            voiceBtn.style.display = 'none';
-        }
-    }
-}
-
-function toggleVoiceInput() {
-    if (!isRecording) {
-        recognition.start();
-    } else {
-        recognition.stop();
-    }
-}
 
 
