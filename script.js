@@ -1389,6 +1389,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize sidebar resize
     initSidebarResize();
+
+    // Initialize image upload functionality
+    initializeImageHandling();
     
     // Focus on input
     userInput.focus();
@@ -1569,44 +1572,67 @@ async function shareApplication() {
 // Add share button event listener
 document.getElementById('share-btn').addEventListener('click', shareApplication);
 
-// Add event listeners for image handling
-document.getElementById('image-btn').addEventListener('click', () => {
-    document.getElementById('image-upload').click();
-});
-
-document.getElementById('image-upload').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        try {
-            currentImageFile = file;
-            const imageUrl = URL.createObjectURL(file);
-            currentImageUrl = imageUrl;
-            
-            // Show preview
-            const previewImg = document.getElementById('preview-img');
-            previewImg.src = imageUrl;
-            document.getElementById('image-preview').style.display = 'block';
-            
-            // Enable send button
-            sendButton.disabled = false;
-        } catch (error) {
-            console.error('Error handling image upload:', error);
-            showMessage('Error uploading image', 'error');
-        }
+// Function to initialize image handling
+function initializeImageHandling() {
+    const imageBtn = document.getElementById('image-btn');
+    const imageUpload = document.getElementById('image-upload');
+    const removeImageBtn = document.getElementById('remove-image');
+    
+    if (imageBtn) {
+        imageBtn.addEventListener('click', () => {
+            imageUpload.click();
+        });
     }
-});
-
-document.getElementById('remove-image').addEventListener('click', () => {
-    clearImagePreview();
-});
+    
+    if (imageUpload) {
+        imageUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                try {
+                    currentImageFile = file;
+                    const imageUrl = URL.createObjectURL(file);
+                    currentImageUrl = imageUrl;
+                    
+                    // Show preview
+                    const previewImg = document.getElementById('preview-img');
+                    const imagePreview = document.getElementById('image-preview');
+                    if (previewImg && imagePreview) {
+                        previewImg.src = imageUrl;
+                        imagePreview.style.display = 'block';
+                    }
+                    
+                    // Enable send button
+                    sendButton.disabled = false;
+                } catch (error) {
+                    console.error('Error handling image upload:', error);
+                    showMessage('Error uploading image', 'error');
+                }
+            }
+        });
+    }
+    
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', clearImagePreview);
+    }
+}
 
 // Function to clear image preview
 function clearImagePreview() {
     currentImageFile = null;
     currentImageUrl = null;
-    document.getElementById('image-preview').style.display = 'none';
-    document.getElementById('preview-img').src = '';
-    document.getElementById('image-upload').value = '';
+    const imagePreview = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+    const imageUpload = document.getElementById('image-upload');
+    
+    if (imagePreview) {
+        imagePreview.style.display = 'none';
+    }
+    if (previewImg) {
+        previewImg.src = '';
+    }
+    if (imageUpload) {
+        imageUpload.value = '';
+    }
     
     // Disable send button if text is also empty
     if (!userInput.value.trim()) {
