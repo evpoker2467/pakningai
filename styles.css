@@ -165,10 +165,23 @@ body {
     color: var(--secondary-text);
     text-decoration: none;
     margin-bottom: 8px;
+    transition: all 0.2s ease;
 }
 
 .sidebar-link:hover {
     background-color: rgba(255, 255, 255, 0.1);
+}
+
+#delete-chat {
+    color: #ff4444;
+}
+
+#delete-chat:hover {
+    background-color: rgba(255, 68, 68, 0.1);
+}
+
+#delete-chat i {
+    color: #ff4444;
 }
 
 .sidebar-resizer {

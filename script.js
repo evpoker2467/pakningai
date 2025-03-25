@@ -1499,4 +1499,75 @@ async function shareApplication() {
 // Add share button event listener
 document.getElementById('share-btn').addEventListener('click', shareApplication);
 
+// Function to delete current chat
+function deleteCurrentChat() {
+    if (!currentSessionId) return;
+    
+    // Remove from localStorage
+    const savedChats = JSON.parse(localStorage.getItem('pakningR1_chatSessions') || '[]');
+    const updatedChats = savedChats.filter(chat => chat.id !== currentSessionId);
+    localStorage.setItem('pakningR1_chatSessions', JSON.stringify(updatedChats));
+    
+    // Clear current chat
+    currentSessionId = null;
+    messagesHistory = [];
+    
+    // Clear chat messages display
+    chatMessages.innerHTML = `
+        <div class="welcome-screen">
+            <div class="welcome-content">
+                <h1>PAKNING R1</h1>
+                <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>
+                
+                <div class="select-mode-container">
+                    <div class="mode-selection">
+                        <p class="mode-title">Select Reasoning Mode:</p>
+                        <div class="mode-buttons">
+                            <button class="mode-btn active" data-mode="default">
+                                <i class="fas fa-balance-scale"></i>
+                                <span>Default</span>
+                            </button>
+                            <button class="mode-btn" data-mode="deepthink">
+                                <i class="fas fa-brain"></i>
+                                <span>DeepThink</span>
+                            </button>
+                        </div>
+                        <div class="mode-description">
+                            <p id="mode-description-text">Medium Reasoning Effort: Balanced depth and efficiency for well-thought-out responses.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-points">
+                    <div class="feature-point">
+                        <i class="fas fa-brain"></i>
+                        <span>Deep analytical thinking for complex problem-solving</span>
+                    </div>
+                    <div class="feature-point">
+                        <i class="fas fa-code"></i>
+                        <span>Superior performance in mathematics and coding tasks</span>
+                    </div>
+                    <div class="feature-point">
+                        <i class="fas fa-tools"></i>
+                        <span>Adapts reasoning based on environmental feedback</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Update chat history sidebar
+    loadChatsFromLocalStorage();
+    
+    // Show success message
+    showMessageToast('Chat deleted successfully', 'success');
+}
+
+// Add event listener for delete chat button
+document.getElementById('delete-chat').addEventListener('click', () => {
+    if (confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+        deleteCurrentChat();
+    }
+});
+
 
