@@ -2632,4 +2632,110 @@ body.resizing .sidebar-resizer {
         transform: scale(0.95);
         background: var(--hover-color);
     }
+}
+
+/* Voice input button styles */
+.voice-btn {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: all 0.2s ease-in-out;
+    margin-right: 4px;
+}
+
+.voice-btn:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+}
+
+.voice-btn.recording {
+    color: #ff4b4b;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.voice-btn.recording i {
+    animation: wave 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 75, 75, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 75, 75, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 75, 75, 0);
+    }
+}
+
+@keyframes wave {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Update input container styles */
+.input-container {
+    display: flex;
+    align-items: center;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 10px;
+}
+
+.input-container textarea {
+    flex: 1;
+    border: none;
+    background: none;
+    resize: none;
+    padding: 8px;
+    color: var(--text-color);
+    font-size: 1rem;
+    line-height: 1.5;
+    max-height: 200px;
+    outline: none;
+}
+
+.input-container button {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: all 0.2s ease-in-out;
+}
+
+.input-container button:hover:not(:disabled) {
+    opacity: 1;
+    transform: translateY(-1px);
+}
+
+.input-container button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Mobile-specific input styles */
+@media (max-width: 768px) {
+    .input-container {
+        margin: 8px;
+        padding: 6px 10px;
+    }
+    
+    .voice-btn {
+        padding: 6px;
+    }
 } 

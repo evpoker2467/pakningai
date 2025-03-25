@@ -1573,4 +1573,74 @@ async function shareApplication() {
 // Add share button event listener
 document.getElementById('share-btn').addEventListener('click', shareApplication);
 
+// Voice input functionality
+let recognition = null;
+let isRecording = false;
+
+function setupVoiceInput() {
+    // Check if browser supports speech recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+        
+        // Configure recognition
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        
+        // Add event listeners
+        recognition.onstart = () => {
+            isRecording = true;
+            document.getElementById('voice-input-btn').classList.add('recording');
+            showMessage('Listening...', 'info');
+        };
+        
+        recognition.onend = () => {
+            isRecording = false;
+            document.getElementById('voice-input-btn').classList.remove('recording');
+        };
+        
+        recognition.onresult = (event) => {
+            const transcript = Array.from(event.results)
+                .map(result => result[0].transcript)
+                .join('');
+            
+            userInput.value = transcript;
+            userInput.dispatchEvent(new Event('input')); // Trigger input event for auto-resize
+        };
+        
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            isRecording = false;
+            document.getElementById('voice-input-btn').classList.remove('recording');
+            
+            if (event.error === 'not-allowed') {
+                showMessage('Microphone access denied', 'error');
+            } else {
+                showMessage('Error with voice input', 'error');
+            }
+        };
+        
+        // Add click handler for voice input button
+        document.getElementById('voice-input-btn').addEventListener('click', toggleVoiceInput);
+    } else {
+        // Hide voice input button if not supported
+        document.getElementById('voice-input-btn').style.display = 'none';
+    }
+}
+
+function toggleVoiceInput() {
+    if (!isRecording) {
+        recognition.start();
+    } else {
+        recognition.stop();
+    }
+}
+
+// Add to initialization
+document.addEventListener('DOMContentLoaded', () => {
+    // ... existing initialization code ...
+    
+    setupVoiceInput();
+});
+
 
