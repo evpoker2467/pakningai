@@ -45,6 +45,7 @@
         // Load environment variables
         loadNetlifyEnv();
     </script>
+    <script src="imageModule.js"></script>
 </head>
 <body>
     <!-- Mode detection and initialization -->
@@ -183,13 +184,17 @@
             
             <div class="chat-input-container">
                 <div class="input-wrapper">
-                    <textarea id="user-input" placeholder="Send a message..." rows="1" autofocus></textarea>
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                    <textarea id="user-input" placeholder="Type a message or upload an image..." rows="1"></textarea>
                     <div class="input-buttons">
-                        <button id="mode-switch-btn" title="Switch Reasoning Mode">
-                            <i class="fas fa-exchange-alt"></i>
+                        <button id="image-btn" class="control-btn" title="Upload Image">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <button id="mode-switch-btn">
+                            <i class="fas fa-sync-alt"></i>
                             <span id="mini-mode-indicator">Default</span>
                         </button>
-                        <button id="send-button">
+                        <button id="send-button" disabled>
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
@@ -243,6 +248,14 @@
         </button>
         <button id="sidebar-toggle" class="control-btn">
             <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Add image preview container -->
+    <div id="image-preview" class="image-preview" style="display: none;">
+        <img id="preview-img" src="" alt="Preview">
+        <button id="remove-image" class="remove-image">
+            <i class="fas fa-times"></i>
         </button>
     </div>
 </body>

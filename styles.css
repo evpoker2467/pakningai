@@ -2632,4 +2632,81 @@ body.resizing .sidebar-resizer {
         transform: scale(0.95);
         background: var(--hover-color);
     }
+}
+
+/* Image upload and preview styles */
+.image-preview {
+    position: relative;
+    margin: 10px 0;
+    max-width: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.image-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.remove-image {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.remove-image:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Message with image styles */
+.message-content img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+/* Image upload button */
+#image-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#image-btn:hover {
+    color: var(--text-color);
+    background: var(--hover-color);
+}
+
+/* Mobile-specific image styles */
+@media (max-width: 768px) {
+    .image-preview {
+        max-width: 100%;
+        margin: 8px 0;
+    }
+    
+    .remove-image {
+        width: 32px;
+        height: 32px;
+    }
+    
+    #image-btn {
+        padding: 10px;
+    }
 } 

@@ -22,6 +22,10 @@
  // Initialize API key variable 
  let apiKey = '';
  
+ // Add these variables at the top with other declarations
+ let currentImageFile = null;
+ let currentImageUrl = null;
+ 
  // Function to initialize API key from Netlify environment variables
  async function initializeApiKey() {
      try {
@@ -742,63 +746,73 @@
  // Function to handle sending a message
  async function handleSendMessage() {
      const message = userInput.value.trim();
-     if (!message || isWaitingForResponse) return;
+     if ((!message && !currentImageFile) || isWaitingForResponse) return;
      
      // Clear input
      userInput.value = '';
      userInput.style.height = 'auto';
      
-     // If this is the first message and we don't have a current session, create one
-     if (!currentSessionId) {
-         currentSessionId = Date.now().toString();
-         const defaultTitle = 'New Chat ' + formatDate(new Date());
-         addNewChatToHistory(defaultTitle);
+     let messageContent = message;
+     let imageAnalysis = '';
+     
+     // Handle image if present
+     if (currentImageFile) {
+         try {
+             // Add image to chat
+             messageContent += `\n![Uploaded Image](${currentImageUrl})`;
+             
+             // Analyze image
+             imageAnalysis = await window.imageModule.analyzeImage(currentImageUrl);
+             
+             // Clear image preview
+             clearImagePreview();
+         } catch (error) {
+             console.error('Error processing image:', error);
+             showMessage('Error processing image', 'error');
+             return;
+         }
      }
      
-     // Add user message to chat (this will update the title if it's the first message)
-     addMessageToChat(message, 'user');
+     // Add user message to chat
+     addMessageToChat(messageContent, 'user');
      
      // Add to history
      messagesHistory.push({
          role: 'user',
-         content: message
+         content: messageContent
      });
      
-     // Update chat session in storage immediately after adding user message
+     // Update chat session
      updateChatSession();
-     
-     // Check if we have a valid API key
-     if (!hasValidApiKey()) {
-         console.error('No valid API key available');
-         
-         // Create an error message for missing API key
-         const errorDiv = document.createElement('div');
-         errorDiv.classList.add('api-error-notification');
-         errorDiv.innerHTML = `
-             <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
-             <div class="error-content">
-                 <h3>API Key Missing</h3>
-                 <p>No valid API key is configured in the Netlify environment variables.</p>
-                 <p>Please contact your administrator to set up the API_KEY environment variable in Netlify.</p>
-             </div>
-         `;
-         
-         chatMessages.appendChild(errorDiv);
-         chatMessages.scrollTop = chatMessages.scrollHeight;
-         return;
-     }
      
      // Set waiting state
      isWaitingForResponse = true;
      sendButton.disabled = true;
      userInput.disabled = true;
      
-     // Show thinking indicator based on current mode
+     // Show thinking indicator
      showThinkingIndicator();
      
-     // Send to API
      try {
-         await sendMessageToAPI(message);
+         let response;
+         if (imageAnalysis) {
+             // If we have image analysis, include it in the conversation
+             messagesHistory.push({
+                 role: 'assistant',
+                 content: `Here's what I see in the image: ${imageAnalysis}`
+             });
+             
+             // Add the analysis to chat
+             addMessageToChat(`Here's what I see in the image: ${imageAnalysis}`, 'bot');
+             
+             // Now ask for further response if there was a message
+             if (message) {
+                 response = await sendMessageToAPI(message);
+             }
+         } else {
+             // Regular text message
+             response = await sendMessageToAPI(message);
+         }
          
          // Reset waiting state
          isWaitingForResponse = false;
@@ -806,29 +820,11 @@
          userInput.disabled = false;
          userInput.focus();
          
-         // Update chat session in storage
+         // Update chat session
          updateChatSession();
      } catch (error) {
          console.error('Error sending message:', error);
-         
-         // Remove any thinking indicators
-         const thinkingIndicators = document.querySelectorAll('.message.bot.thinking');
-         thinkingIndicators.forEach(indicator => indicator.remove());
-         
-         // Add simple error message to history
-         messagesHistory.push({
-             role: 'assistant',
-             content: 'Sorry, the AI service is currently unavailable. Please try again later.'
-         });
-         
-         // Reset waiting state
-         isWaitingForResponse = false;
-         sendButton.disabled = false;
-         userInput.disabled = false;
-         userInput.focus();
-         
-         // Update chat session in storage
-         updateChatSession();
+         handleError();
      }
  }
  
@@ -1572,5 +1568,60 @@ async function shareApplication() {
 
 // Add share button event listener
 document.getElementById('share-btn').addEventListener('click', shareApplication);
+
+// Add event listeners for image handling
+document.getElementById('image-btn').addEventListener('click', () => {
+    document.getElementById('image-upload').click();
+});
+
+document.getElementById('image-upload').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        try {
+            currentImageFile = file;
+            const imageUrl = URL.createObjectURL(file);
+            currentImageUrl = imageUrl;
+            
+            // Show preview
+            const previewImg = document.getElementById('preview-img');
+            previewImg.src = imageUrl;
+            document.getElementById('image-preview').style.display = 'block';
+            
+            // Enable send button
+            sendButton.disabled = false;
+        } catch (error) {
+            console.error('Error handling image upload:', error);
+            showMessage('Error uploading image', 'error');
+        }
+    }
+});
+
+document.getElementById('remove-image').addEventListener('click', () => {
+    clearImagePreview();
+});
+
+// Function to clear image preview
+function clearImagePreview() {
+    currentImageFile = null;
+    currentImageUrl = null;
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('preview-img').src = '';
+    document.getElementById('image-upload').value = '';
+    
+    // Disable send button if text is also empty
+    if (!userInput.value.trim()) {
+        sendButton.disabled = true;
+    }
+}
+
+// Update the input event listener to handle image state
+userInput.addEventListener('input', () => {
+    const hasText = userInput.value.trim().length > 0;
+    sendButton.disabled = !hasText && !currentImageFile;
+    
+    // Adjust height
+    userInput.style.height = 'auto';
+    userInput.style.height = Math.min(userInput.scrollHeight, 180) + 'px';
+});
 
 
