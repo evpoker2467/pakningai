@@ -221,16 +221,16 @@
      // Add to sidebar
      const chatHistory = document.querySelector('.chat-history');
      if (chatHistory) {
-         // Remove 'active' class from all history items
-         document.querySelectorAll('.history-item').forEach(item => {
-             item.classList.remove('active');
-         });
-         
-         // Add 'active' class to this new item
-         historyItem.classList.add('active');
-         
-         // Add to DOM - insert at the top for newest chats
-         chatHistory.insertBefore(historyItem, chatHistory.firstChild);
+     // Remove 'active' class from all history items
+     document.querySelectorAll('.history-item').forEach(item => {
+         item.classList.remove('active');
+     });
+     
+     // Add 'active' class to this new item
+     historyItem.classList.add('active');
+     
+     // Add to DOM - insert at the top for newest chats
+     chatHistory.insertBefore(historyItem, chatHistory.firstChild);
      }
      
      // Store in chat sessions array
@@ -271,27 +271,27 @@
              // Populate sidebar with saved chats
              const chatHistory = document.querySelector('.chat-history');
              if (chatHistory) {
-                 chatHistory.innerHTML = ''; // Clear existing
+             chatHistory.innerHTML = ''; // Clear existing
+             
+             // Sort chats by creation date (newest first)
+             chatSessions.sort((a, b) => new Date(b.created) - new Date(a.created));
+             
+             chatSessions.forEach(session => {
+                 const historyItem = document.createElement('div');
+                 historyItem.classList.add('history-item');
+                 historyItem.dataset.id = session.id;
                  
-                 // Sort chats by creation date (newest first)
-                 chatSessions.sort((a, b) => new Date(b.created) - new Date(a.created));
+                 const icon = document.createElement('i');
+                 icon.classList.add('fas', 'fa-comment');
                  
-                 chatSessions.forEach(session => {
-                     const historyItem = document.createElement('div');
-                     historyItem.classList.add('history-item');
-                     historyItem.dataset.id = session.id;
-                     
-                     const icon = document.createElement('i');
-                     icon.classList.add('fas', 'fa-comment');
-                     
-                     const span = document.createElement('span');
-                     span.textContent = session.title;
-                     
-                     historyItem.appendChild(icon);
-                     historyItem.appendChild(span);
-                     
-                     chatHistory.appendChild(historyItem);
-                 });
+                 const span = document.createElement('span');
+                 span.textContent = session.title;
+                 
+                 historyItem.appendChild(icon);
+                 historyItem.appendChild(span);
+                 
+                 chatHistory.appendChild(historyItem);
+             });
              }
          }
      } catch (error) {
@@ -624,28 +624,28 @@
          }
          
          // Prepare API request options
-         const requestOptions = {
-             method: 'POST',
-             headers: {
-                 'Authorization': `Bearer ${apiKey}`,
+     const requestOptions = {
+         method: 'POST',
+         headers: {
+             'Authorization': `Bearer ${apiKey}`,
                  'HTTP-Referer': window.location.href, 
                  'X-Title': 'PAKNING R1 Chatbot', 
                  'Content-Type': 'application/json'
-             },
-             body: JSON.stringify({
+         },
+         body: JSON.stringify({
                  'model': 'qwen/qwq-32b:free',
                  'messages': messagesHistory,
                  'temperature': reasoningModes[currentMode].temperature,
                  'max_tokens': reasoningModes[currentMode].maxTokens,
                  'stream': true // Enable streaming
-             })
-         };
-         
-         try {
+         })
+     };
+     
+     try {
              console.log(`Sending request to ${API_URL}...`);
              const response = await fetch(API_URL, requestOptions);
-             
-             if (!response.ok) {
+         
+         if (!response.ok) {
                  const errorText = await response.text();
                  console.error(`API Error, retry ${retryCount}:`, errorText);
                  
@@ -709,19 +709,19 @@
              
              // Add complete response to history only once
              if (fullResponse) {
-                 messagesHistory.push({
-                     role: 'assistant',
+         messagesHistory.push({
+             role: 'assistant',
                      content: fullResponse
-                 });
-                 
-                 // Update chat session in storage
-                 updateChatSession();
+         });
+         
+         // Update chat session in storage
+         updateChatSession();
              }
-             
+         
              console.log(`Successfully received response from API`);
              return fullResponse;
              
-         } catch (error) {
+     } catch (error) {
              console.error(`API Error, retry ${retryCount}:`, error);
              
              if (retryCount < maxRetries) {
@@ -742,75 +742,63 @@
  // Function to handle sending a message
  async function handleSendMessage() {
      const message = userInput.value.trim();
-     const imageData = window.imageModule.getCurrentImageData();
-     
-     if ((!message && !imageData.file) || isWaitingForResponse) return;
+     if (!message || isWaitingForResponse) return;
      
      // Clear input
      userInput.value = '';
      userInput.style.height = 'auto';
      
-     let messageContent = message;
-     let imageAnalysis = '';
-     
-     // Handle image if present
-     if (imageData.file) {
-         try {
-             // Add image to chat
-             messageContent += `\n![Uploaded Image](${imageData.url})`;
-             
-             // Analyze image
-             imageAnalysis = await window.imageModule.analyzeImage(imageData.url);
-             
-             // Clear image preview
-             window.imageModule.clearImagePreview();
-         } catch (error) {
-             console.error('Error processing image:', error);
-             showMessage('Error processing image', 'error');
-             return;
-         }
+     // If this is the first message and we don't have a current session, create one
+     if (!currentSessionId) {
+         currentSessionId = Date.now().toString();
+         const defaultTitle = 'New Chat ' + formatDate(new Date());
+         addNewChatToHistory(defaultTitle);
      }
      
-     // Add user message to chat
-     addMessageToChat(messageContent, 'user');
+     // Add user message to chat (this will update the title if it's the first message)
+     addMessageToChat(message, 'user');
      
      // Add to history
      messagesHistory.push({
          role: 'user',
-         content: messageContent
+         content: message
      });
      
-     // Update chat session
+     // Update chat session in storage immediately after adding user message
      updateChatSession();
+     
+     // Check if we have a valid API key
+     if (!hasValidApiKey()) {
+         console.error('No valid API key available');
+         
+         // Create an error message for missing API key
+         const errorDiv = document.createElement('div');
+         errorDiv.classList.add('api-error-notification');
+         errorDiv.innerHTML = `
+             <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+             <div class="error-content">
+                 <h3>API Key Missing</h3>
+                 <p>No valid API key is configured in the Netlify environment variables.</p>
+                 <p>Please contact your administrator to set up the API_KEY environment variable in Netlify.</p>
+             </div>
+         `;
+         
+         chatMessages.appendChild(errorDiv);
+         chatMessages.scrollTop = chatMessages.scrollHeight;
+         return;
+     }
      
      // Set waiting state
      isWaitingForResponse = true;
      sendButton.disabled = true;
      userInput.disabled = true;
      
-     // Show thinking indicator
+     // Show thinking indicator based on current mode
      showThinkingIndicator();
      
+     // Send to API
      try {
-         let response;
-         if (imageAnalysis) {
-             // If we have image analysis, include it in the conversation
-             messagesHistory.push({
-                 role: 'assistant',
-                 content: `Here's what I see in the image: ${imageAnalysis}`
-             });
-             
-             // Add the analysis to chat
-             addMessageToChat(`Here's what I see in the image: ${imageAnalysis}`, 'bot');
-             
-             // Now ask for further response if there was a message
-             if (message) {
-                 response = await sendMessageToAPI(message);
-             }
-         } else {
-             // Regular text message
-             response = await sendMessageToAPI(message);
-         }
+         await sendMessageToAPI(message);
          
          // Reset waiting state
          isWaitingForResponse = false;
@@ -818,11 +806,29 @@
          userInput.disabled = false;
          userInput.focus();
          
-         // Update chat session
+         // Update chat session in storage
          updateChatSession();
      } catch (error) {
          console.error('Error sending message:', error);
-         handleError();
+         
+         // Remove any thinking indicators
+         const thinkingIndicators = document.querySelectorAll('.message.bot.thinking');
+         thinkingIndicators.forEach(indicator => indicator.remove());
+         
+         // Add simple error message to history
+         messagesHistory.push({
+             role: 'assistant',
+             content: 'Sorry, the AI service is currently unavailable. Please try again later.'
+         });
+         
+         // Reset waiting state
+         isWaitingForResponse = false;
+         sendButton.disabled = false;
+         userInput.disabled = false;
+         userInput.focus();
+         
+         // Update chat session in storage
+         updateChatSession();
      }
  }
  
@@ -1340,7 +1346,7 @@ function setupMobileNavigation() {
     document.getElementById('newChatMobile')?.addEventListener('click', () => {
         createNewChat();
         // Close sidebar if open
-        sidebar.classList.remove('open');
+                     sidebar.classList.remove('open');
         document.querySelector('.sidebar-overlay')?.remove();
     });
     
@@ -1388,50 +1394,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize sidebar resize
     initSidebarResize();
     
-    // Initialize image module
-    window.imageModule.init();
-    
-    // Initialize button states
-    initializeButtonStates();
-    
     // Focus on input
     userInput.focus();
-    
-    // Listen for showMessage events from imageModule
-    window.addEventListener('showMessage', (event) => {
-        showMessage(event.detail.message, event.detail.type);
-    });
 });
-
-// Function to initialize button states
-function initializeButtonStates() {
-    // Enable all buttons except send button (which depends on input)
-    if (newChatBtn) newChatBtn.disabled = false;
-    if (clearChatBtn) clearChatBtn.disabled = false;
-    if (themeToggle) themeToggle.disabled = false;
-    if (sidebarToggle) sidebarToggle.disabled = false;
-    if (modeSwitchBtn) modeSwitchBtn.disabled = false;
-    if (hideSidebarBtn) hideSidebarBtn.disabled = false;
-    if (showSidebarBtn) showSidebarBtn.disabled = false;
-    
-    // Initialize send button state based on input
-    updateSendButtonState();
-}
-
-// Function to update send button state
-function updateSendButtonState() {
-    const hasText = userInput && userInput.value.trim().length > 0;
-    const hasImage = window.imageModule.hasImage();
-    
-    if (sendButton) {
-        sendButton.disabled = !hasText && !hasImage;
-    }
-}
-
-// Add input event listener to update send button state
-if (userInput) {
-    userInput.addEventListener('input', updateSendButtonState);
-}
 
 // Add mode switch button event listener
 document.getElementById('mode-switch-btn').addEventListener('click', () => {
@@ -1477,7 +1442,7 @@ function updateModeButtons(isDeepThink) {
             modeText.textContent = 'DeepThink';
             modeBtn.style.borderColor = 'var(--deepthink-color)';
             modeBtn.style.color = 'var(--deepthink-color)';
-        } else {
+         } else {
             modeIcon.className = 'fas fa-balance-scale';
             modeText.textContent = 'Default';
             modeBtn.style.borderColor = 'var(--default-color)';
@@ -1495,7 +1460,7 @@ function updateModeButtons(isDeepThink) {
             welcomeModeIcon.className = 'fas fa-brain';
             welcomeModeText.textContent = 'DeepThink Mode';
             welcomeModeBtn.classList.add('active');
-        } else {
+     } else {
             welcomeModeIcon.className = 'fas fa-balance-scale';
             welcomeModeText.textContent = 'Default Mode';
             welcomeModeBtn.classList.remove('active');
@@ -1505,11 +1470,11 @@ function updateModeButtons(isDeepThink) {
     // Update mode buttons in welcome screen
     document.querySelectorAll('.mode-btn').forEach(btn => {
         if (btn.dataset.mode === (isDeepThink ? 'deepthink' : 'default')) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
+             btn.classList.add('active');
+         } else {
+             btn.classList.remove('active');
+         }
+     });
 }
 
 // Update the initializeMode function
@@ -1573,9 +1538,9 @@ async function shareApplication() {
                         <i class="fas fa-link"></i>
                         <span>Copy Link</span>
                     </button>
-                </div>
-            `;
-
+         </div>
+     `;
+     
             // Add click event for copy link
             const copyLinkBtn = shareMenu.querySelector('.copy-link');
             copyLinkBtn.addEventListener('click', () => {

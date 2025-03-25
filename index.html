@@ -45,7 +45,6 @@
         // Load environment variables
         loadNetlifyEnv();
     </script>
-    <script src="imageModule.js"></script>
 </head>
 <body>
     <!-- Mode detection and initialization -->
@@ -184,14 +183,10 @@
             
             <div class="chat-input-container">
                 <div class="input-wrapper">
-                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
-                    <textarea id="user-input" placeholder="Type a message or upload an image..." rows="1"></textarea>
+                    <textarea id="user-input" placeholder="Send a message..." rows="1" autofocus></textarea>
                     <div class="input-buttons">
-                        <button id="image-btn" class="control-btn" title="Upload Image">
-                            <i class="fas fa-image"></i>
-                        </button>
-                        <button id="mode-switch-btn">
-                            <i class="fas fa-sync-alt"></i>
+                        <button id="mode-switch-btn" title="Switch Reasoning Mode">
+                            <i class="fas fa-exchange-alt"></i>
                             <span id="mini-mode-indicator">Default</span>
                         </button>
                         <button id="send-button">
@@ -217,14 +212,6 @@
     </div>
     <script src="env-config.js"></script>
     <script src="script.js"></script>
-
-    <!-- Add image preview container -->
-    <div id="image-preview" class="image-preview" style="display: none;">
-        <img id="preview-img" src="" alt="Preview">
-        <button id="remove-image" class="remove-image">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
 
     <!-- Add mobile navigation bar -->
     <nav class="mobile-nav">
