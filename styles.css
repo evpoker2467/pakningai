@@ -2688,34 +2688,43 @@ body.resizing .sidebar-resizer {
 .input-container {
     display: flex;
     align-items: center;
+    gap: 8px;
     background: var(--input-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 8px 12px;
     margin: 10px;
+    position: relative;
 }
 
 .input-container textarea {
     flex: 1;
     border: none;
-    background: none;
+    background: transparent;
     resize: none;
     padding: 8px;
     color: var(--text-color);
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: 14px;
+    line-height: 1.4;
+    min-height: 20px;
     max-height: 200px;
     outline: none;
 }
 
 .input-container button {
-    background: none;
-    border: none;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
     padding: 8px;
     cursor: pointer;
     color: var(--text-color);
-    opacity: 0.7;
-    transition: all 0.2s ease-in-out;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
 }
 
 .input-container button:hover:not(:disabled) {
@@ -2724,18 +2733,43 @@ body.resizing .sidebar-resizer {
 }
 
 .input-container button:disabled {
-    opacity: 0.3;
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
-/* Mobile-specific input styles */
 @media (max-width: 768px) {
     .input-container {
-        margin: 8px;
-        padding: 6px 10px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0;
+        padding: 10px;
+        border-radius: 0;
+        border-top: 1px solid var(--border-color);
+        background: var(--bg-color);
+        z-index: 1000;
     }
-    
+
     .voice-btn {
-        padding: 6px;
+        order: 1;
+    }
+
+    #mode-switch-btn {
+        order: 2;
+    }
+
+    #send-button {
+        order: 3;
+    }
+
+    .input-container textarea {
+        font-size: 16px; /* Better for mobile */
+        padding: 8px 0;
+    }
+
+    .input-container button {
+        min-width: 40px;
+        height: 40px;
     }
 } 

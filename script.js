@@ -1307,6 +1307,31 @@ function initializeMobileMode() {
     if (isMobileDevice) {
         // Force mobile mode on mobile devices
         setInterfaceMode('mobile-mode');
+        
+        // Ensure input container is properly structured for mobile
+        const inputContainer = document.querySelector('.input-container');
+        if (inputContainer) {
+            // Make sure all buttons are present and in correct order
+            const textarea = inputContainer.querySelector('textarea');
+            const voiceBtn = inputContainer.querySelector('#voice-input-btn');
+            const modeBtn = inputContainer.querySelector('#mode-switch-btn');
+            const sendBtn = inputContainer.querySelector('#send-button');
+            
+            if (!voiceBtn || !modeBtn || !sendBtn) {
+                inputContainer.innerHTML = `
+                    <textarea id="user-input" rows="1" placeholder="Type your message..."></textarea>
+                    <button id="voice-input-btn" class="voice-btn" title="Voice input">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="mode-switch-btn">
+                        <i class="fas fa-balance-scale"></i>
+                    </button>
+                    <button id="send-button" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                `;
+            }
+        }
     } else {
         // For desktop, check saved preference or use default
         const savedMode = localStorage.getItem('preferredMode');
@@ -1370,8 +1395,11 @@ function setupMobileNavigation() {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM loaded, initializing app...');
     
-    // Initialize mobile mode
+    // Initialize mobile mode first
     initializeMobileMode();
+    
+    // Setup voice input after mobile mode is initialized
+    setupVoiceInput();
     
     // Setup mobile navigation
     setupMobileNavigation();
@@ -1393,6 +1421,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize sidebar resize
     initSidebarResize();
+    
+    // Re-add event listeners for mode switching
+    const modeSwitchBtn = document.getElementById('mode-switch-btn');
+    if (modeSwitchBtn) {
+        modeSwitchBtn.addEventListener('click', toggleMode);
+    }
     
     // Focus on input
     userInput.focus();
@@ -1578,6 +1612,8 @@ let recognition = null;
 let isRecording = false;
 
 function setupVoiceInput() {
+    const voiceBtn = document.getElementById('voice-input-btn');
+    
     // Check if browser supports speech recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
@@ -1590,13 +1626,13 @@ function setupVoiceInput() {
         // Add event listeners
         recognition.onstart = () => {
             isRecording = true;
-            document.getElementById('voice-input-btn').classList.add('recording');
+            voiceBtn.classList.add('recording');
             showMessage('Listening...', 'info');
         };
         
         recognition.onend = () => {
             isRecording = false;
-            document.getElementById('voice-input-btn').classList.remove('recording');
+            voiceBtn.classList.remove('recording');
         };
         
         recognition.onresult = (event) => {
@@ -1606,12 +1642,13 @@ function setupVoiceInput() {
             
             userInput.value = transcript;
             userInput.dispatchEvent(new Event('input')); // Trigger input event for auto-resize
+            sendButton.disabled = !transcript.trim();
         };
         
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
             isRecording = false;
-            document.getElementById('voice-input-btn').classList.remove('recording');
+            voiceBtn.classList.remove('recording');
             
             if (event.error === 'not-allowed') {
                 showMessage('Microphone access denied', 'error');
@@ -1621,10 +1658,14 @@ function setupVoiceInput() {
         };
         
         // Add click handler for voice input button
-        document.getElementById('voice-input-btn').addEventListener('click', toggleVoiceInput);
+        if (voiceBtn) {
+            voiceBtn.addEventListener('click', toggleVoiceInput);
+        }
     } else {
         // Hide voice input button if not supported
-        document.getElementById('voice-input-btn').style.display = 'none';
+        if (voiceBtn) {
+            voiceBtn.style.display = 'none';
+        }
     }
 }
 
@@ -1635,12 +1676,5 @@ function toggleVoiceInput() {
         recognition.stop();
     }
 }
-
-// Add to initialization
-document.addEventListener('DOMContentLoaded', () => {
-    // ... existing initialization code ...
-    
-    setupVoiceInput();
-});
 
 
