@@ -504,6 +504,36 @@
          }
      }
      
+     // Add copy button container
+     const actionButtons = document.createElement('div');
+     actionButtons.className = 'message-actions';
+     
+     const copyButton = document.createElement('button');
+     copyButton.className = 'copy-button';
+     copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+     copyButton.title = 'Copy to clipboard';
+     
+     copyButton.addEventListener('click', () => {
+         // Get the text content without the copy button
+         const textToCopy = contentDiv.textContent;
+         navigator.clipboard.writeText(textToCopy).then(() => {
+             // Show success message
+             showMessage('Copied to clipboard!', 'success');
+             
+             // Visual feedback
+             copyButton.innerHTML = '<i class="fas fa-check"></i>';
+             setTimeout(() => {
+                 copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+             }, 2000);
+         }).catch(err => {
+             console.error('Failed to copy:', err);
+             showMessage('Failed to copy text', 'error');
+         });
+     });
+     
+     actionButtons.appendChild(copyButton);
+     messageDiv.appendChild(actionButtons);
+     
      messageDiv.appendChild(avatarDiv);
      messageDiv.appendChild(contentDiv);
      

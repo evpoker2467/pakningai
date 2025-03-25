@@ -2554,4 +2554,64 @@ body.resizing .sidebar-resizer {
     justify-content: center;
     align-items: center;
     margin-bottom: 30px;
+}
+
+/* Message copy button styles */
+.message {
+    position: relative;
+}
+
+.message-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+.copy-button {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copy-button:hover {
+    background: var(--hover-color);
+    transform: translateY(-1px);
+}
+
+.copy-button i {
+    font-size: 14px;
+}
+
+/* Mobile-specific copy button styles */
+@media (max-width: 768px) {
+    .message-actions {
+        opacity: 1;
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-top: 8px;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .copy-button {
+        padding: 8px 12px;
+    }
+    
+    .copy-button i {
+        font-size: 16px;
+    }
 } 
