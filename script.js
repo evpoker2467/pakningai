@@ -1390,12 +1390,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize sidebar resize
     initSidebarResize();
 
-    // Initialize image upload functionality
+    // Initialize image handling
     initializeImageHandling();
+    
+    // Initialize button states
+    initializeButtonStates();
     
     // Focus on input
     userInput.focus();
 });
+
+// Function to initialize button states
+function initializeButtonStates() {
+    // Enable all buttons except send button (which depends on input)
+    if (newChatBtn) newChatBtn.disabled = false;
+    if (clearChatBtn) clearChatBtn.disabled = false;
+    if (themeToggle) themeToggle.disabled = false;
+    if (sidebarToggle) sidebarToggle.disabled = false;
+    if (modeSwitchBtn) modeSwitchBtn.disabled = false;
+    if (hideSidebarBtn) hideSidebarBtn.disabled = false;
+    if (showSidebarBtn) showSidebarBtn.disabled = false;
+    
+    // Initialize send button state based on input
+    updateSendButtonState();
+}
+
+// Function to update send button state
+function updateSendButtonState() {
+    const hasText = userInput && userInput.value.trim().length > 0;
+    const hasImage = currentImageFile !== null;
+    
+    if (sendButton) {
+        sendButton.disabled = !hasText && !hasImage;
+    }
+}
+
+// Add input event listener to update send button state
+if (userInput) {
+    userInput.addEventListener('input', updateSendButtonState);
+}
 
 // Add mode switch button event listener
 document.getElementById('mode-switch-btn').addEventListener('click', () => {
