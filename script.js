@@ -172,25 +172,34 @@
  
  // Function to create a new chat session
  function createNewChat() {
-     // Reset message history
-     messagesHistory = [];
+     // Remove any existing new chat boxes
+     const existingNewChats = document.querySelectorAll('.history-item');
+     existingNewChats.forEach(chat => {
+         if (chat.querySelector('span').textContent.startsWith('New Chat')) {
+             chat.remove();
+         }
+     });
      
-     // Clear chat messages
-     const chatMessages = document.querySelector('.chat-messages');
-     if (chatMessages) {
-         chatMessages.innerHTML = '';
-     }
+     // Generate a unique ID for this session
+     currentSessionId = Date.now().toString();
      
-     // Show welcome screen
-     const welcomeScreen = document.querySelector('.welcome-screen');
-     const mainContent = document.querySelector('.main-content');
-     if (welcomeScreen && mainContent) {
-         welcomeScreen.style.display = 'flex';
-         mainContent.style.display = 'none';
-     }
+     // Reset message history with current mode's system prompt
+     messagesHistory = [
+         {
+             role: "system",
+             content: reasoningModes[currentMode].systemPrompt
+         }
+     ];
      
-     // Update sidebar
-     updateSidebar();
+     // Clear messages on screen
+     chatMessages.innerHTML = '';
+     
+     // Add new chat to history sidebar with a placeholder title
+     const defaultTitle = 'New Chat ' + formatDate(new Date());
+     addNewChatToHistory(defaultTitle);
+     
+     // Focus on input
+     userInput.focus();
  }
  
  // Function to add a new chat to the history sidebar
