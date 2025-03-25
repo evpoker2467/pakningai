@@ -74,11 +74,19 @@
         initializeMode();
     </script>
 
+    <!-- Mode toggle button (visible only on tablets and larger devices) -->
+    <button id="modeToggle" class="mode-toggle" aria-label="Toggle interface mode">
+        <i class="fas fa-mobile-alt"></i>
+    </button>
+
     <div class="app-container">
         <div class="sidebar">
             <div class="sidebar-resizer" id="sidebar-resizer"></div>
+            <button class="hide-sidebar-btn" id="hide-sidebar-btn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
             <div class="logo">
-                <div class="ning-logo">P</div>
+                <img id="sidebar-logo" src="logo.png" alt="PAKNING R1" class="logo-img">
                 <span>PAKNING R1</span>
             </div>
             <div class="new-chat">
@@ -88,55 +96,84 @@
                 </button>
             </div>
             <div class="chat-history">
-                <div class="history-item active">
-                    <i class="fas fa-comment"></i>
-                    <span>New Chat</span>
+                <!-- Chat history items will be added here dynamically -->
+            </div>
+            <div class="sidebar-footer">
+                <div class="sidebar-link" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
                 </div>
             </div>
         </div>
-
+        
+        <button class="show-sidebar-btn" id="show-sidebar-btn">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        
         <div class="main-content">
             <div class="top-bar">
                 <div class="mobile-menu">
                     <i class="fas fa-bars" id="sidebar-toggle"></i>
+                </div>
+                <div class="logo-container">
+                    <img src="logo.png" alt="PAKNING R1" class="header-logo">
                 </div>
                 <div class="session-actions">
                     <button id="clear-chat" title="Delete conversation">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
-                <div class="header-controls">
-                    <button id="theme-toggle" class="control-btn">
-                        <i class="fas fa-moon"></i>
-                        <span>Dark Mode</span>
-                    </button>
-                    <button id="share-btn" class="control-btn">
-                        <i class="fas fa-share-alt"></i>
-                        <span>Share</span>
-                    </button>
+                <div class="top-nav">
+                    <a href="#pricing" class="nav-link">Pricing</a>
+                    <a href="#contact" class="nav-link">Contact Us</a>
                 </div>
             </div>
-
+            
             <div class="chat-messages" id="chat-messages">
                 <div class="welcome-screen">
                     <div class="welcome-content">
                         <div class="welcome-logo">
-                            <div class="ning-logo large">P</div>
+                            <img src="logo.png" alt="PAKNING R1" class="welcome-logo-img">
                         </div>
                         <h1>PAKNING R1</h1>
-                        <p>Your advanced AI assistant with exceptional problem-solving capabilities</p>
-                        <div class="mode-selector">
-                            <button class="mode-btn active" data-mode="deepthink">
+                        <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>
+                        
+                        <div class="select-mode-container">
+                            <div class="mode-selection">
+                                <p class="mode-title">Select Reasoning Mode:</p>
+                                <div class="mode-buttons">
+                                    <button class="mode-btn active" data-mode="default">
+                                        <i class="fas fa-balance-scale"></i>
+                                        <span>Default</span>
+                                    </button>
+                                    <button class="mode-btn" data-mode="deepthink">
+                                        <i class="fas fa-brain"></i>
+                                        <span>DeepThink</span>
+                                    </button>
+                                </div>
+                                <div class="mode-description">
+                                    <p id="mode-description-text">Medium Reasoning Effort: Balanced depth and efficiency for well-thought-out responses.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-points">
+                            <div class="feature-point">
                                 <i class="fas fa-brain"></i>
-                                DeepThink Mode
-                            </button>
-                            <button class="mode-btn" data-mode="fastthink">
-                                <i class="fas fa-bolt"></i>
-                                FastThink Mode
-                            </button>
+                                <span>Deep analytical thinking for complex problem-solving</span>
+                            </div>
+                            <div class="feature-point">
+                                <i class="fas fa-code"></i>
+                                <span>Superior performance in mathematics and coding tasks</span>
+                            </div>
+                            <div class="feature-point">
+                                <i class="fas fa-tools"></i>
+                                <span>Adapts reasoning based on environmental feedback</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <!-- Messages will be added here dynamically -->
             </div>
             
             <div class="current-mode-indicator" id="current-mode-indicator">
@@ -194,5 +231,19 @@
             <i class="fas fa-trash"></i>
         </button>
     </nav>
+
+    <div class="header-controls">
+        <button id="theme-toggle" class="control-btn">
+            <i class="fas fa-moon"></i>
+            <span>Dark Mode</span>
+        </button>
+        <button id="share-btn" class="control-btn">
+            <i class="fas fa-share-alt"></i>
+            <span>Share</span>
+        </button>
+        <button id="sidebar-toggle" class="control-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
 </body>
 </html> 
