@@ -62,9 +62,101 @@ function handleImageUpload(file) {
     });
 }
 
-// Export the functions
+// Image module for handling image uploads and analysis
 window.imageModule = {
-    analyzeImage,
-    generateImage,
-    handleImageUpload
+    currentImageFile: null,
+    currentImageUrl: null,
+    
+    // Initialize image handling
+    init() {
+        const imageBtn = document.getElementById('image-btn');
+        const imageUpload = document.getElementById('image-upload');
+        const removeImageBtn = document.getElementById('remove-image');
+        
+        if (imageBtn) {
+            imageBtn.addEventListener('click', () => {
+                if (imageUpload) imageUpload.click();
+            });
+        }
+        
+        if (imageUpload) {
+            imageUpload.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    try {
+                        this.currentImageFile = file;
+                        const imageUrl = URL.createObjectURL(file);
+                        this.currentImageUrl = imageUrl;
+                        
+                        // Show preview
+                        const previewImg = document.getElementById('preview-img');
+                        const imagePreview = document.getElementById('image-preview');
+                        if (previewImg && imagePreview) {
+                            previewImg.src = imageUrl;
+                            imagePreview.style.display = 'block';
+                        }
+                        
+                        // Enable send button
+                        const sendButton = document.getElementById('send-button');
+                        if (sendButton) sendButton.disabled = false;
+                    } catch (error) {
+                        console.error('Error handling image upload:', error);
+                        this.showError('Error uploading image');
+                    }
+                }
+            });
+        }
+        
+        if (removeImageBtn) {
+            removeImageBtn.addEventListener('click', () => this.clearImagePreview());
+        }
+    },
+    
+    // Clear image preview
+    clearImagePreview() {
+        this.currentImageFile = null;
+        this.currentImageUrl = null;
+        
+        const imagePreview = document.getElementById('image-preview');
+        const previewImg = document.getElementById('preview-img');
+        const imageUpload = document.getElementById('image-upload');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        
+        if (imagePreview) imagePreview.style.display = 'none';
+        if (previewImg) previewImg.src = '';
+        if (imageUpload) imageUpload.value = '';
+        
+        // Update send button state
+        if (sendButton && userInput) {
+            sendButton.disabled = !userInput.value.trim();
+        }
+    },
+    
+    // Show error message
+    showError(message) {
+        const event = new CustomEvent('showMessage', {
+            detail: { message, type: 'error' }
+        });
+        window.dispatchEvent(event);
+    },
+    
+    // Analyze image (placeholder for actual implementation)
+    async analyzeImage(imageUrl) {
+        // This is a placeholder. Implement actual image analysis here.
+        return "This is an image.";
+    },
+    
+    // Check if there's a current image
+    hasImage() {
+        return this.currentImageFile !== null;
+    },
+    
+    // Get current image data
+    getCurrentImageData() {
+        return {
+            file: this.currentImageFile,
+            url: this.currentImageUrl
+        };
+    }
 }; 

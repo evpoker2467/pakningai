@@ -22,10 +22,6 @@
  // Initialize API key variable 
  let apiKey = '';
  
- // Add these variables at the top with other declarations
- let currentImageFile = null;
- let currentImageUrl = null;
- 
  // Function to initialize API key from Netlify environment variables
  async function initializeApiKey() {
      try {
@@ -746,7 +742,9 @@
  // Function to handle sending a message
  async function handleSendMessage() {
      const message = userInput.value.trim();
-     if ((!message && !currentImageFile) || isWaitingForResponse) return;
+     const imageData = window.imageModule.getCurrentImageData();
+     
+     if ((!message && !imageData.file) || isWaitingForResponse) return;
      
      // Clear input
      userInput.value = '';
@@ -756,16 +754,16 @@
      let imageAnalysis = '';
      
      // Handle image if present
-     if (currentImageFile) {
+     if (imageData.file) {
          try {
              // Add image to chat
-             messageContent += `\n![Uploaded Image](${currentImageUrl})`;
+             messageContent += `\n![Uploaded Image](${imageData.url})`;
              
              // Analyze image
-             imageAnalysis = await window.imageModule.analyzeImage(currentImageUrl);
+             imageAnalysis = await window.imageModule.analyzeImage(imageData.url);
              
              // Clear image preview
-             clearImagePreview();
+             window.imageModule.clearImagePreview();
          } catch (error) {
              console.error('Error processing image:', error);
              showMessage('Error processing image', 'error');
@@ -1389,15 +1387,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize sidebar resize
     initSidebarResize();
-
-    // Initialize image handling
-    initializeImageHandling();
+    
+    // Initialize image module
+    window.imageModule.init();
     
     // Initialize button states
     initializeButtonStates();
     
     // Focus on input
     userInput.focus();
+    
+    // Listen for showMessage events from imageModule
+    window.addEventListener('showMessage', (event) => {
+        showMessage(event.detail.message, event.detail.type);
+    });
 });
 
 // Function to initialize button states
@@ -1418,7 +1421,7 @@ function initializeButtonStates() {
 // Function to update send button state
 function updateSendButtonState() {
     const hasText = userInput && userInput.value.trim().length > 0;
-    const hasImage = currentImageFile !== null;
+    const hasImage = window.imageModule.hasImage();
     
     if (sendButton) {
         sendButton.disabled = !hasText && !hasImage;
@@ -1604,83 +1607,5 @@ async function shareApplication() {
 
 // Add share button event listener
 document.getElementById('share-btn').addEventListener('click', shareApplication);
-
-// Function to initialize image handling
-function initializeImageHandling() {
-    const imageBtn = document.getElementById('image-btn');
-    const imageUpload = document.getElementById('image-upload');
-    const removeImageBtn = document.getElementById('remove-image');
-    
-    if (imageBtn) {
-        imageBtn.addEventListener('click', () => {
-            imageUpload.click();
-        });
-    }
-    
-    if (imageUpload) {
-        imageUpload.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                try {
-                    currentImageFile = file;
-                    const imageUrl = URL.createObjectURL(file);
-                    currentImageUrl = imageUrl;
-                    
-                    // Show preview
-                    const previewImg = document.getElementById('preview-img');
-                    const imagePreview = document.getElementById('image-preview');
-                    if (previewImg && imagePreview) {
-                        previewImg.src = imageUrl;
-                        imagePreview.style.display = 'block';
-                    }
-                    
-                    // Enable send button
-                    sendButton.disabled = false;
-                } catch (error) {
-                    console.error('Error handling image upload:', error);
-                    showMessage('Error uploading image', 'error');
-                }
-            }
-        });
-    }
-    
-    if (removeImageBtn) {
-        removeImageBtn.addEventListener('click', clearImagePreview);
-    }
-}
-
-// Function to clear image preview
-function clearImagePreview() {
-    currentImageFile = null;
-    currentImageUrl = null;
-    const imagePreview = document.getElementById('image-preview');
-    const previewImg = document.getElementById('preview-img');
-    const imageUpload = document.getElementById('image-upload');
-    
-    if (imagePreview) {
-        imagePreview.style.display = 'none';
-    }
-    if (previewImg) {
-        previewImg.src = '';
-    }
-    if (imageUpload) {
-        imageUpload.value = '';
-    }
-    
-    // Disable send button if text is also empty
-    if (!userInput.value.trim()) {
-        sendButton.disabled = true;
-    }
-}
-
-// Update the input event listener to handle image state
-userInput.addEventListener('input', () => {
-    const hasText = userInput.value.trim().length > 0;
-    sendButton.disabled = !hasText && !currentImageFile;
-    
-    // Adjust height
-    userInput.style.height = 'auto';
-    userInput.style.height = Math.min(userInput.scrollHeight, 180) + 'px';
-});
 
 
