@@ -211,7 +211,7 @@ body.resizing .sidebar-resizer::after {
 /* Hide/show sidebar button */
 .hide-sidebar-btn,
 .show-sidebar-btn {
-    display: none;
+    display: none !important;
 }
 
 /* Sidebar collapsed state */
