@@ -2492,4 +2492,66 @@ body.resizing .sidebar-resizer {
             transform: translateY(0);
         }
     }
+}
+
+/* Logo styles */
+.logo-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    margin-right: 10px;
+}
+
+.header-logo {
+    height: 40px;
+    object-fit: contain;
+    margin: 0 15px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.welcome-logo-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+
+/* Mobile-specific logo styles */
+@media (max-width: 768px) {
+    .header-logo {
+        height: 32px;
+    }
+
+    .welcome-logo-img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .logo-container {
+        flex: 1;
+        justify-content: flex-start;
+    }
+}
+
+/* Update existing logo styles */
+.logo {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.welcome-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
 } 
