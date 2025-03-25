@@ -607,98 +607,72 @@
  }
  
  // Function to send message to API
- async function sendMessageToAPI(userMessage) {
-     // Check for valid API key
-     if (!hasValidApiKey()) {
-         console.error('No valid API key available');
-         removeTypingIndicator();
-         handleAPIConnectionError('Missing API key');
-         return null;
-     }
-     
-     const maxRetries = 2; // Number of retries
-     
-     for (let retryCount = 0; retryCount <= maxRetries; retryCount++) {
-         if (retryCount > 0) {
-             console.log(`Retry attempt ${retryCount}...`);
-         }
-         
-         // Prepare API request options
-     const requestOptions = {
-         method: 'POST',
-         headers: {
-             'Authorization': `Bearer ${apiKey}`,
-                 'HTTP-Referer': window.location.href, 
-                 'X-Title': 'PAKNING R1 Chatbot', 
-                 'Content-Type': 'application/json'
-         },
-         body: JSON.stringify({
-                 'model': 'qwen/qwq-32b:free',
-                 'messages': messagesHistory,
-                 'temperature': reasoningModes[currentMode].temperature,
-                 'max_tokens': reasoningModes[currentMode].maxTokens,
-                 'stream': true // Enable streaming
-         })
-     };
-     
+ async function sendMessageToAPI(message) {
      try {
-             console.log(`Sending request to ${API_URL}...`);
-             const response = await fetch(API_URL, requestOptions);
-         
+         const response = await fetch('https://api.pakningai.com/v1/chat/completions', {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json',
+                 'Authorization': `Bearer ${API_KEY}`
+             },
+             body: JSON.stringify({
+                 model: "gpt-4",
+                 messages: messagesHistory,
+                 temperature: 0.7,
+                 max_tokens: 2000,
+                 stream: true
+             })
+         });
+
          if (!response.ok) {
-                 const errorText = await response.text();
-                 console.error(`API Error, retry ${retryCount}:`, errorText);
-                 
-                 if (retryCount < maxRetries) {
-                     const delayMs = 1000 * (retryCount + 1);
-                     await new Promise(resolve => setTimeout(resolve, delayMs));
-                     continue;
-                 }
-                 
-                 removeTypingIndicator();
-                 handleAPIConnectionError(`API returned error: ${response.status}`);
-                 return null;
-             }
+             throw new Error(`HTTP error! status: ${response.status}`);
+         }
+
+         const reader = response.body.getReader();
+         const decoder = new TextDecoder();
+         let fullResponse = '';
+         let currentMessage = '';
+         let isFirstChunk = true;
+
+         while (true) {
+             const {value, done} = await reader.read();
+             if (done) break;
              
-             // Create a new message div for streaming response
-             const messageDiv = addMessageToChat('', 'bot');
-             const contentDiv = messageDiv.querySelector('.message-content');
-             let fullResponse = '';
+             const chunk = decoder.decode(value);
+             const lines = chunk.split('\n');
              
-             // Read the response as a stream
-             const reader = response.body.getReader();
-             const decoder = new TextDecoder();
-             
-             while (true) {
-                 const { done, value } = await reader.read();
-                 if (done) break;
-                 
-                 // Decode the chunk and parse it
-                 const chunk = decoder.decode(value);
-                 const lines = chunk.split('\n');
-                 
-                 for (const line of lines) {
-                     if (line.startsWith('data: ')) {
-                         const data = line.slice(6);
-                         if (data === '[DONE]') {
-                             // Stream complete
-                             break;
+             for (const line of lines) {
+                 if (line.startsWith('data: ')) {
+                     const data = line.slice(6);
+                     if (data === '[DONE]') {
+                         if (fullResponse) {
+                             messagesHistory.push({
+                                 role: "assistant",
+                                 content: fullResponse
+                             });
+                             updateChatSession();
+                             fullResponse = '';
                          }
-                         
+                     } else {
                          try {
                              const parsed = JSON.parse(data);
                              if (parsed.choices && parsed.choices[0].delta.content) {
-                                 const newContent = parsed.choices[0].delta.content;
-                                 fullResponse += newContent;
+                                 const content = parsed.choices[0].delta.content;
+                                 currentMessage += content;
+                                 fullResponse += content;
                                  
-                                 // Clean up the content before formatting
-                                 const cleanedContent = sanitizeText(fullResponse);
-                                 
-                                 // Update the message content with markdown formatting
-                                 contentDiv.innerHTML = formatMarkdown(cleanedContent);
-                                 
-                                 // Scroll to bottom
-                                 chatMessages.scrollTop = chatMessages.scrollHeight;
+                                 // Update the chat UI with the new content
+                                 const chatMessages = document.querySelector('.chat-messages');
+                                 if (chatMessages) {
+                                     const lastMessage = chatMessages.lastElementChild;
+                                     if (lastMessage && lastMessage.classList.contains('bot')) {
+                                         const messageContent = lastMessage.querySelector('.message-content');
+                                         if (messageContent) {
+                                             messageContent.innerHTML = marked.parse(currentMessage);
+                                             chatMessages.scrollTop = chatMessages.scrollHeight;
+                                         }
+                                     }
+                                 }
                              }
                          } catch (e) {
                              console.error('Error parsing chunk:', e);
@@ -706,37 +680,11 @@
                      }
                  }
              }
-             
-             // Add complete response to history only once
-             if (fullResponse) {
-         messagesHistory.push({
-             role: 'assistant',
-                     content: fullResponse
-         });
-         
-         // Update chat session in storage
-         updateChatSession();
-             }
-         
-             console.log(`Successfully received response from API`);
-             return fullResponse;
-             
-     } catch (error) {
-             console.error(`API Error, retry ${retryCount}:`, error);
-             
-             if (retryCount < maxRetries) {
-                 const delayMs = 1000 * (retryCount + 1);
-                 await new Promise(resolve => setTimeout(resolve, delayMs));
-                 continue;
-             }
-             
-             removeTypingIndicator();
-             handleAPIConnectionError(error.message || "Network error connecting to API");
-             return null;
          }
+     } catch (error) {
+         console.error('Error:', error);
+         showToast('Error: Failed to get response from API', 'error');
      }
-     
-     return null;
  }
  
  // Function to handle sending a message
@@ -1301,21 +1249,12 @@
 
 // Function to initialize mobile detection
 function initializeMobileMode() {
-    // Check if we're on a mobile device
-    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    if (isMobileDevice) {
-        // Force mobile mode on mobile devices
-        setInterfaceMode('mobile-mode');
-    } else {
-        // For desktop, check saved preference or use default
-        const savedMode = localStorage.getItem('preferredMode');
-        if (savedMode) {
-            setInterfaceMode(savedMode);
-        } else {
-            // Auto-detect based on screen size
-            const shouldBeMobile = window.innerWidth <= 768;
-            setInterfaceMode(shouldBeMobile ? 'mobile-mode' : 'web-mode');
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        document.body.classList.add('mobile-mode');
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            sidebar.classList.add('collapsed');
         }
     }
 }
