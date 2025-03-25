@@ -1007,81 +1007,31 @@
      }, 300);
  }
  
- // Function to make sidebar resizable
- function initSidebarResize() {
-     let isResizing = false;
-     const minWidth = 180;
-     const maxWidth = 400;
-     const defaultWidth = 260;
+ // Function to initialize sidebar resize functionality
+ function initializeSidebarResize() {
+     const sidebar = document.querySelector('.sidebar');
+     const resizer = document.getElementById('sidebar-resizer');
+     let startX, startWidth;
      
-     // Get saved width
-     const savedWidth = localStorage.getItem('pakningR1_sidebarWidth');
-     if (savedWidth) {
-         sidebar.style.width = `${savedWidth}px`;
-     }
-     
-     sidebarResizer.addEventListener('mousedown', function(e) {
-         e.preventDefault();
-         isResizing = true;
+     resizer.addEventListener('mousedown', (e) => {
+         startX = e.clientX;
+         startWidth = sidebar.offsetWidth;
+         document.body.style.cursor = 'ew-resize';
          document.body.classList.add('resizing');
      });
      
-     document.addEventListener('mousemove', function(e) {
-         if (!isResizing) return;
+     document.addEventListener('mousemove', (e) => {
+         if (!document.body.classList.contains('resizing')) return;
          
-         const newWidth = e.clientX;
-         
-         // Apply constraints
-         if (newWidth < minWidth) {
-             sidebar.style.width = `${minWidth}px`;
-         } else if (newWidth > maxWidth) {
-             sidebar.style.width = `${maxWidth}px`;
-         } else {
-             sidebar.style.width = `${newWidth}px`;
+         const width = startWidth + (e.clientX - startX);
+         if (width >= 200 && width <= 500) {
+             sidebar.style.width = `${width}px`;
          }
      });
      
-     document.addEventListener('mouseup', function() {
-         if (isResizing) {
-             isResizing = false;
-             document.body.classList.remove('resizing');
-             
-             // Save new width
-             localStorage.setItem('pakningR1_sidebarWidth', sidebar.style.width.replace('px', ''));
-         }
-     });
-     
-     // Also handle touch events for mobile
-     sidebarResizer.addEventListener('touchstart', function(e) {
-         e.preventDefault();
-         isResizing = true;
-         document.body.classList.add('resizing');
-     });
-     
-     document.addEventListener('touchmove', function(e) {
-         if (!isResizing) return;
-         
-         const touch = e.touches[0];
-         const newWidth = touch.clientX;
-         
-         // Apply constraints
-         if (newWidth < minWidth) {
-             sidebar.style.width = `${minWidth}px`;
-         } else if (newWidth > maxWidth) {
-             sidebar.style.width = `${maxWidth}px`;
-         } else {
-             sidebar.style.width = `${newWidth}px`;
-         }
-     });
-     
-     document.addEventListener('touchend', function() {
-         if (isResizing) {
-             isResizing = false;
-             document.body.classList.remove('resizing');
-             
-             // Save new width
-             localStorage.setItem('pakningR1_sidebarWidth', sidebar.style.width.replace('px', ''));
-         }
+     document.addEventListener('mouseup', () => {
+         document.body.style.cursor = '';
+         document.body.classList.remove('resizing');
      });
  }
  
@@ -1392,7 +1342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadSidebarState();
     
     // Initialize sidebar resize
-    initSidebarResize();
+    initializeSidebarResize();
     
     // Focus on input
     userInput.focus();
