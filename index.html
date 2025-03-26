@@ -74,11 +74,19 @@
         initializeMode();
     </script>
 
+    <!-- Mode toggle button (visible only on tablets and larger devices) -->
+    <button id="modeToggle" class="mode-toggle" aria-label="Toggle interface mode">
+        <i class="fas fa-mobile-alt"></i>
+    </button>
+
     <div class="app-container">
         <div class="sidebar">
             <div class="sidebar-resizer" id="sidebar-resizer"></div>
+            <button class="hide-sidebar-btn" id="hide-sidebar-btn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
             <div class="logo">
-                <img id="sidebar-logo" src="logo.png" alt="PAKNING R1" class="logo-img">
+                <div class="ning-logo">P</div>
                 <span>PAKNING R1</span>
             </div>
             <div class="new-chat">
@@ -87,8 +95,8 @@
                     <span>New Chat</span>
                 </button>
             </div>
-            <div class="chat-history" id="chat-history">
-                <!-- Chat history items will be added here -->
+            <div class="chat-history">
+                <!-- Chat history items will be added here dynamically -->
             </div>
             <div class="sidebar-footer">
                 <div class="sidebar-link" id="theme-toggle">
@@ -107,15 +115,14 @@
                 <div class="mobile-menu">
                     <i class="fas fa-bars" id="sidebar-toggle"></i>
                 </div>
-                <div class="logo-container">
-                    <img src="logo.png" alt="PAKNING R1" class="header-logo">
-                </div>
                 <div class="session-actions">
                     <button id="clear-chat" title="Delete conversation">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
                 <div class="top-nav">
+                    <a href="#pricing" class="nav-link">Pricing</a>
+                    <a href="#contact" class="nav-link">Contact Us</a>
                 </div>
             </div>
             
@@ -123,7 +130,7 @@
                 <div class="welcome-screen">
                     <div class="welcome-content">
                         <div class="welcome-logo">
-                            <img src="logo.png" alt="PAKNING R1" class="welcome-logo-img">
+                            <div class="ning-logo large">P</div>
                         </div>
                         <h1>PAKNING R1</h1>
                         <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>

@@ -504,36 +504,6 @@
          }
      }
      
-     // Add copy button container
-     const actionButtons = document.createElement('div');
-     actionButtons.className = 'message-actions';
-     
-     const copyButton = document.createElement('button');
-     copyButton.className = 'copy-button';
-     copyButton.innerHTML = '<i class="fas fa-copy"></i>';
-     copyButton.title = 'Copy to clipboard';
-     
-     copyButton.addEventListener('click', () => {
-         // Get the text content without the copy button
-         const textToCopy = contentDiv.textContent;
-         navigator.clipboard.writeText(textToCopy).then(() => {
-             // Show success message
-             showMessage('Copied to clipboard!', 'success');
-             
-             // Visual feedback
-             copyButton.innerHTML = '<i class="fas fa-check"></i>';
-             setTimeout(() => {
-                 copyButton.innerHTML = '<i class="fas fa-copy"></i>';
-             }, 2000);
-         }).catch(err => {
-             console.error('Failed to copy:', err);
-             showMessage('Failed to copy text', 'error');
-         });
-     });
-     
-     actionButtons.appendChild(copyButton);
-     messageDiv.appendChild(actionButtons);
-     
      messageDiv.appendChild(avatarDiv);
      messageDiv.appendChild(contentDiv);
      
@@ -1007,31 +977,81 @@
      }, 300);
  }
  
- // Function to initialize sidebar resize functionality
- function initializeSidebarResize() {
-     const sidebar = document.querySelector('.sidebar');
-     const resizer = document.getElementById('sidebar-resizer');
-     let startX, startWidth;
+ // Function to make sidebar resizable
+ function initSidebarResize() {
+     let isResizing = false;
+     const minWidth = 180;
+     const maxWidth = 400;
+     const defaultWidth = 260;
      
-     resizer.addEventListener('mousedown', (e) => {
-         startX = e.clientX;
-         startWidth = sidebar.offsetWidth;
-         document.body.style.cursor = 'ew-resize';
+     // Get saved width
+     const savedWidth = localStorage.getItem('pakningR1_sidebarWidth');
+     if (savedWidth) {
+         sidebar.style.width = `${savedWidth}px`;
+     }
+     
+     sidebarResizer.addEventListener('mousedown', function(e) {
+         e.preventDefault();
+         isResizing = true;
          document.body.classList.add('resizing');
      });
      
-     document.addEventListener('mousemove', (e) => {
-         if (!document.body.classList.contains('resizing')) return;
+     document.addEventListener('mousemove', function(e) {
+         if (!isResizing) return;
          
-         const width = startWidth + (e.clientX - startX);
-         if (width >= 200 && width <= 500) {
-             sidebar.style.width = `${width}px`;
+         const newWidth = e.clientX;
+         
+         // Apply constraints
+         if (newWidth < minWidth) {
+             sidebar.style.width = `${minWidth}px`;
+         } else if (newWidth > maxWidth) {
+             sidebar.style.width = `${maxWidth}px`;
+         } else {
+             sidebar.style.width = `${newWidth}px`;
          }
      });
      
-     document.addEventListener('mouseup', () => {
-         document.body.style.cursor = '';
+     document.addEventListener('mouseup', function() {
+         if (isResizing) {
+             isResizing = false;
              document.body.classList.remove('resizing');
+             
+             // Save new width
+             localStorage.setItem('pakningR1_sidebarWidth', sidebar.style.width.replace('px', ''));
+         }
+     });
+     
+     // Also handle touch events for mobile
+     sidebarResizer.addEventListener('touchstart', function(e) {
+         e.preventDefault();
+         isResizing = true;
+         document.body.classList.add('resizing');
+     });
+     
+     document.addEventListener('touchmove', function(e) {
+         if (!isResizing) return;
+         
+         const touch = e.touches[0];
+         const newWidth = touch.clientX;
+         
+         // Apply constraints
+         if (newWidth < minWidth) {
+             sidebar.style.width = `${minWidth}px`;
+         } else if (newWidth > maxWidth) {
+             sidebar.style.width = `${maxWidth}px`;
+         } else {
+             sidebar.style.width = `${newWidth}px`;
+         }
+     });
+     
+     document.addEventListener('touchend', function() {
+         if (isResizing) {
+             isResizing = false;
+             document.body.classList.remove('resizing');
+             
+             // Save new width
+             localStorage.setItem('pakningR1_sidebarWidth', sidebar.style.width.replace('px', ''));
+         }
      });
  }
  
@@ -1205,6 +1225,12 @@
          document.querySelectorAll('.desktop-only').forEach(el => {
              el.style.display = 'none';
          });
+         
+         // Hide mode toggle button on mobile
+         const modeToggle = document.getElementById('modeToggle');
+         if (modeToggle) {
+             modeToggle.style.display = 'none';
+         }
      } else {
          // Restore desktop layout
          if (sidebar) {
@@ -1225,6 +1251,21 @@
          document.querySelectorAll('.desktop-only').forEach(el => {
              el.style.display = '';
          });
+         
+         // Show mode toggle button on desktop
+         const modeToggle = document.getElementById('modeToggle');
+         if (modeToggle) {
+             modeToggle.style.display = '';
+         }
+     }
+     
+     // Update mode toggle button
+     const modeToggle = document.getElementById('modeToggle');
+     if (modeToggle) {
+         const icon = modeToggle.querySelector('i');
+         if (icon) {
+             icon.className = mode === 'web-mode' ? 'fas fa-mobile-alt' : 'fas fa-desktop';
+         }
      }
  }
 
@@ -1311,6 +1352,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load saved chats
     loadChatsFromLocalStorage();
     
+    // Initialize mode
+    initializeMode();
+    
     // Load theme preference
     loadThemePreference();
     
@@ -1318,7 +1362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadSidebarState();
     
     // Initialize sidebar resize
-    initializeSidebarResize();
+    initSidebarResize();
     
     // Focus on input
     userInput.focus();
@@ -1498,5 +1542,47 @@ async function shareApplication() {
 
 // Add share button event listener
 document.getElementById('share-btn').addEventListener('click', shareApplication);
+
+function appendMessage(content, isUser = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+    
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+    
+    // Add copy button
+    const copyButton = document.createElement('button');
+    copyButton.className = 'copy-button';
+    copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+    copyButton.title = 'Copy message';
+    copyButton.onclick = () => {
+        navigator.clipboard.writeText(content).then(() => {
+            // Show success feedback
+            copyButton.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => {
+                copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            // Show error feedback
+            copyButton.innerHTML = '<i class="fas fa-times"></i>';
+            setTimeout(() => {
+                copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+            }, 2000);
+        });
+    };
+    
+    messageContent.appendChild(copyButton);
+    
+    // Add message text
+    const textDiv = document.createElement('div');
+    textDiv.className = 'message-text';
+    textDiv.innerHTML = marked.parse(content);
+    messageContent.appendChild(textDiv);
+    
+    messageDiv.appendChild(messageContent);
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
 
