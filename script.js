@@ -603,7 +603,7 @@
                  'Content-Type': 'application/json'
          },
          body: JSON.stringify({
-                 'model': 'qwen/qwq-32b:free',
+                 'model': 'qwen/qwen3-14b:free',
                  'messages': messagesHistory,
                  'temperature': reasoningModes[currentMode].temperature,
                  'max_tokens': reasoningModes[currentMode].maxTokens,
