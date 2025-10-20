@@ -206,49 +206,93 @@ const typingIndicator = document.getElementById('typing-indicator');
      userInput.focus();
  }
  
- // Function to add a new chat to the history sidebar
- function addNewChatToHistory(title) {
-     // Create chat item for sidebar
-     const historyItem = document.createElement('div');
-     historyItem.classList.add('history-item');
-     historyItem.dataset.id = currentSessionId;
-     
-     const icon = document.createElement('i');
-     icon.classList.add('fas', 'fa-comment');
-     
-     const span = document.createElement('span');
-     span.textContent = title;
-     
-     historyItem.appendChild(icon);
-     historyItem.appendChild(span);
-     
-     // Add to sidebar
-     const chatHistory = document.querySelector('.chat-history');
-     if (chatHistory) {
-         // Remove 'active' class from all history items
-         document.querySelectorAll('.history-item').forEach(item => {
-             item.classList.remove('active');
-         });
-         
-         // Add 'active' class to this new item
-         historyItem.classList.add('active');
-         
-         // Add to DOM - insert at the top for newest chats
-         chatHistory.insertBefore(historyItem, chatHistory.firstChild);
-     }
-     
-     // Store in chat sessions array
-     chatSessions.push({
-         id: currentSessionId,
-         title: title,
-         mode: currentMode,
-         messages: [...messagesHistory],
-         created: new Date().toISOString()
-     });
-     
-     // Save to localStorage
-     saveChatsToLocalStorage();
- }
+// Function to add a new chat to the history sidebar
+function addNewChatToHistory(title) {
+    // Create chat item for sidebar
+    const historyItem = document.createElement('div');
+    historyItem.classList.add('history-item');
+    historyItem.dataset.id = currentSessionId;
+    
+    const icon = document.createElement('i');
+    icon.classList.add('fas', 'fa-comment');
+    
+    const chatNameSpan = document.createElement('span');
+    chatNameSpan.classList.add('chat-name');
+    chatNameSpan.textContent = title;
+    chatNameSpan.title = 'Click to edit chat name';
+    
+    const editActions = document.createElement('div');
+    editActions.classList.add('edit-actions');
+    
+    const saveBtn = document.createElement('button');
+    saveBtn.classList.add('edit-action-btn', 'save');
+    saveBtn.innerHTML = '<i class="fas fa-check"></i>';
+    saveBtn.title = 'Save changes';
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.classList.add('edit-action-btn', 'cancel');
+    cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
+    cancelBtn.title = 'Cancel editing';
+    
+    editActions.appendChild(saveBtn);
+    editActions.appendChild(cancelBtn);
+    
+    historyItem.appendChild(icon);
+    historyItem.appendChild(chatNameSpan);
+    historyItem.appendChild(editActions);
+    
+    // Add click event for editing (single click on mobile, double click on desktop)
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        chatNameSpan.addEventListener('click', (e) => {
+            e.stopPropagation();
+            startEditingChatName(historyItem, currentSessionId);
+        });
+    } else {
+        chatNameSpan.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            startEditingChatName(historyItem, currentSessionId);
+        });
+    }
+    
+    // Add save/cancel event listeners
+    saveBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        saveChatName(historyItem, currentSessionId);
+    });
+    
+    cancelBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cancelEditingChatName(historyItem, currentSessionId);
+    });
+    
+    // Add to sidebar
+    const chatHistory = document.querySelector('.chat-history');
+    if (chatHistory) {
+        // Remove 'active' class from all history items
+        document.querySelectorAll('.history-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Add 'active' class to this new item
+        historyItem.classList.add('active');
+        
+        // Add to DOM - insert at the top for newest chats
+        chatHistory.insertBefore(historyItem, chatHistory.firstChild);
+    }
+    
+    // Store in chat sessions array
+    chatSessions.push({
+        id: currentSessionId,
+        title: title,
+        mode: currentMode,
+        messages: [...messagesHistory],
+        created: new Date().toISOString()
+    });
+    
+    // Save to localStorage
+    saveChatsToLocalStorage();
+}
  
  // Function to save all chats to localStorage
  function saveChatsToLocalStorage() {
@@ -309,11 +353,55 @@ function renderChatHistory(searchTerm = '') {
         const icon = document.createElement('i');
         icon.classList.add('fas', 'fa-comment');
         
-        const span = document.createElement('span');
-        span.textContent = session.title;
+        const chatNameSpan = document.createElement('span');
+        chatNameSpan.classList.add('chat-name');
+        chatNameSpan.textContent = session.title;
+        chatNameSpan.title = 'Click to edit chat name';
+        
+        const editActions = document.createElement('div');
+        editActions.classList.add('edit-actions');
+        
+        const saveBtn = document.createElement('button');
+        saveBtn.classList.add('edit-action-btn', 'save');
+        saveBtn.innerHTML = '<i class="fas fa-check"></i>';
+        saveBtn.title = 'Save changes';
+        
+        const cancelBtn = document.createElement('button');
+        cancelBtn.classList.add('edit-action-btn', 'cancel');
+        cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
+        cancelBtn.title = 'Cancel editing';
+        
+        editActions.appendChild(saveBtn);
+        editActions.appendChild(cancelBtn);
         
         historyItem.appendChild(icon);
-        historyItem.appendChild(span);
+        historyItem.appendChild(chatNameSpan);
+        historyItem.appendChild(editActions);
+        
+        // Add click event for editing (single click on mobile, double click on desktop)
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            chatNameSpan.addEventListener('click', (e) => {
+                e.stopPropagation();
+                startEditingChatName(historyItem, session.id);
+            });
+        } else {
+            chatNameSpan.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                startEditingChatName(historyItem, session.id);
+            });
+        }
+        
+        // Add save/cancel event listeners
+        saveBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            saveChatName(historyItem, session.id);
+        });
+        
+        cancelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cancelEditingChatName(historyItem, session.id);
+        });
         
         chatHistory.appendChild(historyItem);
     });
@@ -330,24 +418,31 @@ function renderChatHistory(searchTerm = '') {
     }
 }
  
- // Function to update chat title in sidebar and storage
- function updateChatTitle(sessionId, newTitle) {
-     // Update in storage
-     const sessionIndex = chatSessions.findIndex(s => s.id === sessionId);
-     if (sessionIndex !== -1) {
-         chatSessions[sessionIndex].title = newTitle;
-         saveChatsToLocalStorage();
-         
-         // Update in sidebar
-         const historyItem = document.querySelector(`.history-item[data-id="${sessionId}"]`);
-         if (historyItem) {
-             const span = historyItem.querySelector('span');
-             if (span) {
-                 span.textContent = newTitle;
-             }
-         }
-     }
- }
+// Function to update chat title in sidebar and storage
+function updateChatTitle(sessionId, newTitle) {
+    // Update in storage
+    const sessionIndex = chatSessions.findIndex(s => s.id === sessionId);
+    if (sessionIndex !== -1) {
+        chatSessions[sessionIndex].title = newTitle;
+        saveChatsToLocalStorage();
+        
+        // Update in sidebar
+        const historyItem = document.querySelector(`.history-item[data-id="${sessionId}"]`);
+        if (historyItem) {
+            const chatNameSpan = historyItem.querySelector('.chat-name');
+            if (chatNameSpan) {
+                chatNameSpan.textContent = newTitle;
+            }
+        }
+        
+        // Update document title if this is the current session
+        if (sessionId === currentSessionId) {
+            document.title = newTitle.length > 20 
+                ? newTitle.substring(0, 20) + '...' 
+                : newTitle + ' - PAKNING R1';
+        }
+    }
+}
  
  // Function to format date
  function formatDate(date) {
@@ -518,6 +613,85 @@ function loadDraft() {
 
 function clearDraft() {
     localStorage.removeItem('pakningR1_draft');
+}
+
+// Chat name editing functionality
+let originalChatName = '';
+
+function startEditingChatName(historyItem, sessionId) {
+    // Prevent multiple edits at once
+    if (document.querySelector('.history-item.editing')) {
+        return;
+    }
+    
+    const chatNameSpan = historyItem.querySelector('.chat-name');
+    const currentName = chatNameSpan.textContent;
+    originalChatName = currentName;
+    
+    // Create input field
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentName;
+    input.maxLength = 100;
+    
+    // Replace span content with input
+    chatNameSpan.innerHTML = '';
+    chatNameSpan.appendChild(input);
+    chatNameSpan.classList.add('editing');
+    historyItem.classList.add('editing');
+    
+    // Focus and select text
+    input.focus();
+    input.select();
+    
+    // Add keyboard event listeners
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveChatName(historyItem, sessionId);
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelEditingChatName(historyItem, sessionId);
+        }
+    });
+    
+    // Prevent click propagation when editing
+    input.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+}
+
+function saveChatName(historyItem, sessionId) {
+    const chatNameSpan = historyItem.querySelector('.chat-name');
+    const input = chatNameSpan.querySelector('input');
+    const newName = input.value.trim();
+    
+    if (newName && newName !== originalChatName) {
+        // Update the chat name
+        updateChatTitle(sessionId, newName);
+        showMessage('Chat name updated', 'success', 2000);
+    }
+    
+    // Exit editing mode
+    exitEditingMode(historyItem, newName || originalChatName);
+}
+
+function cancelEditingChatName(historyItem, sessionId) {
+    // Exit editing mode with original name
+    exitEditingMode(historyItem, originalChatName);
+}
+
+function exitEditingMode(historyItem, finalName) {
+    const chatNameSpan = historyItem.querySelector('.chat-name');
+    
+    // Restore span content
+    chatNameSpan.innerHTML = '';
+    chatNameSpan.textContent = finalName;
+    chatNameSpan.classList.remove('editing');
+    historyItem.classList.remove('editing');
+    
+    // Clear original name
+    originalChatName = '';
 }
 
 // Export/Import functionality

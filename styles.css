@@ -179,6 +179,77 @@ body {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    position: relative;
+}
+
+.history-item .chat-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+}
+
+.history-item .chat-name:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.history-item .chat-name.editing {
+    background-color: var(--input-bg);
+    border: 1px solid var(--primary-color);
+    cursor: text;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+}
+
+.history-item .chat-name input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-color);
+    font-size: inherit;
+    font-family: inherit;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.history-item .edit-actions {
+    display: none;
+    gap: 4px;
+    margin-left: 8px;
+}
+
+.history-item.editing .edit-actions {
+    display: flex;
+}
+
+.edit-action-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.edit-action-btn:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-color);
+}
+
+.edit-action-btn.save {
+    color: var(--deepthink-color);
+}
+
+.edit-action-btn.cancel {
+    color: #ff4444;
 }
 
 .history-item:hover {
@@ -2413,6 +2484,20 @@ body.resizing .sidebar-resizer {
     .sidebar-link {
         min-height: 44px;
         padding: 12px;
+    }
+    
+    /* Mobile editing improvements */
+    .history-item .chat-name {
+        padding: 4px 6px;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .edit-action-btn {
+        min-width: 32px;
+        min-height: 32px;
+        padding: 6px;
     }
     
     /* Better mobile input */
