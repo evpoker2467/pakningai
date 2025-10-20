@@ -231,22 +231,25 @@
     <script src="env-config.js"></script>
     <script src="script.js"></script>
 
-    <!-- Add mobile navigation bar -->
-    <nav class="mobile-nav">
-        <button class="nav-btn" id="toggleSidebar">
-            <i class="fas fa-bars"></i>
+    <!-- Enhanced mobile navigation bar -->
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+        <button class="nav-btn" id="toggleSidebar" aria-label="Toggle sidebar menu">
+            <i class="fas fa-bars" aria-hidden="true"></i>
         </button>
-        <button class="nav-btn" id="newChatMobile">
-            <i class="fas fa-plus"></i>
+        <button class="nav-btn" id="newChatMobile" aria-label="Start new chat">
+            <i class="fas fa-plus" aria-hidden="true"></i>
         </button>
-        <button class="nav-btn" id="shareMobile">
-            <i class="fas fa-share-alt"></i>
+        <button class="nav-btn" id="shareMobile" aria-label="Share application">
+            <i class="fas fa-share-alt" aria-hidden="true"></i>
         </button>
-        <button class="nav-btn" id="themeToggleMobile">
-            <i class="fas fa-moon"></i>
+        <button class="nav-btn" id="themeToggleMobile" aria-label="Toggle theme">
+            <i class="fas fa-moon" aria-hidden="true"></i>
         </button>
-        <button class="nav-btn danger" id="clearChatMobile">
-            <i class="fas fa-trash"></i>
+        <button class="nav-btn" id="modeSwitchMobile" aria-label="Switch reasoning mode">
+            <i class="fas fa-brain" aria-hidden="true"></i>
+        </button>
+        <button class="nav-btn danger" id="clearChatMobile" aria-label="Clear current chat">
+            <i class="fas fa-trash" aria-hidden="true"></i>
         </button>
     </nav>
 

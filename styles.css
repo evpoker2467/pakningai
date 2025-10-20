@@ -2751,7 +2751,7 @@ body.resizing .sidebar-resizer {
 }
 
 
-/* Mobile Mode Styles */
+/* Enhanced Mobile Mode Styles */
 .mobile-mode .app-container {
     display: flex;
     flex-direction: column;
@@ -2760,6 +2760,68 @@ body.resizing .sidebar-resizer {
     position: fixed;
     top: 0;
     left: 0;
+    overflow: hidden;
+}
+
+/* Mobile navigation bar */
+.mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--main-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 4px;
+    z-index: 1000;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.mobile-nav .nav-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    position: relative;
+}
+
+.mobile-nav .nav-btn:hover,
+.mobile-nav .nav-btn:active {
+    background: var(--hover-bg);
+    color: var(--text-color);
+    transform: scale(1.05);
+}
+
+.mobile-nav .nav-btn.danger:hover,
+.mobile-nav .nav-btn.danger:active {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+}
+
+.mobile-nav .nav-btn i {
+    font-size: 18px;
+}
+
+/* Mobile nav button active states */
+.mobile-nav .nav-btn.active {
+    background: var(--accent-color);
+    color: white;
+    box-shadow: 0 2px 8px rgba(106, 90, 249, 0.3);
+}
+
+.mobile-nav .nav-btn.active i {
+    animation: pulse 2s infinite;
 }
 
 /* Improved touch targets for mobile */
@@ -2826,65 +2888,101 @@ body.resizing .sidebar-resizer {
 
 .mobile-mode .chat-input-container {
     position: fixed;
-    bottom: 0;
+    bottom: 60px; /* Above mobile nav */
     left: 0;
     right: 0;
     background: var(--main-bg);
-    padding: 10px;
+    padding: 12px 16px;
     border-top: 1px solid var(--border-color);
-    z-index: 1000;
+    z-index: 999;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
 }
 
 .mobile-mode .input-wrapper {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px;
-    background: var(--main-bg);
+    align-items: flex-end;
+    gap: 12px;
+    padding: 8px 12px;
+    background: var(--input-bg);
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .mobile-mode #user-input {
     flex: 1;
-    min-height: 40px;
+    min-height: 44px;
     max-height: 120px;
-    padding: 8px 12px;
+    padding: 12px 16px;
     margin: 0;
     border-radius: 20px;
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
+    background: transparent;
+    border: none;
     resize: none;
+    font-size: 16px; /* Prevents zoom on iOS */
+    line-height: 1.4;
+    color: var(--text-color);
+}
+
+.mobile-mode #user-input:focus {
+    outline: none;
+    box-shadow: none;
 }
 
 .mobile-mode #send-button {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--primary-color);
+    background: var(--accent-color);
     border: none;
     color: white;
+    box-shadow: 0 2px 8px rgba(106, 90, 249, 0.3);
+    transition: all 0.2s ease;
+}
+
+.mobile-mode #send-button:hover,
+.mobile-mode #send-button:active {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(106, 90, 249, 0.4);
+}
+
+.mobile-mode #send-button:disabled {
+    opacity: 0.5;
+    transform: none;
 }
 
 .mobile-mode .message {
-    padding: 8px 12px;
-    margin: 8px;
-    border-radius: 12px;
+    padding: 12px 16px;
+    margin: 8px 12px;
+    border-radius: 18px;
     max-width: 85%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    animation: slideInFromRight 0.3s ease-out;
 }
 
 .mobile-mode .message.user {
     margin-left: auto;
-    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-color-dark));
     color: white;
+    border-bottom-right-radius: 6px;
 }
 
 .mobile-mode .message.bot {
     margin-right: auto;
     background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-bottom-left-radius: 6px;
+}
+
+.mobile-mode .message:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .mobile-mode .message.thinking {
@@ -2933,15 +3031,147 @@ body.resizing .sidebar-resizer {
 .mobile-mode .sidebar {
     position: fixed;
     left: -100%;
-    width: 80%;
-    max-width: 300px;
+    width: 85%;
+    max-width: 320px;
     height: 100vh;
     z-index: 2000;
-    transition: left 0.3s ease;
+    transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
 }
 
 .mobile-mode .sidebar.open {
     left: 0;
+}
+
+.mobile-mode .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-mode .sidebar.open + .sidebar-overlay {
+    opacity: 1;
+}
+
+/* Mobile context menu */
+.mobile-context-menu {
+    position: fixed;
+    background: var(--main-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 3000;
+    animation: fadeInUp 0.2s ease-out;
+    backdrop-filter: blur(10px);
+}
+
+.context-menu-content {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 4px;
+}
+
+.context-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.context-btn:hover {
+    background: var(--hover-bg);
+}
+
+.context-btn i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Mobile-specific improvements */
+.mobile-mode .welcome-screen {
+    padding: 20px 16px 80px;
+    height: calc(100vh - 140px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-mode .welcome-screen h1 {
+    font-size: 2.2em;
+    margin-bottom: 0.5em;
+}
+
+.mobile-mode .feature-points {
+    gap: 12px;
+}
+
+.mobile-mode .feature-point {
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.mobile-mode .mode-buttons {
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mobile-mode .mode-btn {
+    width: 100%;
+    height: 80px;
+    padding: 16px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 16px;
+}
+
+.mobile-mode .mode-btn i {
+    font-size: 24px;
+    margin: 0;
+}
+
+/* Mobile scrollbar styling */
+.mobile-mode ::-webkit-scrollbar {
+    width: 4px;
+}
+
+.mobile-mode ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mobile-mode ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+}
+
+.mobile-mode ::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-text);
+}
+
+/* Mobile keyboard handling */
+.mobile-mode .chat-input-container.keyboard-open {
+    bottom: 0;
+    transition: bottom 0.3s ease;
+}
+
+.mobile-mode .chat-messages.keyboard-open {
+    height: calc(100vh - 200px);
+    transition: height 0.3s ease;
 }
 
 .mobile-mode .sidebar-overlay {

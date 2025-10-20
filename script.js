@@ -2424,31 +2424,47 @@ function showMessage(message, type = 'info', duration = 5000) {
          localStorage.setItem('preferredMode', mode);
      }
      
-     // Update UI elements for mobile mode
-     if (mode === 'mobile-mode') {
-         // Hide sidebar by default on mobile
-         if (sidebar) {
-             sidebar.classList.add('collapsed');
-         }
-         
-         // Adjust chat container padding
-         const chatContainer = document.querySelector('.chat-messages');
-         if (chatContainer) {
-             chatContainer.style.paddingBottom = '120px';
-         }
-         
-         // Move input container to bottom
-         const inputContainer = document.querySelector('.chat-input-container');
-         if (inputContainer) {
-             inputContainer.classList.add('mobile-fixed');
-         }
-         
-         // Hide desktop-only elements
-         document.querySelectorAll('.desktop-only').forEach(el => {
-             el.style.display = 'none';
-         });
-         
-     } else {
+    // Update UI elements for mobile mode
+    if (mode === 'mobile-mode') {
+        // Hide sidebar by default on mobile
+        if (sidebar) {
+            sidebar.classList.add('collapsed');
+        }
+        
+        // Adjust chat container padding for mobile nav
+        const chatContainer = document.querySelector('.chat-messages');
+        if (chatContainer) {
+            chatContainer.style.paddingBottom = '140px'; // Space for input + nav
+        }
+        
+        // Move input container to bottom
+        const inputContainer = document.querySelector('.chat-input-container');
+        if (inputContainer) {
+            inputContainer.classList.add('mobile-fixed');
+        }
+        
+        // Show mobile navigation
+        const mobileNav = document.querySelector('.mobile-nav');
+        if (mobileNav) {
+            mobileNav.style.display = 'flex';
+        }
+        
+        // Hide desktop-only elements
+        document.querySelectorAll('.desktop-only').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // Hide desktop sidebar controls
+        if (hideSidebarBtn) hideSidebarBtn.style.display = 'none';
+        if (showSidebarBtn) showSidebarBtn.style.display = 'none';
+        
+        // Update mobile nav states
+        updateMobileNavStates();
+        
+        // Add mobile-specific event listeners
+        setupMobileTouchHandlers();
+        
+    } else {
          // Restore desktop layout
          if (sidebar) {
              sidebar.classList.remove('collapsed');
@@ -2513,50 +2529,360 @@ scrollToBottomBtn?.addEventListener('click', () => {
 const throttledScrollHandler = throttle(updateScrollButtonVisibility, 100);
 chatMessages.addEventListener('scroll', throttledScrollHandler);
 
-// Add mobile navigation handlers
+// Enhanced mobile navigation handlers
 function setupMobileNavigation() {
-    // Toggle sidebar
+    // Toggle sidebar with enhanced animations
     document.getElementById('toggleSidebar')?.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-        if (sidebar.classList.contains('open')) {
-            // Add overlay
+        const isOpen = sidebar.classList.contains('open');
+        
+        if (!isOpen) {
+            // Open sidebar
+            sidebar.classList.add('open');
+            
+            // Add overlay with animation
             const overlay = document.createElement('div');
             overlay.className = 'sidebar-overlay';
             document.body.appendChild(overlay);
             
+            // Animate overlay in
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+            }, 10);
+            
             // Close sidebar when overlay is clicked
             overlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                overlay.remove();
+                closeMobileSidebar();
             });
+            
+            // Prevent body scroll when sidebar is open
+            document.body.style.overflow = 'hidden';
+            
         } else {
-            // Remove overlay
-            document.querySelector('.sidebar-overlay')?.remove();
+            closeMobileSidebar();
         }
     });
     
-    // New chat button
+    // New chat button with haptic feedback
     document.getElementById('newChatMobile')?.addEventListener('click', () => {
+        // Haptic feedback if available
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+        
         createNewChat();
-        // Close sidebar if open
-        sidebar.classList.remove('open');
-        document.querySelector('.sidebar-overlay')?.remove();
+        closeMobileSidebar();
+        
+        // Show success feedback
+        userFeedback.showFeedback('success', 'New chat started', 2000);
     });
     
-    // Share button
+    // Share button with enhanced sharing
     document.getElementById('shareMobile')?.addEventListener('click', () => {
+        if (navigator.vibrate) {
+            navigator.vibrate(30);
+        }
         shareApplication();
     });
     
-    // Theme toggle
-    document.getElementById('themeToggleMobile')?.addEventListener('click', toggleTheme);
-    
-    // Clear chat
-    document.getElementById('clearChatMobile')?.addEventListener('click', () => {
-        if (confirm('Are you sure you want to clear this conversation?')) {
-            clearChat();
+    // Theme toggle with animation
+    document.getElementById('themeToggleMobile')?.addEventListener('click', () => {
+        if (navigator.vibrate) {
+            navigator.vibrate(30);
+        }
+        
+        toggleTheme();
+        
+        // Update mobile nav button icon
+        const themeIcon = document.getElementById('themeToggleMobile').querySelector('i');
+        if (document.body.classList.contains('light-theme')) {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
         }
     });
+    
+    // Mode switch button
+    document.getElementById('modeSwitchMobile')?.addEventListener('click', () => {
+        if (navigator.vibrate) {
+            navigator.vibrate(30);
+        }
+        
+        const newMode = currentMode === 'default' ? 'deepthink' : 'default';
+        setReasoningMode(newMode);
+        
+        // Update button icon
+        const modeIcon = document.getElementById('modeSwitchMobile').querySelector('i');
+        if (newMode === 'deepthink') {
+            modeIcon.className = 'fas fa-brain';
+        } else {
+            modeIcon.className = 'fas fa-balance-scale';
+        }
+        
+        userFeedback.showFeedback('info', `Switched to ${newMode} mode`, 2000);
+    });
+    
+    // Clear chat with confirmation
+    document.getElementById('clearChatMobile')?.addEventListener('click', () => {
+        if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+        }
+        
+        if (confirm('Are you sure you want to clear this conversation?')) {
+            clearChat();
+            userFeedback.showFeedback('success', 'Chat cleared', 2000);
+        }
+    });
+    
+    // Handle mobile nav button active states
+    updateMobileNavStates();
+}
+
+// Helper function to close mobile sidebar
+function closeMobileSidebar() {
+    sidebar.classList.remove('open');
+    const overlay = document.querySelector('.sidebar-overlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 300);
+    }
+    document.body.style.overflow = '';
+}
+
+// Update mobile navigation button states
+function updateMobileNavStates() {
+    // Update theme button
+    const themeBtn = document.getElementById('themeToggleMobile');
+    if (themeBtn) {
+        const themeIcon = themeBtn.querySelector('i');
+        if (document.body.classList.contains('light-theme')) {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+    }
+    
+    // Update mode button
+    const modeBtn = document.getElementById('modeSwitchMobile');
+    if (modeBtn) {
+        const modeIcon = modeBtn.querySelector('i');
+        if (currentMode === 'deepthink') {
+            modeIcon.className = 'fas fa-brain';
+        } else {
+            modeIcon.className = 'fas fa-balance-scale';
+        }
+    }
+}
+
+// Mobile touch handlers for enhanced mobile experience
+function setupMobileTouchHandlers() {
+    // Swipe gestures for sidebar
+    let startX = 0;
+    let startY = 0;
+    let isSwipe = false;
+    
+    document.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isSwipe = false;
+    });
+    
+    document.addEventListener('touchmove', (e) => {
+        if (!startX || !startY) return;
+        
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const diffX = startX - currentX;
+        const diffY = startY - currentY;
+        
+        // Determine if this is a horizontal swipe
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            isSwipe = true;
+            e.preventDefault();
+        }
+    });
+    
+    document.addEventListener('touchend', (e) => {
+        if (!startX || !startY || !isSwipe) return;
+        
+        const endX = e.changedTouches[0].clientX;
+        const diffX = startX - endX;
+        
+        // Swipe right to open sidebar (from left edge)
+        if (diffX < -100 && startX < 50) {
+            if (!sidebar.classList.contains('open')) {
+                document.getElementById('toggleSidebar')?.click();
+            }
+        }
+        // Swipe left to close sidebar
+        else if (diffX > 100 && sidebar.classList.contains('open')) {
+            closeMobileSidebar();
+        }
+        
+        startX = 0;
+        startY = 0;
+        isSwipe = false;
+    });
+    
+    // Pull to refresh functionality
+    let pullStartY = 0;
+    let isPulling = false;
+    
+    chatMessages.addEventListener('touchstart', (e) => {
+        if (chatMessages.scrollTop === 0) {
+            pullStartY = e.touches[0].clientY;
+            isPulling = true;
+        }
+    });
+    
+    chatMessages.addEventListener('touchmove', (e) => {
+        if (!isPulling || chatMessages.scrollTop > 0) return;
+        
+        const currentY = e.touches[0].clientY;
+        const diffY = currentY - pullStartY;
+        
+        if (diffY > 100) {
+            // Pull to refresh
+            userFeedback.showFeedback('info', 'Pull to refresh', 1000);
+        }
+    });
+    
+    chatMessages.addEventListener('touchend', () => {
+        isPulling = false;
+        pullStartY = 0;
+    });
+    
+    // Enhanced input handling for mobile
+    const userInput = document.getElementById('user-input');
+    if (userInput) {
+        // Prevent zoom on focus (iOS)
+        userInput.addEventListener('focus', () => {
+            if (window.innerWidth < 768) {
+                userInput.style.fontSize = '16px';
+            }
+            
+            // Handle keyboard appearance
+            setTimeout(() => {
+                document.body.classList.add('keyboard-open');
+                const chatContainer = document.querySelector('.chat-messages');
+                const inputContainer = document.querySelector('.chat-input-container');
+                
+                if (chatContainer) {
+                    chatContainer.classList.add('keyboard-open');
+                }
+                if (inputContainer) {
+                    inputContainer.classList.add('keyboard-open');
+                }
+                
+                // Scroll to bottom when keyboard opens
+                setTimeout(() => {
+                    chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+                }, 300);
+            }, 100);
+        });
+        
+        userInput.addEventListener('blur', () => {
+            // Handle keyboard dismissal
+            setTimeout(() => {
+                document.body.classList.remove('keyboard-open');
+                const chatContainer = document.querySelector('.chat-messages');
+                const inputContainer = document.querySelector('.chat-input-container');
+                
+                if (chatContainer) {
+                    chatContainer.classList.remove('keyboard-open');
+                }
+                if (inputContainer) {
+                    inputContainer.classList.remove('keyboard-open');
+                }
+            }, 100);
+        });
+        
+        // Auto-resize on mobile
+        userInput.addEventListener('input', () => {
+            userInput.style.height = 'auto';
+            userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+        });
+    }
+    
+    // Long press for context menu
+    let longPressTimer = null;
+    
+    document.addEventListener('touchstart', (e) => {
+        if (e.target.closest('.message')) {
+            longPressTimer = setTimeout(() => {
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+                showMobileContextMenu(e.target.closest('.message'), e.touches[0]);
+            }, 500);
+        }
+    });
+    
+    document.addEventListener('touchend', () => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    });
+    
+    document.addEventListener('touchmove', () => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    });
+}
+
+// Mobile context menu
+function showMobileContextMenu(messageElement, touch) {
+    const contextMenu = document.createElement('div');
+    contextMenu.className = 'mobile-context-menu';
+    contextMenu.innerHTML = `
+        <div class="context-menu-content">
+            <button class="context-btn" onclick="copyMessage(this.closest('.message'))">
+                <i class="fas fa-copy"></i>
+                <span>Copy</span>
+            </button>
+            <button class="context-btn" onclick="shareMessage(this.closest('.message'))">
+                <i class="fas fa-share"></i>
+                <span>Share</span>
+            </button>
+        </div>
+    `;
+    
+    // Position context menu
+    contextMenu.style.position = 'fixed';
+    contextMenu.style.left = Math.min(touch.clientX, window.innerWidth - 200) + 'px';
+    contextMenu.style.top = Math.min(touch.clientY, window.innerHeight - 100) + 'px';
+    contextMenu.style.zIndex = '3000';
+    
+    document.body.appendChild(contextMenu);
+    
+    // Remove context menu after delay
+    setTimeout(() => {
+        if (contextMenu.parentNode) {
+            contextMenu.remove();
+        }
+    }, 3000);
+    
+    // Remove on touch outside
+    document.addEventListener('touchstart', function removeContextMenu() {
+        contextMenu.remove();
+        document.removeEventListener('touchstart', removeContextMenu);
+    });
+}
+
+// Share message function
+function shareMessage(messageElement) {
+    const content = messageElement.querySelector('.message-content').textContent;
+    if (navigator.share) {
+        navigator.share({
+            title: 'PAKNING R1 Message',
+            text: content
+        });
+    } else {
+        navigator.clipboard.writeText(content);
+        userFeedback.showFeedback('success', 'Message copied to clipboard', 2000);
+    }
 }
 
 // Update the DOMContentLoaded event listener
