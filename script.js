@@ -21,6 +21,7 @@ const miniModeIndicator = document.getElementById('mini-mode-indicator');
 const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
 const backToChatBtn = document.getElementById('back-to-chat');
 const chatSearch = document.getElementById('chat-search');
+const typingIndicator = document.getElementById('typing-indicator');
  
  // Initialize API key variable 
  let apiKey = '';
@@ -478,6 +479,172 @@ document.addEventListener('click', async (event) => {
         }, 1500);
     }
 });
+
+// Function to copy message content
+async function copyMessage(content, button) {
+    try {
+        await navigator.clipboard.writeText(content);
+        button.classList.add('copied');
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        showMessage('Message copied to clipboard', 'success', 2000);
+        setTimeout(() => {
+            button.classList.remove('copied');
+            button.innerHTML = '<i class="fas fa-copy"></i>';
+        }, 2000);
+    } catch (err) {
+        console.error('Copy failed:', err);
+        showMessage('Failed to copy message', 'error', 2000);
+    }
+}
+
+// Auto-save draft functionality
+let draftTimeout;
+function saveDraft() {
+    const draft = userInput.value.trim();
+    if (draft) {
+        localStorage.setItem('pakningR1_draft', draft);
+    } else {
+        localStorage.removeItem('pakningR1_draft');
+    }
+}
+
+function loadDraft() {
+    const draft = localStorage.getItem('pakningR1_draft');
+    if (draft && !userInput.value.trim()) {
+        userInput.value = draft;
+        autoResizeTextarea();
+    }
+}
+
+function clearDraft() {
+    localStorage.removeItem('pakningR1_draft');
+}
+
+// Export/Import functionality
+function exportChats() {
+    const data = {
+        chats: chatSessions,
+        settings: {
+            theme: localStorage.getItem('pakningR1_theme'),
+            mode: localStorage.getItem('mode'),
+            sidebarWidth: localStorage.getItem('pakningR1_sidebarWidth'),
+            sidebarCollapsed: localStorage.getItem('pakningR1_sidebarCollapsed')
+        },
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pakning-chats-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showMessage('Chats exported successfully', 'success', 3000);
+}
+
+function importChats() {
+    const input = document.getElementById('import-file');
+    input.click();
+}
+
+// Settings functionality
+function initializeSettings() {
+    const settingsModal = document.getElementById('settings-modal');
+    const settingsBtn = document.getElementById('settings-btn');
+    const closeSettingsModal = document.getElementById('close-settings-modal');
+    
+    if (settingsBtn && settingsModal && closeSettingsModal) {
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.classList.add('open');
+        });
+        
+        closeSettingsModal.addEventListener('click', () => {
+            settingsModal.classList.remove('open');
+        });
+        
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.remove('open');
+            }
+        });
+    }
+    
+    // Load saved settings
+    loadSettings();
+    
+    // Add event listeners for settings
+    document.getElementById('font-size')?.addEventListener('change', (e) => {
+        localStorage.setItem('pakningR1_fontSize', e.target.value);
+        applySettings();
+    });
+    
+    document.getElementById('animation-speed')?.addEventListener('change', (e) => {
+        localStorage.setItem('pakningR1_animationSpeed', e.target.value);
+        applySettings();
+    });
+    
+    document.getElementById('auto-scroll')?.addEventListener('change', (e) => {
+        localStorage.setItem('pakningR1_autoScroll', e.target.checked);
+    });
+    
+    document.getElementById('save-drafts')?.addEventListener('change', (e) => {
+        localStorage.setItem('pakningR1_saveDrafts', e.target.checked);
+    });
+    
+    document.getElementById('show-timestamps')?.addEventListener('change', (e) => {
+        localStorage.setItem('pakningR1_showTimestamps', e.target.checked);
+        applySettings();
+    });
+    
+    document.getElementById('clear-all-data')?.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+            localStorage.clear();
+            location.reload();
+        }
+    });
+}
+
+function loadSettings() {
+    const fontSize = localStorage.getItem('pakningR1_fontSize') || 'medium';
+    const animationSpeed = localStorage.getItem('pakningR1_animationSpeed') || 'normal';
+    const autoScroll = localStorage.getItem('pakningR1_autoScroll') !== 'false';
+    const saveDrafts = localStorage.getItem('pakningR1_saveDrafts') !== 'false';
+    const showTimestamps = localStorage.getItem('pakningR1_showTimestamps') === 'true';
+    
+    document.getElementById('font-size').value = fontSize;
+    document.getElementById('animation-speed').value = animationSpeed;
+    document.getElementById('auto-scroll').checked = autoScroll;
+    document.getElementById('save-drafts').checked = saveDrafts;
+    document.getElementById('show-timestamps').checked = showTimestamps;
+    
+    applySettings();
+}
+
+function applySettings() {
+    const fontSize = localStorage.getItem('pakningR1_fontSize') || 'medium';
+    const animationSpeed = localStorage.getItem('pakningR1_animationSpeed') || 'normal';
+    const showTimestamps = localStorage.getItem('pakningR1_showTimestamps') === 'true';
+    
+    // Apply font size
+    document.body.className = document.body.className.replace(/font-\w+/g, '');
+    document.body.classList.add(`font-${fontSize}`);
+    
+    // Apply animation speed
+    document.body.className = document.body.className.replace(/animation-\w+/g, '');
+    document.body.classList.add(`animation-${animationSpeed}`);
+    
+    // Apply timestamp visibility
+    if (showTimestamps) {
+        document.body.classList.add('show-timestamps');
+    } else {
+        document.body.classList.remove('show-timestamps');
+    }
+}
  
  // Function to detect Chinese/Japanese/Korean text
  function containsCJK(text) {
@@ -519,13 +686,28 @@ function addMessageToChat(content, sender, isThinking = false) {
      avatarDiv.classList.add('message-avatar', sender);
      avatarDiv.textContent = sender === 'user' ? 'U' : 'P';
      
-     const contentDiv = document.createElement('div');
-     contentDiv.classList.add('message-content');
-     
-     // Detect if content contains CJK characters and add appropriate lang attribute
-     if (containsCJK(content)) {
-         contentDiv.setAttribute('lang', 'zh');
-     }
+    const contentDiv = document.createElement('div');
+    contentDiv.classList.add('message-content');
+    
+    // Detect if content contains CJK characters and add appropriate lang attribute
+    if (containsCJK(content)) {
+        contentDiv.setAttribute('lang', 'zh');
+    }
+    
+    // Add message actions for non-thinking messages
+    if (!isThinking) {
+        const actionsDiv = document.createElement('div');
+        actionsDiv.classList.add('message-actions');
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.classList.add('message-action-btn');
+        copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+        copyBtn.title = 'Copy message';
+        copyBtn.addEventListener('click', () => copyMessage(content, copyBtn));
+        
+        actionsDiv.appendChild(copyBtn);
+        messageDiv.appendChild(actionsDiv);
+    }
      
      if (isThinking) {
          contentDiv.innerHTML = `
@@ -555,10 +737,19 @@ function addMessageToChat(content, sender, isThinking = false) {
                  // Update in sidebar and storage
                  updateChatTitle(currentSessionId, shortTitle);
              }
-         } else {
-             // Format markdown for bot messages
-             contentDiv.innerHTML = formatMarkdown(content);
-         }
+        } else {
+            // Format markdown for bot messages
+            contentDiv.innerHTML = formatMarkdown(content);
+        }
+        
+        // Add timestamp if enabled
+        const showTimestamps = localStorage.getItem('pakningR1_showTimestamps') === 'true';
+        if (showTimestamps) {
+            const timestamp = document.createElement('div');
+            timestamp.classList.add('message-timestamp');
+            timestamp.textContent = new Date().toLocaleTimeString();
+            contentDiv.appendChild(timestamp);
+        }
      }
      
      messageDiv.appendChild(avatarDiv);
@@ -773,9 +964,10 @@ async function handleSendMessage() {
     const message = userInput.value.trim();
     if (!message || isWaitingForResponse) return;
     
-    // Clear input
+    // Clear input and draft
     userInput.value = '';
     userInput.style.height = 'auto';
+    clearDraft();
     
     // If this is the first message and we don't have a current session, create one
     if (!currentSessionId) {
@@ -1194,8 +1386,12 @@ document.addEventListener('keydown', (e) => {
     }
 });
  
- // Auto-resize as user types
- userInput.addEventListener('input', autoResizeTextarea);
+// Auto-resize as user types and save draft
+userInput.addEventListener('input', () => {
+    autoResizeTextarea();
+    clearTimeout(draftTimeout);
+    draftTimeout = setTimeout(saveDraft, 1000);
+});
  
  // New chat button
  newChatBtn.addEventListener('click', createNewChat);
@@ -1505,6 +1701,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
+    // Initialize settings
+    initializeSettings();
+    
+    // Add export/import event listeners
+    document.getElementById('export-chats')?.addEventListener('click', exportChats);
+    document.getElementById('import-chats')?.addEventListener('click', importChats);
+    
+    // Handle file import
+    document.getElementById('import-file')?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    if (data.chats && Array.isArray(data.chats)) {
+                        chatSessions = data.chats;
+                        saveChatsToLocalStorage();
+                        renderChatHistory();
+                        showMessage('Chats imported successfully', 'success', 3000);
+                    } else {
+                        showMessage('Invalid file format', 'error', 3000);
+                    }
+                } catch (error) {
+                    showMessage('Error importing file', 'error', 3000);
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+    
     // Initialize mode
     initializeMode();
     
@@ -1517,8 +1744,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize sidebar resize
     initSidebarResize();
     
-    // Focus on input
+    // Focus on input and load draft
     userInput.focus();
+    loadDraft();
     // Initial scroll button state
     updateScrollButtonVisibility();
 });

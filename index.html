@@ -109,6 +109,18 @@
                     <i class="fas fa-moon"></i>
                     <span>Dark Mode</span>
                 </div>
+                <div class="sidebar-link" id="export-chats">
+                    <i class="fas fa-download"></i>
+                    <span>Export Chats</span>
+                </div>
+                <div class="sidebar-link" id="import-chats">
+                    <i class="fas fa-upload"></i>
+                    <span>Import Chats</span>
+                </div>
+                <div class="sidebar-link" id="settings-btn">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
             </div>
         </div>
         
@@ -189,6 +201,19 @@
             <div class="current-mode-indicator" id="current-mode-indicator">
                 <span id="current-mode-icon"><i class="fas fa-balance-scale"></i></span>
                 <span id="current-mode-text">Default Mode</span>
+            </div>
+            
+            <!-- Typing indicator -->
+            <div id="typing-indicator" class="typing-indicator" style="display: none;">
+                <div class="message-avatar bot">P</div>
+                <div class="typing-content">
+                    <div class="typing-text">PAKNING R1 is thinking</div>
+                    <div class="dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
             </div>
             
             <div class="chat-input-container">
@@ -298,5 +323,68 @@
             </div>
         </div>
     </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="close-modal" id="close-settings-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>Appearance</h3>
+                    <div class="setting-item">
+                        <label for="font-size">Font Size:</label>
+                        <select id="font-size">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="animation-speed">Animation Speed:</label>
+                        <select id="animation-speed">
+                            <option value="slow">Slow</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="fast">Fast</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Behavior</h3>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="auto-scroll" checked>
+                            Auto-scroll to new messages
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="save-drafts" checked>
+                            Save message drafts
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="show-timestamps">
+                            Show message timestamps
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Data</h3>
+                    <div class="setting-item">
+                        <button id="clear-all-data" class="danger-btn">Clear All Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="import-file" accept=".json" style="display: none;">
 </body>
 </html> 
