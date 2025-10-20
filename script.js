@@ -1,30 +1,745 @@
 // DOM elements
- const chatMessages = document.getElementById('chat-messages');
- const userInput = document.getElementById('user-input');
- const sendButton = document.getElementById('send-button');
- const newChatBtn = document.getElementById('new-chat-btn');
- const clearChatBtn = document.getElementById('clear-chat');
- const themeToggle = document.getElementById('theme-toggle');
- const sidebarToggle = document.getElementById('sidebar-toggle');
- const sidebar = document.querySelector('.sidebar');
- const sidebarResizer = document.getElementById('sidebar-resizer');
- const hideSidebarBtn = document.getElementById('hide-sidebar-btn');
- const showSidebarBtn = document.getElementById('show-sidebar-btn');
- const modeButtons = document.querySelectorAll('.mode-btn');
- const modeDescriptionText = document.getElementById('mode-description-text');
- const currentModeIndicator = document.getElementById('current-mode-indicator');
- const currentModeIcon = document.getElementById('current-mode-icon');
- const currentModeText = document.getElementById('current-mode-text');
- const chatContainer = document.querySelector('.app-container');
+const chatMessages = document.getElementById('chat-messages');
+const userInput = document.getElementById('user-input');
+const sendButton = document.getElementById('send-button');
+const newChatBtn = document.getElementById('new-chat-btn');
+const clearChatBtn = document.getElementById('clear-chat');
+const themeToggle = document.getElementById('theme-toggle');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebar = document.querySelector('.sidebar');
+const sidebarResizer = document.getElementById('sidebar-resizer');
+const hideSidebarBtn = document.getElementById('hide-sidebar-btn');
+const showSidebarBtn = document.getElementById('show-sidebar-btn');
+const modeButtons = document.querySelectorAll('.mode-btn');
+const modeDescriptionText = document.getElementById('mode-description-text');
+const currentModeIndicator = document.getElementById('current-mode-indicator');
+const currentModeIcon = document.getElementById('current-mode-icon');
+const currentModeText = document.getElementById('current-mode-text');
+const chatContainer = document.querySelector('.app-container');
 const modeSwitchBtn = document.getElementById('mode-switch-btn');
 const miniModeIndicator = document.getElementById('mini-mode-indicator');
 const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
 const backToChatBtn = document.getElementById('back-to-chat');
 const chatSearch = document.getElementById('chat-search');
 const typingIndicator = document.getElementById('typing-indicator');
+
+// Performance optimization variables
+let searchDebounceTimer = null;
+let resizeDebounceTimer = null;
+let scrollThrottleTimer = null;
+let messageRenderQueue = [];
+let isRenderingMessages = false;
+const MAX_MESSAGES_PER_BATCH = 10;
+const RENDER_DELAY = 16; // ~60fps
  
- // Initialize API key variable 
- let apiKey = '';
+// Initialize API key variable 
+let apiKey = '';
+
+// Performance utility functions
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// Lazy loading for images and heavy content
+function lazyLoadImages() {
+    const images = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+                observer.unobserve(img);
+            }
+        });
+    });
+    
+    images.forEach(img => imageObserver.observe(img));
+}
+
+// Memory management - cleanup old messages
+function cleanupOldMessages() {
+    const messages = document.querySelectorAll('.message');
+    if (messages.length > 100) {
+        const messagesToRemove = messages.length - 100;
+        for (let i = 0; i < messagesToRemove; i++) {
+            messages[i].remove();
+        }
+    }
+}
+
+// Advanced features: Message threading and conversation branching
+let messageThreads = new Map();
+let currentThreadId = null;
+
+function createMessageThread(parentMessageId = null) {
+    const threadId = `thread_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    messageThreads.set(threadId, {
+        id: threadId,
+        parentId: parentMessageId,
+        messages: [],
+        createdAt: new Date().toISOString(),
+        isActive: true
+    });
+    return threadId;
+}
+
+function addMessageToThread(threadId, message) {
+    if (messageThreads.has(threadId)) {
+        const thread = messageThreads.get(threadId);
+        thread.messages.push({
+            ...message,
+            threadId: threadId,
+            timestamp: new Date().toISOString()
+        });
+        messageThreads.set(threadId, thread);
+    }
+}
+
+function getThreadMessages(threadId) {
+    return messageThreads.get(threadId)?.messages || [];
+}
+
+function createBranchFromMessage(messageId) {
+    const threadId = createMessageThread(messageId);
+    currentThreadId = threadId;
+    return threadId;
+}
+
+// Enhanced message rendering with threading support
+function renderMessageWithThreading(message, isUser = false) {
+    const messageElement = document.createElement('div');
+    messageElement.className = `message ${isUser ? 'user' : 'bot'}`;
+    messageElement.setAttribute('data-message-id', message.id || Date.now());
+    
+    if (message.threadId) {
+        messageElement.setAttribute('data-thread-id', message.threadId);
+        messageElement.classList.add('threaded-message');
+    }
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = isUser ? 'U' : 'AI';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.innerHTML = formatMarkdown(message.content);
+    
+    // Add message actions
+    const actions = document.createElement('div');
+    actions.className = 'message-actions';
+    
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'message-action-btn copy-btn';
+    copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+    copyBtn.title = 'Copy message';
+    copyBtn.addEventListener('click', () => copyMessage(messageElement));
+    
+    const branchBtn = document.createElement('button');
+    branchBtn.className = 'message-action-btn branch-btn';
+    branchBtn.innerHTML = '<i class="fas fa-code-branch"></i>';
+    branchBtn.title = 'Create branch from this message';
+    branchBtn.addEventListener('click', () => createBranchFromMessage(messageElement.dataset.messageId));
+    
+    const threadBtn = document.createElement('button');
+    threadBtn.className = 'message-action-btn thread-btn';
+    threadBtn.innerHTML = '<i class="fas fa-comments"></i>';
+    threadBtn.title = 'View thread';
+    threadBtn.addEventListener('click', () => showThreadView(message.threadId));
+    
+    actions.appendChild(copyBtn);
+    if (!isUser) {
+        actions.appendChild(branchBtn);
+        if (message.threadId) {
+            actions.appendChild(threadBtn);
+        }
+    }
+    
+    messageElement.appendChild(avatar);
+    messageElement.appendChild(content);
+    messageElement.appendChild(actions);
+    
+    return messageElement;
+}
+
+// Thread view functionality
+function showThreadView(threadId) {
+    const thread = messageThreads.get(threadId);
+    if (!thread) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal thread-modal';
+    modal.innerHTML = `
+        <div class="modal-content thread-content">
+            <div class="modal-header">
+                <h3>Message Thread</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="thread-messages">
+                ${thread.messages.map(msg => `
+                    <div class="thread-message">
+                        <div class="thread-message-header">
+                            <span class="thread-message-role">${msg.role}</span>
+                            <span class="thread-message-time">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                        <div class="thread-message-content">${formatMarkdown(msg.content)}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.classList.add('open');
+}
+
+// Enhanced error handling and user feedback systems
+class ErrorHandler {
+    constructor() {
+        this.errorLog = [];
+        this.retryQueue = [];
+        this.maxRetries = 3;
+    }
+    
+    logError(error, context = {}) {
+        const errorEntry = {
+            timestamp: new Date().toISOString(),
+            message: error.message,
+            stack: error.stack,
+            context: context,
+            userAgent: navigator.userAgent,
+            url: window.location.href
+        };
+        
+        this.errorLog.push(errorEntry);
+        
+        // Keep only last 100 errors
+        if (this.errorLog.length > 100) {
+            this.errorLog = this.errorLog.slice(-100);
+        }
+        
+        console.error('Error logged:', errorEntry);
+        this.showUserFriendlyError(error, context);
+    }
+    
+    showUserFriendlyError(error, context = {}) {
+        let userMessage = 'An unexpected error occurred.';
+        let shouldRetry = false;
+        
+        if (error.name === 'NetworkError' || error.message.includes('fetch')) {
+            userMessage = 'Network connection failed. Please check your internet connection.';
+            shouldRetry = true;
+        } else if (error.message.includes('API key')) {
+            userMessage = 'API configuration issue. Please contact your administrator.';
+        } else if (error.message.includes('rate limit')) {
+            userMessage = 'Too many requests. Please wait a moment before trying again.';
+            shouldRetry = true;
+        } else if (error.message.includes('timeout')) {
+            userMessage = 'Request timed out. Please try again.';
+            shouldRetry = true;
+        }
+        
+        this.showErrorToast(userMessage, shouldRetry, context);
+    }
+    
+    showErrorToast(message, canRetry = false, context = {}) {
+        const toast = document.createElement('div');
+        toast.className = 'message-toast error';
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>${message}</span>
+                ${canRetry ? '<button class="retry-btn" onclick="errorHandler.retryLastAction()">Retry</button>' : ''}
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        toast.classList.add('visible');
+        
+        setTimeout(() => {
+            toast.classList.remove('visible');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+    
+    retryLastAction() {
+        if (this.retryQueue.length > 0) {
+            const lastAction = this.retryQueue[this.retryQueue.length - 1];
+            if (lastAction.retries < this.maxRetries) {
+                lastAction.retries++;
+                lastAction.function();
+            }
+        }
+    }
+    
+    addRetryableAction(actionFunction) {
+        this.retryQueue.push({
+            function: actionFunction,
+            retries: 0,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
+
+// Global error handler instance
+const errorHandler = new ErrorHandler();
+
+// Enhanced API call with better error handling
+async function sendMessageToAPIWithRetry(message, retryCount = 0) {
+    try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+                'HTTP-Referer': window.location.origin,
+                'X-Title': 'PAKNING R1'
+            },
+            body: JSON.stringify({
+                'model': 'qwen/qwen3-14b:free',
+                'messages': message,
+                'temperature': 0.7,
+                'max_tokens': 4000,
+                'stream': false
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        return data;
+        
+    } catch (error) {
+        errorHandler.logError(error, { 
+            message: message, 
+            retryCount: retryCount,
+            action: 'sendMessageToAPI'
+        });
+        
+        if (retryCount < 3 && (error.message.includes('network') || error.message.includes('timeout'))) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+            return sendMessageToAPIWithRetry(message, retryCount + 1);
+        }
+        
+        throw error;
+    }
+}
+
+// Enhanced user feedback system
+class UserFeedback {
+    constructor() {
+        this.feedbackQueue = [];
+        this.isShowingFeedback = false;
+    }
+    
+    showFeedback(type, message, duration = 3000, actions = []) {
+        const feedback = {
+            id: Date.now(),
+            type: type,
+            message: message,
+            duration: duration,
+            actions: actions,
+            timestamp: new Date().toISOString()
+        };
+        
+        this.feedbackQueue.push(feedback);
+        this.processQueue();
+    }
+    
+    processQueue() {
+        if (this.isShowingFeedback || this.feedbackQueue.length === 0) return;
+        
+        this.isShowingFeedback = true;
+        const feedback = this.feedbackQueue.shift();
+        this.displayFeedback(feedback);
+    }
+    
+    displayFeedback(feedback) {
+        const toast = document.createElement('div');
+        toast.className = `message-toast ${feedback.type}`;
+        toast.setAttribute('data-feedback-id', feedback.id);
+        
+        const actionsHtml = feedback.actions.map(action => 
+            `<button class="feedback-action-btn" onclick="${action.onclick}">${action.label}</button>`
+        ).join('');
+        
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="fas fa-${this.getIconForType(feedback.type)}"></i>
+                <span>${feedback.message}</span>
+                ${actionsHtml}
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        toast.classList.add('visible');
+        
+        setTimeout(() => {
+            toast.classList.remove('visible');
+            setTimeout(() => {
+                toast.remove();
+                this.isShowingFeedback = false;
+                this.processQueue();
+            }, 300);
+        }, feedback.duration);
+    }
+    
+    getIconForType(type) {
+        const icons = {
+            success: 'check-circle',
+            error: 'exclamation-triangle',
+            warning: 'exclamation-circle',
+            info: 'info-circle',
+            loading: 'spinner'
+        };
+        return icons[type] || 'info-circle';
+    }
+}
+
+// Global user feedback instance
+const userFeedback = new UserFeedback();
+
+// Enhanced loading states
+function showAdvancedLoadingState(message = 'Processing...') {
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.innerHTML = `
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">${message}</div>
+            <div class="loading-progress">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(loadingOverlay);
+    
+    // Simulate progress
+    let progress = 0;
+    const progressBar = loadingOverlay.querySelector('.progress-bar');
+    const interval = setInterval(() => {
+        progress += Math.random() * 10;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = `${progress}%`;
+    }, 200);
+    
+    return {
+        remove: () => {
+            clearInterval(interval);
+            progressBar.style.width = '100%';
+            setTimeout(() => {
+                loadingOverlay.remove();
+            }, 500);
+        }
+    };
+}
+
+// Enhanced data management system
+class DataManager {
+    constructor() {
+        this.backupInterval = 5 * 60 * 1000; // 5 minutes
+        this.syncInterval = 30 * 1000; // 30 seconds
+        this.maxBackups = 10;
+        this.isOnline = navigator.onLine;
+        this.pendingSync = [];
+        
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+        this.startBackupTimer();
+        this.startSyncTimer();
+        this.loadBackups();
+    }
+    
+    setupEventListeners() {
+        window.addEventListener('online', () => {
+            this.isOnline = true;
+            this.syncPendingData();
+            userFeedback.showFeedback('success', 'Connection restored. Syncing data...');
+        });
+        
+        window.addEventListener('offline', () => {
+            this.isOnline = false;
+            userFeedback.showFeedback('warning', 'Connection lost. Data will sync when online.');
+        });
+        
+        window.addEventListener('beforeunload', () => {
+            this.createBackup();
+        });
+    }
+    
+    startBackupTimer() {
+        setInterval(() => {
+            this.createBackup();
+        }, this.backupInterval);
+    }
+    
+    startSyncTimer() {
+        setInterval(() => {
+            if (this.isOnline) {
+                this.syncPendingData();
+            }
+        }, this.syncInterval);
+    }
+    
+    createBackup() {
+        try {
+            const backupData = {
+                timestamp: new Date().toISOString(),
+                version: '1.0',
+                chats: chatSessions,
+                settings: this.getCurrentSettings(),
+                threads: Array.from(messageThreads.entries()),
+                userPreferences: this.getUserPreferences()
+            };
+            
+            const backups = this.getBackups();
+            backups.push(backupData);
+            
+            // Keep only the most recent backups
+            if (backups.length > this.maxBackups) {
+                backups.splice(0, backups.length - this.maxBackups);
+            }
+            
+            localStorage.setItem('pakningR1_backups', JSON.stringify(backups));
+            
+            // Also create a downloadable backup
+            this.createDownloadableBackup(backupData);
+            
+        } catch (error) {
+            errorHandler.logError(error, { action: 'createBackup' });
+        }
+    }
+    
+    getBackups() {
+        try {
+            const backups = localStorage.getItem('pakningR1_backups');
+            return backups ? JSON.parse(backups) : [];
+        } catch (error) {
+            return [];
+        }
+    }
+    
+    loadBackups() {
+        const backups = this.getBackups();
+        if (backups.length > 0) {
+            console.log(`Loaded ${backups.length} backups`);
+        }
+    }
+    
+    createDownloadableBackup(data) {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        // Store the URL for potential download
+        localStorage.setItem('pakningR1_latestBackup', url);
+    }
+    
+    restoreFromBackup(backupIndex) {
+        try {
+            const backups = this.getBackups();
+            if (backupIndex >= 0 && backupIndex < backups.length) {
+                const backup = backups[backupIndex];
+                
+                // Restore chats
+                if (backup.chats) {
+                    chatSessions = backup.chats;
+                    saveChatsToLocalStorage();
+                }
+                
+                // Restore settings
+                if (backup.settings) {
+                    this.applySettings(backup.settings);
+                }
+                
+                // Restore threads
+                if (backup.threads) {
+                    messageThreads = new Map(backup.threads);
+                }
+                
+                userFeedback.showFeedback('success', 'Backup restored successfully!');
+                return true;
+            }
+        } catch (error) {
+            errorHandler.logError(error, { action: 'restoreFromBackup', backupIndex });
+        }
+        return false;
+    }
+    
+    getCurrentSettings() {
+        return {
+            theme: localStorage.getItem('pakningR1_theme') || 'dark',
+            fontSize: localStorage.getItem('pakningR1_fontSize') || 'medium',
+            animationSpeed: localStorage.getItem('pakningR1_animationSpeed') || 'normal',
+            autoScroll: localStorage.getItem('pakningR1_autoScroll') !== 'false',
+            saveDrafts: localStorage.getItem('pakningR1_saveDrafts') !== 'false',
+            showTimestamps: localStorage.getItem('pakningR1_showTimestamps') === 'true',
+            sidebarWidth: localStorage.getItem('pakningR1_sidebarWidth') || '260',
+            sidebarCollapsed: localStorage.getItem('pakningR1_sidebarCollapsed') === 'true'
+        };
+    }
+    
+    getUserPreferences() {
+        return {
+            mode: localStorage.getItem('mode') || 'default',
+            preferredMode: localStorage.getItem('preferredMode') || 'web-mode',
+            lastActiveSession: currentSessionId
+        };
+    }
+    
+    applySettings(settings) {
+        Object.entries(settings).forEach(([key, value]) => {
+            localStorage.setItem(`pakningR1_${key}`, value);
+        });
+        
+        // Apply theme
+        if (settings.theme) {
+            document.body.className = settings.theme === 'light' ? 'light-theme' : '';
+        }
+        
+        // Apply other settings
+        applySettings();
+    }
+    
+    // Advanced search functionality
+    searchMessages(query, options = {}) {
+        const {
+            caseSensitive = false,
+            includeContent = true,
+            includeMetadata = true,
+            dateRange = null,
+            mode = null
+        } = options;
+        
+        const results = [];
+        const searchRegex = new RegExp(query, caseSensitive ? 'g' : 'gi');
+        
+        chatSessions.forEach(session => {
+            if (mode && session.mode !== mode) return;
+            
+            session.messages.forEach(message => {
+                if (message.role === 'system') return;
+                
+                let matches = false;
+                const searchText = [];
+                
+                if (includeContent) {
+                    searchText.push(message.content);
+                }
+                
+                if (includeMetadata) {
+                    searchText.push(session.title);
+                    searchText.push(message.role);
+                }
+                
+                const fullText = searchText.join(' ');
+                if (searchRegex.test(fullText)) {
+                    matches = true;
+                }
+                
+                if (matches) {
+                    results.push({
+                        sessionId: session.id,
+                        sessionTitle: session.title,
+                        messageId: message.id || Date.now(),
+                        content: message.content,
+                        role: message.role,
+                        timestamp: message.timestamp || session.created,
+                        mode: session.mode
+                    });
+                }
+            });
+        });
+        
+        return results;
+    }
+    
+    // Data synchronization
+    syncPendingData() {
+        if (!this.isOnline || this.pendingSync.length === 0) return;
+        
+        this.pendingSync.forEach(syncItem => {
+            try {
+                // Simulate sync to external service
+                console.log('Syncing:', syncItem);
+                // In a real implementation, this would sync to a cloud service
+            } catch (error) {
+                errorHandler.logError(error, { action: 'syncPendingData', syncItem });
+            }
+        });
+        
+        this.pendingSync = [];
+    }
+    
+    addToSyncQueue(data) {
+        this.pendingSync.push({
+            timestamp: new Date().toISOString(),
+            data: data
+        });
+    }
+    
+    // Data analytics
+    getAnalytics() {
+        const totalMessages = chatSessions.reduce((sum, session) => sum + session.messages.length, 0);
+        const totalSessions = chatSessions.length;
+        const averageMessagesPerSession = totalSessions > 0 ? totalMessages / totalSessions : 0;
+        
+        const modeUsage = chatSessions.reduce((usage, session) => {
+            usage[session.mode] = (usage[session.mode] || 0) + 1;
+            return usage;
+        }, {});
+        
+        const recentActivity = chatSessions
+            .sort((a, b) => new Date(b.created) - new Date(a.created))
+            .slice(0, 10)
+            .map(session => ({
+                title: session.title,
+                created: session.created,
+                messageCount: session.messages.length,
+                mode: session.mode
+            }));
+        
+        return {
+            totalMessages,
+            totalSessions,
+            averageMessagesPerSession,
+            modeUsage,
+            recentActivity,
+            lastBackup: this.getBackups().slice(-1)[0]?.timestamp
+        };
+    }
+}
+
+// Global data manager instance
+const dataManager = new DataManager();
  
  // Function to initialize API key from Netlify environment variables
  async function initializeApiKey() {
@@ -1794,7 +2509,9 @@ scrollToBottomBtn?.addEventListener('click', () => {
     chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
 });
 
-chatMessages.addEventListener('scroll', updateScrollButtonVisibility);
+// Throttled scroll handler for better performance
+const throttledScrollHandler = throttle(updateScrollButtonVisibility, 100);
+chatMessages.addEventListener('scroll', throttledScrollHandler);
 
 // Add mobile navigation handlers
 function setupMobileNavigation() {
@@ -1858,10 +2575,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load saved chats
     loadChatsFromLocalStorage();
     
-    // Add search functionality
+    // Add debounced search functionality
     if (chatSearch) {
+        const debouncedSearch = debounce((searchTerm) => {
+            renderChatHistory(searchTerm);
+        }, 300);
+        
         chatSearch.addEventListener('input', (e) => {
-            renderChatHistory(e.target.value);
+            debouncedSearch(e.target.value);
         });
     }
     

@@ -59,68 +59,68 @@
     </script>
 
 
-    <div class="app-container">
-        <div class="sidebar">
-            <div class="sidebar-resizer" id="sidebar-resizer"></div>
-            <button class="hide-sidebar-btn" id="hide-sidebar-btn">
-                <i class="fas fa-chevron-left"></i>
+    <div class="app-container" role="main" aria-label="PAKNING R1 AI Assistant">
+        <div class="sidebar" role="navigation" aria-label="Chat history and navigation">
+            <div class="sidebar-resizer" id="sidebar-resizer" aria-label="Resize sidebar" role="separator" aria-orientation="vertical"></div>
+            <button class="hide-sidebar-btn" id="hide-sidebar-btn" aria-label="Hide sidebar">
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
             </button>
             <div class="logo">
                 <div class="ning-logo">P</div>
                 <span>PAKNING R1</span>
             </div>
             <div class="new-chat">
-                <button id="new-chat-btn">
-                    <i class="fas fa-plus"></i>
+                <button id="new-chat-btn" aria-label="Start a new chat conversation">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
                     <span>New Chat</span>
                 </button>
             </div>
             <div class="search-chat">
                 <div class="search-input-wrapper">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="chat-search" placeholder="Search conversations..." />
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <input type="text" id="chat-search" placeholder="Search conversations..." aria-label="Search chat history" />
                 </div>
             </div>
             <div class="chat-history">
                 <!-- Chat history items will be added here dynamically -->
             </div>
             <div class="sidebar-footer">
-                <div class="sidebar-link" id="theme-toggle">
-                    <i class="fas fa-moon"></i>
+                <div class="sidebar-link" id="theme-toggle" role="button" tabindex="0" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon" aria-hidden="true"></i>
                     <span>Dark Mode</span>
                 </div>
-                <div class="sidebar-link" id="export-chats">
-                    <i class="fas fa-download"></i>
+                <div class="sidebar-link" id="export-chats" role="button" tabindex="0" aria-label="Export all chat conversations">
+                    <i class="fas fa-download" aria-hidden="true"></i>
                     <span>Export Chats</span>
                 </div>
-                <div class="sidebar-link" id="import-chats">
-                    <i class="fas fa-upload"></i>
+                <div class="sidebar-link" id="import-chats" role="button" tabindex="0" aria-label="Import chat conversations from file">
+                    <i class="fas fa-upload" aria-hidden="true"></i>
                     <span>Import Chats</span>
                 </div>
-                <div class="sidebar-link" id="settings-btn">
-                    <i class="fas fa-cog"></i>
+                <div class="sidebar-link" id="settings-btn" role="button" tabindex="0" aria-label="Open application settings">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
                     <span>Settings</span>
                 </div>
             </div>
         </div>
         
-        <button class="show-sidebar-btn" id="show-sidebar-btn">
-            <i class="fas fa-chevron-right"></i>
+        <button class="show-sidebar-btn" id="show-sidebar-btn" aria-label="Show sidebar">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
         </button>
         
         <div class="main-content">
             <div class="top-bar">
                 <div class="mobile-menu">
-                    <i class="fas fa-bars" id="sidebar-toggle"></i>
+                    <i class="fas fa-bars" id="sidebar-toggle" aria-hidden="true"></i>
                 </div>
                 <div class="session-actions">
-                    <button id="clear-chat" title="Delete conversation">
-                        <i class="fas fa-trash"></i>
+                    <button id="clear-chat" title="Delete conversation" aria-label="Delete current conversation">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
                     </button>
                 </div>
                 <div class="top-nav">
-                    <button id="back-to-chat" class="nav-link back-to-chat-btn" style="display: none;">
-                        <i class="fas fa-arrow-left"></i>
+                    <button id="back-to-chat" class="nav-link back-to-chat-btn" style="display: none;" aria-label="Return to main page">
+                        <i class="fas fa-arrow-left" aria-hidden="true"></i>
                         <span>Back to Chat</span>
                     </button>
                 </div>
@@ -198,21 +198,21 @@
             
             <div class="chat-input-container">
                 <div class="input-wrapper">
-                    <textarea id="user-input" placeholder="Send a message..." rows="1" autofocus></textarea>
+                    <textarea id="user-input" placeholder="Send a message..." rows="1" autofocus aria-label="Type your message" role="textbox"></textarea>
                     <div class="input-buttons">
-                        <button id="mode-switch-btn" title="Switch Reasoning Mode">
-                            <i class="fas fa-exchange-alt"></i>
+                        <button id="mode-switch-btn" title="Switch Reasoning Mode" aria-label="Switch between Default and DeepThink reasoning modes">
+                            <i class="fas fa-exchange-alt" aria-hidden="true"></i>
                             <span id="mini-mode-indicator">Default</span>
                         </button>
-                        <button id="send-button">
-                            <i class="fas fa-paper-plane"></i>
+                        <button id="send-button" aria-label="Send message">
+                            <i class="fas fa-paper-plane" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
                 <div class="input-footer">
                     <span class="disclaimer">Press Ctrl+Enter to send • Shift+Enter for newline</span>
-                    <button id="help-btn" class="help-btn" title="Keyboard shortcuts">
-                        <i class="fas fa-question-circle"></i>
+                    <button id="help-btn" class="help-btn" title="Keyboard shortcuts" aria-label="Show keyboard shortcuts help">
+                        <i class="fas fa-question-circle" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
