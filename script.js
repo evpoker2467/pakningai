@@ -20,6 +20,7 @@ const modeSwitchBtn = document.getElementById('mode-switch-btn');
 const miniModeIndicator = document.getElementById('mini-mode-indicator');
 const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
 const backToChatBtn = document.getElementById('back-to-chat');
+const chatSearch = document.getElementById('chat-search');
  
  // Initialize API key variable 
  let apiKey = '';
@@ -257,49 +258,76 @@ const backToChatBtn = document.getElementById('back-to-chat');
      }
  }
  
- // Function to load chats from localStorage
- function loadChatsFromLocalStorage() {
-     try {
-         const savedChats = localStorage.getItem('pakningR1_chatSessions');
-         if (savedChats) {
-             chatSessions = JSON.parse(savedChats);
-             
-             // Remove any chats with "Cleared Chat" in the title
-             chatSessions = chatSessions.filter(session => !session.title.includes('Cleared Chat'));
-             
-             // Save the cleaned up sessions back to storage
-             saveChatsToLocalStorage();
-             
-             // Populate sidebar with saved chats
-             const chatHistory = document.querySelector('.chat-history');
-             if (chatHistory) {
-                 chatHistory.innerHTML = ''; // Clear existing
-                 
-                 // Sort chats by creation date (newest first)
-                 chatSessions.sort((a, b) => new Date(b.created) - new Date(a.created));
-                 
-                 chatSessions.forEach(session => {
-                     const historyItem = document.createElement('div');
-                     historyItem.classList.add('history-item');
-                     historyItem.dataset.id = session.id;
-                     
-                     const icon = document.createElement('i');
-                     icon.classList.add('fas', 'fa-comment');
-                     
-                     const span = document.createElement('span');
-                     span.textContent = session.title;
-                     
-                     historyItem.appendChild(icon);
-                     historyItem.appendChild(span);
-                     
-                     chatHistory.appendChild(historyItem);
-                 });
-             }
-         }
-     } catch (error) {
-         console.error('Error loading chats from localStorage:', error);
-     }
- }
+// Function to load chats from localStorage
+function loadChatsFromLocalStorage() {
+    try {
+        const savedChats = localStorage.getItem('pakningR1_chatSessions');
+        if (savedChats) {
+            chatSessions = JSON.parse(savedChats);
+            
+            // Remove any chats with "Cleared Chat" in the title
+            chatSessions = chatSessions.filter(session => !session.title.includes('Cleared Chat'));
+            
+            // Save the cleaned up sessions back to storage
+            saveChatsToLocalStorage();
+            
+            // Populate sidebar with saved chats
+            renderChatHistory();
+        }
+    } catch (error) {
+        console.error('Error loading chats from localStorage:', error);
+    }
+}
+
+// Function to render chat history (with optional search filter)
+function renderChatHistory(searchTerm = '') {
+    const chatHistory = document.querySelector('.chat-history');
+    if (!chatHistory) return;
+    
+    chatHistory.innerHTML = ''; // Clear existing
+    
+    // Filter chats based on search term
+    let filteredChats = chatSessions;
+    if (searchTerm) {
+        filteredChats = chatSessions.filter(session => 
+            session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            session.messages.some(msg => 
+                msg.content.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+        );
+    }
+    
+    // Sort chats by creation date (newest first)
+    filteredChats.sort((a, b) => new Date(b.created) - new Date(a.created));
+    
+    filteredChats.forEach(session => {
+        const historyItem = document.createElement('div');
+        historyItem.classList.add('history-item');
+        historyItem.dataset.id = session.id;
+        
+        const icon = document.createElement('i');
+        icon.classList.add('fas', 'fa-comment');
+        
+        const span = document.createElement('span');
+        span.textContent = session.title;
+        
+        historyItem.appendChild(icon);
+        historyItem.appendChild(span);
+        
+        chatHistory.appendChild(historyItem);
+    });
+    
+    // Show no results message if search returns empty
+    if (searchTerm && filteredChats.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.classList.add('no-results');
+        noResults.innerHTML = `
+            <i class="fas fa-search"></i>
+            <span>No conversations found</span>
+        `;
+        chatHistory.appendChild(noResults);
+    }
+}
  
  // Function to update chat title in sidebar and storage
  function updateChatTitle(sessionId, newTitle) {
@@ -740,98 +768,105 @@ function addMessageToChat(content, sender, isThinking = false) {
      return null;
  }
  
- // Function to handle sending a message
- async function handleSendMessage() {
-     const message = userInput.value.trim();
-     if (!message || isWaitingForResponse) return;
-     
-     // Clear input
-     userInput.value = '';
-     userInput.style.height = 'auto';
-     
-     // If this is the first message and we don't have a current session, create one
-     if (!currentSessionId) {
-         currentSessionId = Date.now().toString();
-         const defaultTitle = 'New Chat ' + formatDate(new Date());
-         addNewChatToHistory(defaultTitle);
-     }
-     
-     // Add user message to chat (this will update the title if it's the first message)
-     addMessageToChat(message, 'user');
-     
-     // Add to history
-     messagesHistory.push({
-         role: 'user',
-         content: message
-     });
-     
-     // Update chat session in storage immediately after adding user message
-     updateChatSession();
-     
-     // Check if we have a valid API key
-     if (!hasValidApiKey()) {
-         console.error('No valid API key available');
-         
-         // Create an error message for missing API key
-         const errorDiv = document.createElement('div');
-         errorDiv.classList.add('api-error-notification');
-         errorDiv.innerHTML = `
-             <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
-             <div class="error-content">
-                 <h3>API Key Missing</h3>
-                 <p>No valid API key is configured in the Netlify environment variables.</p>
-                 <p>Please contact your administrator to set up the API_KEY environment variable in Netlify.</p>
-             </div>
-         `;
-         
-         chatMessages.appendChild(errorDiv);
-         chatMessages.scrollTop = chatMessages.scrollHeight;
-         return;
-     }
-     
-     // Set waiting state
-     isWaitingForResponse = true;
-     sendButton.disabled = true;
-     userInput.disabled = true;
-     
-     // Show thinking indicator based on current mode
-     showThinkingIndicator();
-     
-     // Send to API
-     try {
-         await sendMessageToAPI(message);
-         
-         // Reset waiting state
-         isWaitingForResponse = false;
-         sendButton.disabled = false;
-         userInput.disabled = false;
-         userInput.focus();
-         
-         // Update chat session in storage
-         updateChatSession();
-     } catch (error) {
-         console.error('Error sending message:', error);
-         
-         // Remove any thinking indicators
-         const thinkingIndicators = document.querySelectorAll('.message.bot.thinking');
-         thinkingIndicators.forEach(indicator => indicator.remove());
-         
-         // Add simple error message to history
-         messagesHistory.push({
-             role: 'assistant',
-             content: 'Sorry, the AI service is currently unavailable. Please try again later.'
-         });
-         
-         // Reset waiting state
-         isWaitingForResponse = false;
-         sendButton.disabled = false;
-         userInput.disabled = false;
-         userInput.focus();
-         
-         // Update chat session in storage
-         updateChatSession();
-     }
- }
+// Function to handle sending a message
+async function handleSendMessage() {
+    const message = userInput.value.trim();
+    if (!message || isWaitingForResponse) return;
+    
+    // Clear input
+    userInput.value = '';
+    userInput.style.height = 'auto';
+    
+    // If this is the first message and we don't have a current session, create one
+    if (!currentSessionId) {
+        currentSessionId = Date.now().toString();
+        const defaultTitle = 'New Chat ' + formatDate(new Date());
+        addNewChatToHistory(defaultTitle);
+    }
+    
+    // Add user message to chat (this will update the title if it's the first message)
+    addMessageToChat(message, 'user');
+    
+    // Add to history
+    messagesHistory.push({
+        role: 'user',
+        content: message
+    });
+    
+    // Update chat session in storage immediately after adding user message
+    updateChatSession();
+    
+    // Check if we have a valid API key
+    if (!hasValidApiKey()) {
+        console.error('No valid API key available');
+        showMessage('API key not configured. Please check your environment variables.', 'error', 8000);
+        
+        // Create an error message for missing API key
+        const errorDiv = document.createElement('div');
+        errorDiv.classList.add('api-error-notification');
+        errorDiv.innerHTML = `
+            <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="error-content">
+                <h3>API Key Missing</h3>
+                <p>No valid API key is configured in the Netlify environment variables.</p>
+                <p>Please contact your administrator to set up the API_KEY environment variable in Netlify.</p>
+            </div>
+        `;
+        
+        chatMessages.appendChild(errorDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return;
+    }
+    
+    // Set waiting state with loading animation
+    isWaitingForResponse = true;
+    sendButton.disabled = true;
+    sendButton.classList.add('loading');
+    userInput.disabled = true;
+    
+    // Show thinking indicator based on current mode
+    showThinkingIndicator();
+    
+    // Send to API
+    try {
+        await sendMessageToAPI(message);
+        
+        // Reset waiting state
+        isWaitingForResponse = false;
+        sendButton.disabled = false;
+        sendButton.classList.remove('loading');
+        userInput.disabled = false;
+        userInput.focus();
+        
+        // Update chat session in storage
+        updateChatSession();
+    } catch (error) {
+        console.error('Error sending message:', error);
+        
+        // Remove any thinking indicators
+        const thinkingIndicators = document.querySelectorAll('.message.bot.thinking');
+        thinkingIndicators.forEach(indicator => indicator.remove());
+        
+        // Show error message
+        showMessage('Failed to send message. Please try again.', 'error', 5000);
+        
+        // Add simple error message to history
+        messagesHistory.push({
+            role: 'assistant',
+            content: 'Sorry, the AI service is currently unavailable. Please try again later.'
+        });
+        
+        // Reset waiting state
+        isWaitingForResponse = false;
+        sendButton.disabled = false;
+        sendButton.classList.remove('loading');
+        userInput.disabled = false;
+        userInput.focus();
+        
+        // Update chat session in storage
+        updateChatSession();
+    }
+}
  
  // Function to auto-resize textarea
  function autoResizeTextarea() {
@@ -1127,6 +1162,37 @@ userInput.addEventListener('keydown', (e) => {
         handleSendMessage();
     }
 });
+
+// Global keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Ctrl/Cmd + K to focus input
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        userInput.focus();
+    }
+    
+    // Ctrl/Cmd + N for new chat
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        createNewChat();
+    }
+    
+    // Escape to clear input or go back
+    if (e.key === 'Escape') {
+        if (userInput.value.trim()) {
+            userInput.value = '';
+            userInput.style.height = 'auto';
+        } else if (backToChatBtn && backToChatBtn.style.display !== 'none') {
+            showWelcomeScreen();
+        }
+    }
+    
+    // Ctrl/Cmd + / to toggle theme
+    if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+        e.preventDefault();
+        toggleTheme();
+    }
+});
  
  // Auto-resize as user types
  userInput.addEventListener('input', autoResizeTextarea);
@@ -1220,24 +1286,28 @@ userInput.addEventListener('keydown', (e) => {
      }
  });
  
- // Function to show a message to the user
- function showMessage(message, type = 'info') {
-     // Don't show messages in mobile mode
-     if (document.body.classList.contains('mobile-mode')) {
-         console.log('Message suppressed in mobile mode:', message);
-         return;
-     }
+// Function to show a message to the user
+function showMessage(message, type = 'info', duration = 5000) {
+    // Don't show messages in mobile mode
+    if (document.body.classList.contains('mobile-mode')) {
+        console.log('Message suppressed in mobile mode:', message);
+        return;
+    }
 
-     const messageDiv = document.createElement('div');
-     messageDiv.className = `message-toast ${type}`;
-     messageDiv.textContent = message;
-     document.body.appendChild(messageDiv);
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message-toast ${type}`;
+    messageDiv.textContent = message;
+    document.body.appendChild(messageDiv);
 
-     // Remove the message after 5 seconds
-     setTimeout(() => {
-         messageDiv.remove();
-     }, 5000);
- }
+    // Trigger animation
+    setTimeout(() => messageDiv.classList.add('visible'), 100);
+
+    // Remove the message after specified duration
+    setTimeout(() => {
+        messageDiv.classList.add('hidden');
+        setTimeout(() => messageDiv.remove(), 300);
+    }, duration);
+}
  
  // Function to set interface mode
  function setInterfaceMode(mode) {
@@ -1427,6 +1497,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Load saved chats
     loadChatsFromLocalStorage();
+    
+    // Add search functionality
+    if (chatSearch) {
+        chatSearch.addEventListener('input', (e) => {
+            renderChatHistory(e.target.value);
+        });
+    }
     
     // Initialize mode
     initializeMode();
@@ -1625,6 +1702,35 @@ document.getElementById('share-btn').addEventListener('click', shareApplication)
 if (backToChatBtn) {
     backToChatBtn.addEventListener('click', () => {
         showWelcomeScreen();
+    });
+}
+
+// Help modal functionality
+const helpModal = document.getElementById('help-modal');
+const helpBtn = document.getElementById('help-btn');
+const closeHelpModal = document.getElementById('close-help-modal');
+
+if (helpBtn && helpModal && closeHelpModal) {
+    helpBtn.addEventListener('click', () => {
+        helpModal.classList.add('open');
+    });
+    
+    closeHelpModal.addEventListener('click', () => {
+        helpModal.classList.remove('open');
+    });
+    
+    // Close modal when clicking outside
+    helpModal.addEventListener('click', (e) => {
+        if (e.target === helpModal) {
+            helpModal.classList.remove('open');
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && helpModal.classList.contains('open')) {
+            helpModal.classList.remove('open');
+        }
     });
 }
 
