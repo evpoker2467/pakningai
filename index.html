@@ -56,28 +56,8 @@
                    (navigator.msMaxTouchPoints > 0);
         }
 
-        // Function to set the interface mode
-        function setInterfaceMode(mode) {
-            document.body.classList.remove('web-mode', 'mobile-mode');
-            document.body.classList.add(mode);
-            localStorage.setItem('preferredMode', mode);
-        }
-
-        // Initialize mode based on device and saved preference
-        function initializeMode() {
-            const savedMode = localStorage.getItem('preferredMode');
-            const defaultMode = isMobileDevice() ? 'mobile-mode' : 'web-mode';
-            setInterfaceMode(savedMode || defaultMode);
-        }
-
-        // Initialize on load
-        initializeMode();
     </script>
 
-    <!-- Mode toggle button (visible only on tablets and larger devices) -->
-    <button id="modeToggle" class="mode-toggle" aria-label="Toggle interface mode">
-        <i class="fas fa-mobile-alt"></i>
-    </button>
 
     <div class="app-container">
         <div class="sidebar">

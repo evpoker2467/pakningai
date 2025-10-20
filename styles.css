@@ -2398,29 +2398,6 @@ body.resizing .sidebar-resizer {
     }
 }
 
-/* Mode toggle button */
-.mode-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    cursor: pointer;
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px var(--shadow-color);
-    transition: transform 0.2s;
-}
-
-.mode-toggle:hover {
-    transform: scale(1.1);
-}
 
 /* Scroll to bottom button */
 .scroll-to-bottom {
@@ -2451,12 +2428,6 @@ body.resizing .sidebar-resizer {
     display: flex;
 }
 
-/* Show mode toggle only on larger screens */
-@media (min-width: 769px) {
-    .mode-toggle {
-        display: flex;
-    }
-}
 
 /* Mobile Mode Styles */
 .mobile-mode .app-container {

@@ -1733,11 +1733,6 @@ function showMessage(message, type = 'info', duration = 5000) {
              el.style.display = 'none';
          });
          
-         // Hide mode toggle button on mobile
-         const modeToggle = document.getElementById('modeToggle');
-         if (modeToggle) {
-             modeToggle.style.display = 'none';
-         }
      } else {
          // Restore desktop layout
          if (sidebar) {
@@ -1759,21 +1754,8 @@ function showMessage(message, type = 'info', duration = 5000) {
              el.style.display = '';
          });
          
-         // Show mode toggle button on desktop
-         const modeToggle = document.getElementById('modeToggle');
-         if (modeToggle) {
-             modeToggle.style.display = '';
-         }
      }
      
-     // Update mode toggle button
-     const modeToggle = document.getElementById('modeToggle');
-     if (modeToggle) {
-         const icon = modeToggle.querySelector('i');
-         if (icon) {
-             icon.className = mode === 'web-mode' ? 'fas fa-mobile-alt' : 'fas fa-desktop';
-         }
-     }
  }
 
 // Function to initialize mobile detection
