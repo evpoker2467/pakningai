@@ -636,6 +636,27 @@ body.resizing .sidebar-resizer::after {
     tab-size: 4;
 }
 
+.message-content pre .code-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 6px;
+}
+
+.copy-code-btn {
+    background: var(--secondary-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 12px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.copy-code-btn:hover {
+    background: var(--hover-bg);
+}
+
 .message-content pre code {
     background-color: transparent;
     padding: 0;
@@ -1042,12 +1063,436 @@ body.deepthink-mode #mini-mode-indicator {
 }
 
 .message {
+    animation: fadeIn 0.3s;
+}
+
+/* Mode Selection Improved Styling */
+.mode-selection {
+    margin: 1em 0;
+    padding: 1.5em;
+    background: rgba(42, 42, 58, 0.7);
+    border-radius: 20px;
+    max-width: 100%;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.light-theme .mode-selection {
+    background: rgba(240, 240, 250, 0.7);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.mode-title {
+    font-size: 1.2em;
+    margin-bottom: 1em;
+    font-weight: 600;
+    position: relative;
+    display: inline-block;
+    color: #aaa;
+}
+
+.light-theme .mode-title {
+    color: #666;
+}
+
+.mode-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1.2em;
+    margin: 1.2em 0;
+}
+
+.mode-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5em;
+    border-radius: 16px;
+    background-color: #23232e;
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 120px;
+    height: 120px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    border: none;
+}
+
+.light-theme .mode-btn {
+    background-color: #e6e6ef;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    color: var(--text-color);
+}
+
+.mode-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.light-theme .mode-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.mode-btn.active {
+    background-color: #2a2a38;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-5px);
+    position: relative;
+}
+
+.light-theme .mode-btn.active {
+    background-color: #d8d8e5;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+}
+
+.mode-btn::before {
+    display: none;
+}
+
+.mode-btn i {
+    font-size: 2.2em;
+    margin-bottom: 0.6em;
+    transition: all 0.3s ease;
+}
+
+.mode-btn i.fa-balance-scale {
+    color: #6a5af9;
+}
+
+.mode-btn i.fa-brain {
+    color: #21d07c;
+}
+
+.light-theme .mode-btn i.fa-balance-scale {
+    color: #6a5af9;
+}
+
+.light-theme .mode-btn i.fa-brain {
+    color: #21d07c;
+}
+
+.mode-btn span {
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.mode-description {
+    margin-top: 1.2em;
+    font-size: 0.85em;
+    color: var(--secondary-text);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1em;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    line-height: 1.5;
+}
+
+.light-theme .mode-description {
+    background-color: rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    color: #555;
+}
+
+/* Current mode indicator enhanced */
+.current-mode-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--secondary-bg);
+    padding: 0.7em 1.2em;
+    border-radius: 30px;
+    margin: 0.8em auto;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    max-width: fit-content;
+    pointer-events: none;
+    gap: 0.7em;
+    font-size: 1em;
+    color: var(--secondary-text);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.current-mode-indicator.visible {
+    opacity: 1;
+}
+
+/* Mode-specific Thinking Style Modifications */
+.bot.thinking.deepthink .thinking-step {
+    animation: fadeInLong 1s ease-out;
+}
+
+@keyframes fadeInLong {
+    0% { opacity: 0; transform: translateY(20px); }
+    50% { opacity: 0.5; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* DeepThink Mode */
+.deepthink-mode #current-mode-icon {
+    color: #9c71f7;
+}
+
+/* Add the missing code style */
+.message-content code {
+    background-color: var(--code-bg);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+/* Ensure proper spacing for Asian languages */
+.message-content:has(cjk) p,
+.message-content:has(cjk) li {
+    text-align: justify;
+    text-justify: inter-character;
+}
+
+/* NING R1 Logo Styles */
+.ning-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(145deg, #6a5af9, #21d07c);
+    color: white;
+    font-weight: 800;
+    font-size: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.ning-logo:before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.4), transparent);
+    transform: skewX(-20deg) translateX(-70%);
+    transition: transform 0.5s;
+}
+
+.ning-logo:hover:before {
+    transform: skewX(-20deg) translateX(170%);
+}
+
+.ning-logo.large {
+    width: 80px;
+    height: 80px;
+    font-size: 38px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    background: linear-gradient(145deg, #6a5af9, #21d07c);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.message-avatar.bot {
+    background: linear-gradient(145deg, #6a5af9, #21d07c);
+    font-weight: 700;
+    position: relative;
+    overflow: hidden;
+}
+
+/* No need for the after pseudo-element since we're setting the text directly in the JavaScript
+.message-avatar.bot:after {
+    content: "N1";
+    font-size: 12px;
+}
+*/
+
+/* Feature points improved styling */
+.feature-points {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+}
+
+.feature-point {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.feature-point:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    background: rgba(106, 90, 249, 0.15);
+}
+
+.feature-point:nth-child(2):hover {
+    background: rgba(33, 208, 124, 0.15);
+}
+
+.feature-point:nth-child(3):hover {
+    background: linear-gradient(135deg, rgba(106, 90, 249, 0.15), rgba(33, 208, 124, 0.15));
+}
+
+.feature-point i {
+    font-size: 1.5em;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--default-color), var(--deepthink-color));
+    border-radius: 50%;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+}
+
+.feature-point span {
+    font-size: 0.95em;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+/* NING R1 Logo Styles */
+.welcome-left .ning-logo.large {
+    width: 80px;
+    height: 80px;
+    font-size: 34px;
+    border-radius: 16px;
+    margin-bottom: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 1200px) {
+    .welcome-screen h1 {
+        font-size: 3.2em;
+    }
+    
+    .feature-point i {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8em;
+    }
+    
+    .welcome-left .ning-logo.large {
+        width: 100px;
+        height: 100px;
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 992px) {
+    .welcome-screen {
+        flex-direction: column;
+        padding: 30px 20px;
+        gap: 30px;
+        overflow-y: auto;
+        height: auto;
+        min-height: 100%;
+    }
+    
+    .welcome-left, .welcome-right {
+        max-width: 100%;
+        width: 100%;
+        flex: 0 0 auto;
+        padding: 20px 0;
+    }
+    
+    .welcome-screen h1 {
+        font-size: 2.8em;
+    }
+    
+    .feature-point {
+        padding: 1.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-screen {
+        padding: 20px 15px;
+    }
+    
+    .welcome-screen h1 {
+        font-size: 2em;
+    }
+    
+    .feature-point {
+        padding: 1em;
+        gap: 1em;
+    }
+    
+    .feature-point i {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2em;
+    }
+    
+    .mode-btn {
+        width: 100px;
+        height: 100px;
+        padding: 1em;
+    }
+    
+    .input-wrapper {
+        padding: 10px 12px;
+    }
+}
+
+.mode-btn::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        var(--default-color) 0%, 
+        var(--deepthink-color) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mode-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.mode-btn:hover::before {
+    opacity: 1;
+}
+
+.mode-btn.active {
+    background-color: #2a2a38;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-5px);
+    position: relative;
+}
+
+.light-theme .mode-btn.active {
+    background-color: #d8d8e5;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+}
+
+/* Message styles */
+.message {
     display: flex;
     padding: 20px;
     border-bottom: 1px solid var(--border-color);
-    position: relative;
-    max-width: 100%;
-    word-wrap: break-word;
 }
 
 .user {
@@ -1091,48 +1536,6 @@ body.deepthink-mode #mini-mode-indicator {
     max-width: 100%;
     hyphens: auto;
     text-align: left;
-    position: relative;
-    padding-right: 40px; /* Space for copy button */
-}
-
-.message-text {
-    margin-right: 30px; /* Space for copy button */
-}
-
-.copy-button {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: transparent;
-    border: none;
-    color: var(--secondary-text);
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    opacity: 0;
-    z-index: 1;
-}
-
-.message:hover .copy-button {
-    opacity: 1;
-}
-
-.copy-button:hover {
-    background: var(--hover-color);
-    color: var(--primary-color);
-}
-
-.copy-button i {
-    font-size: 14px;
-}
-
-.message.user .copy-button {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.message.user .copy-button:hover {
-    color: white;
 }
 
 /* CJK language specific styles */
@@ -1606,6 +2009,35 @@ body.resizing .sidebar-resizer {
 
 .mode-toggle:hover {
     transform: scale(1.1);
+}
+
+/* Scroll to bottom button */
+.scroll-to-bottom {
+    position: fixed;
+    right: 24px;
+    bottom: 110px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent-color);
+    color: #fff;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+    cursor: pointer;
+    z-index: 1002;
+    transition: transform 0.15s ease, opacity 0.2s ease;
+    opacity: 0.95;
+}
+
+.scroll-to-bottom:hover {
+    transform: translateY(-2px);
+}
+
+.scroll-to-bottom.visible {
+    display: flex;
 }
 
 /* Show mode toggle only on larger screens */

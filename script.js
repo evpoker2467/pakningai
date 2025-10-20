@@ -18,6 +18,7 @@
  const chatContainer = document.querySelector('.app-container');
  const modeSwitchBtn = document.getElementById('mode-switch-btn');
  const miniModeIndicator = document.getElementById('mini-mode-indicator');
+const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
  
  // Initialize API key variable 
  let apiKey = '';
@@ -221,16 +222,16 @@
      // Add to sidebar
      const chatHistory = document.querySelector('.chat-history');
      if (chatHistory) {
-     // Remove 'active' class from all history items
-     document.querySelectorAll('.history-item').forEach(item => {
-         item.classList.remove('active');
-     });
-     
-     // Add 'active' class to this new item
-     historyItem.classList.add('active');
-     
-     // Add to DOM - insert at the top for newest chats
-     chatHistory.insertBefore(historyItem, chatHistory.firstChild);
+         // Remove 'active' class from all history items
+         document.querySelectorAll('.history-item').forEach(item => {
+             item.classList.remove('active');
+         });
+         
+         // Add 'active' class to this new item
+         historyItem.classList.add('active');
+         
+         // Add to DOM - insert at the top for newest chats
+         chatHistory.insertBefore(historyItem, chatHistory.firstChild);
      }
      
      // Store in chat sessions array
@@ -271,27 +272,27 @@
              // Populate sidebar with saved chats
              const chatHistory = document.querySelector('.chat-history');
              if (chatHistory) {
-             chatHistory.innerHTML = ''; // Clear existing
-             
-             // Sort chats by creation date (newest first)
-             chatSessions.sort((a, b) => new Date(b.created) - new Date(a.created));
-             
-             chatSessions.forEach(session => {
-                 const historyItem = document.createElement('div');
-                 historyItem.classList.add('history-item');
-                 historyItem.dataset.id = session.id;
+                 chatHistory.innerHTML = ''; // Clear existing
                  
-                 const icon = document.createElement('i');
-                 icon.classList.add('fas', 'fa-comment');
+                 // Sort chats by creation date (newest first)
+                 chatSessions.sort((a, b) => new Date(b.created) - new Date(a.created));
                  
-                 const span = document.createElement('span');
-                 span.textContent = session.title;
-                 
-                 historyItem.appendChild(icon);
-                 historyItem.appendChild(span);
-                 
-                 chatHistory.appendChild(historyItem);
-             });
+                 chatSessions.forEach(session => {
+                     const historyItem = document.createElement('div');
+                     historyItem.classList.add('history-item');
+                     historyItem.dataset.id = session.id;
+                     
+                     const icon = document.createElement('i');
+                     icon.classList.add('fas', 'fa-comment');
+                     
+                     const span = document.createElement('span');
+                     span.textContent = session.title;
+                     
+                     historyItem.appendChild(icon);
+                     historyItem.appendChild(span);
+                     
+                     chatHistory.appendChild(historyItem);
+                 });
              }
          }
      } catch (error) {
@@ -333,12 +334,13 @@
      // Handle newlines properly first
      text = text.replace(/\r\n/g, '\n');
      
-     // Handle code blocks (```lang...```)
-     text = text.replace(/```([a-z]*)\n([\s\S]*?)\n```/g, function(match, language, code) {
-         // Sanitize code content
-         code = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-         return `<pre><code class="language-${language}">${code}</code></pre>`;
-     });
+    // Handle code blocks (```lang...```)
+    text = text.replace(/```([a-z]*)\n([\s\S]*?)\n```/g, function(match, language, code) {
+        // Sanitize code content
+        code = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const toolbar = `<div class="code-toolbar"><button class="copy-code-btn" data-language="${language || ''}"><i class="fas fa-copy"></i> Copy</button></div>`;
+        return `<pre>${toolbar}<code class="language-${language}">${code}</code></pre>`;
+    });
      
      // Handle inline code (`code`)
      text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
@@ -424,6 +426,29 @@
      
      return result;
  }
+
+// Global delegation for copy buttons on code blocks
+document.addEventListener('click', async (event) => {
+    const copyBtn = event.target.closest('.copy-code-btn');
+    if (!copyBtn) return;
+    const pre = copyBtn.closest('pre');
+    const codeEl = pre?.querySelector('code');
+    if (!codeEl) return;
+    const raw = codeEl.textContent || '';
+    try {
+        await navigator.clipboard.writeText(raw);
+        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
+        setTimeout(() => {
+            copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+        }, 1500);
+    } catch (err) {
+        console.error('Copy failed:', err);
+        copyBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
+        setTimeout(() => {
+            copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+        }, 1500);
+    }
+});
  
  // Function to detect Chinese/Japanese/Korean text
  function containsCJK(text) {
@@ -517,6 +542,8 @@
      
      chatMessages.appendChild(messageDiv);
      chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Update scroll button state after new content
+    updateScrollButtonVisibility();
      
      return messageDiv;
  }
@@ -594,28 +621,28 @@
          }
          
          // Prepare API request options
-     const requestOptions = {
-         method: 'POST',
-         headers: {
-             'Authorization': `Bearer ${apiKey}`,
+         const requestOptions = {
+             method: 'POST',
+             headers: {
+                 'Authorization': `Bearer ${apiKey}`,
                  'HTTP-Referer': window.location.href, 
                  'X-Title': 'PAKNING R1 Chatbot', 
                  'Content-Type': 'application/json'
-         },
-         body: JSON.stringify({
-                 'model': 'qwen/qwen3-14b:free',
+             },
+             body: JSON.stringify({
+                'model': 'qwen/qwen3-14b:free',
                  'messages': messagesHistory,
                  'temperature': reasoningModes[currentMode].temperature,
                  'max_tokens': reasoningModes[currentMode].maxTokens,
                  'stream': true // Enable streaming
-         })
-     };
-     
-     try {
+             })
+         };
+         
+         try {
              console.log(`Sending request to ${API_URL}...`);
              const response = await fetch(API_URL, requestOptions);
-         
-         if (!response.ok) {
+             
+             if (!response.ok) {
                  const errorText = await response.text();
                  console.error(`API Error, retry ${retryCount}:`, errorText);
                  
@@ -679,19 +706,19 @@
              
              // Add complete response to history only once
              if (fullResponse) {
-         messagesHistory.push({
-             role: 'assistant',
+                 messagesHistory.push({
+                     role: 'assistant',
                      content: fullResponse
-         });
-         
-         // Update chat session in storage
-         updateChatSession();
+                 });
+                 
+                 // Update chat session in storage
+                 updateChatSession();
              }
-         
+             
              console.log(`Successfully received response from API`);
              return fullResponse;
              
-     } catch (error) {
+         } catch (error) {
              console.error(`API Error, retry ${retryCount}:`, error);
              
              if (retryCount < maxRetries) {
@@ -927,18 +954,32 @@
  
  // Function to load theme preference from localStorage
  function loadThemePreference() {
-     const theme = localStorage.getItem('pakningR1_theme');
-     
-     if (theme === 'light') {
-         document.body.classList.add('light-theme');
-         
-         const themeIcon = themeToggle.querySelector('i');
-         const themeText = themeToggle.querySelector('span');
-         
-         themeIcon.classList.remove('fa-moon');
-         themeIcon.classList.add('fa-sun');
-         themeText.textContent = 'Light Mode';
-     }
+    const theme = localStorage.getItem('pakningR1_theme');
+    if (theme === 'light') {
+        document.body.classList.add('light-theme');
+    } else if (theme === 'dark') {
+        document.body.classList.remove('light-theme');
+    } else {
+        // No saved preference: auto-detect from system
+        const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        if (prefersLight) {
+            document.body.classList.add('light-theme');
+        } else {
+            document.body.classList.remove('light-theme');
+        }
+    }
+    // Update theme UI
+    const themeIcon = themeToggle.querySelector('i');
+    const themeText = themeToggle.querySelector('span');
+    if (document.body.classList.contains('light-theme')) {
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+        themeText.textContent = 'Light Mode';
+    } else {
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+        themeText.textContent = 'Dark Mode';
+    }
  }
  
  // Function to toggle sidebar visibility
@@ -1071,6 +1112,14 @@
          handleSendMessage();
      }
  });
+
+// Also support Ctrl+Enter to send
+userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        handleSendMessage();
+    }
+});
  
  // Auto-resize as user types
  userInput.addEventListener('input', autoResizeTextarea);
@@ -1290,6 +1339,23 @@ function initializeMobileMode() {
     }
 }
 
+// Scroll-to-bottom logic
+function updateScrollButtonVisibility() {
+    const threshold = 120;
+    const distanceFromBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight;
+    if (distanceFromBottom > threshold) {
+        scrollToBottomBtn?.classList.add('visible');
+    } else {
+        scrollToBottomBtn?.classList.remove('visible');
+    }
+}
+
+scrollToBottomBtn?.addEventListener('click', () => {
+    chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+});
+
+chatMessages.addEventListener('scroll', updateScrollButtonVisibility);
+
 // Add mobile navigation handlers
 function setupMobileNavigation() {
     // Toggle sidebar
@@ -1316,7 +1382,7 @@ function setupMobileNavigation() {
     document.getElementById('newChatMobile')?.addEventListener('click', () => {
         createNewChat();
         // Close sidebar if open
-                     sidebar.classList.remove('open');
+        sidebar.classList.remove('open');
         document.querySelector('.sidebar-overlay')?.remove();
     });
     
@@ -1366,6 +1432,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Focus on input
     userInput.focus();
+    // Initial scroll button state
+    updateScrollButtonVisibility();
 });
 
 // Add mode switch button event listener
@@ -1412,7 +1480,7 @@ function updateModeButtons(isDeepThink) {
             modeText.textContent = 'DeepThink';
             modeBtn.style.borderColor = 'var(--deepthink-color)';
             modeBtn.style.color = 'var(--deepthink-color)';
-         } else {
+        } else {
             modeIcon.className = 'fas fa-balance-scale';
             modeText.textContent = 'Default';
             modeBtn.style.borderColor = 'var(--default-color)';
@@ -1430,7 +1498,7 @@ function updateModeButtons(isDeepThink) {
             welcomeModeIcon.className = 'fas fa-brain';
             welcomeModeText.textContent = 'DeepThink Mode';
             welcomeModeBtn.classList.add('active');
-     } else {
+        } else {
             welcomeModeIcon.className = 'fas fa-balance-scale';
             welcomeModeText.textContent = 'Default Mode';
             welcomeModeBtn.classList.remove('active');
@@ -1440,11 +1508,11 @@ function updateModeButtons(isDeepThink) {
     // Update mode buttons in welcome screen
     document.querySelectorAll('.mode-btn').forEach(btn => {
         if (btn.dataset.mode === (isDeepThink ? 'deepthink' : 'default')) {
-             btn.classList.add('active');
-         } else {
-             btn.classList.remove('active');
-         }
-     });
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
 }
 
 // Update the initializeMode function
@@ -1508,9 +1576,9 @@ async function shareApplication() {
                         <i class="fas fa-link"></i>
                         <span>Copy Link</span>
                     </button>
-         </div>
-     `;
-     
+                </div>
+            `;
+
             // Add click event for copy link
             const copyLinkBtn = shareMenu.querySelector('.copy-link');
             copyLinkBtn.addEventListener('click', () => {
@@ -1542,47 +1610,5 @@ async function shareApplication() {
 
 // Add share button event listener
 document.getElementById('share-btn').addEventListener('click', shareApplication);
-
-function appendMessage(content, isUser = false) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
-    
-    const messageContent = document.createElement('div');
-    messageContent.className = 'message-content';
-    
-    // Add copy button
-    const copyButton = document.createElement('button');
-    copyButton.className = 'copy-button';
-    copyButton.innerHTML = '<i class="fas fa-copy"></i>';
-    copyButton.title = 'Copy message';
-    copyButton.onclick = () => {
-        navigator.clipboard.writeText(content).then(() => {
-            // Show success feedback
-            copyButton.innerHTML = '<i class="fas fa-check"></i>';
-            setTimeout(() => {
-                copyButton.innerHTML = '<i class="fas fa-copy"></i>';
-            }, 2000);
-        }).catch(err => {
-            console.error('Failed to copy text: ', err);
-            // Show error feedback
-            copyButton.innerHTML = '<i class="fas fa-times"></i>';
-            setTimeout(() => {
-                copyButton.innerHTML = '<i class="fas fa-copy"></i>';
-            }, 2000);
-        });
-    };
-    
-    messageContent.appendChild(copyButton);
-    
-    // Add message text
-    const textDiv = document.createElement('div');
-    textDiv.className = 'message-text';
-    textDiv.innerHTML = marked.parse(content);
-    messageContent.appendChild(textDiv);
-    
-    messageDiv.appendChild(messageContent);
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
 
 
