@@ -411,6 +411,20 @@ body.resizing .sidebar-resizer::after {
     background-color: rgba(106, 90, 249, 0.1);
 }
 
+.back-to-chat-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-to-chat-btn:hover {
+    color: var(--primary-color);
+    background-color: rgba(106, 90, 249, 0.1);
+}
+
 .session-actions {
     display: flex;
     align-items: center;

@@ -16,9 +16,10 @@
  const currentModeIcon = document.getElementById('current-mode-icon');
  const currentModeText = document.getElementById('current-mode-text');
  const chatContainer = document.querySelector('.app-container');
- const modeSwitchBtn = document.getElementById('mode-switch-btn');
- const miniModeIndicator = document.getElementById('mini-mode-indicator');
+const modeSwitchBtn = document.getElementById('mode-switch-btn');
+const miniModeIndicator = document.getElementById('mini-mode-indicator');
 const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
+const backToChatBtn = document.getElementById('back-to-chat');
  
  // Initialize API key variable 
  let apiKey = '';
@@ -466,16 +467,19 @@ document.addEventListener('click', async (event) => {
      return text;
  }
  
- // Function to add message to the chat UI
- function addMessageToChat(content, sender, isThinking = false) {
-     // Remove welcome screen if it exists
-     const welcomeScreen = document.querySelector('.welcome-screen');
-     if (welcomeScreen) {
-         welcomeScreen.remove();
-         
-         // Show current mode indicator
-         currentModeIndicator.classList.add('visible');
-     }
+// Function to add message to the chat UI
+function addMessageToChat(content, sender, isThinking = false) {
+    // Remove welcome screen if it exists
+    const welcomeScreen = document.querySelector('.welcome-screen');
+    if (welcomeScreen) {
+        welcomeScreen.remove();
+        
+        // Show current mode indicator and back button
+        currentModeIndicator.classList.add('visible');
+        if (backToChatBtn) {
+            backToChatBtn.style.display = 'flex';
+        }
+    }
      
      const messageDiv = document.createElement('div');
      messageDiv.classList.add('message', sender);
@@ -871,64 +875,67 @@ document.addEventListener('click', async (event) => {
      }
  }
  
- // Function to show the welcome screen
- function showWelcomeScreen() {
-     // Keep the current session ID instead of replacing it
-     // This ensures we don't lose the reference to the current chat
-     
-     // Clear messages and show welcome screen
-     chatMessages.innerHTML = `
-         <div class="welcome-screen">
-             <div class="welcome-content">
-                 <div class="welcome-logo">
-                     <div class="ning-logo large">P</div>
-                 </div>
-                 <h1>PAKNING R1</h1>
-                 <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>
-                 
-                 <div class="select-mode-container">
-                     <div class="mode-selection">
-                         <p class="mode-title">Select Reasoning Mode:</p>
-                         <div class="mode-buttons">
-                             <button class="mode-btn ${currentMode === 'default' ? 'active' : ''}" data-mode="default">
-                                 <i class="fas fa-balance-scale"></i>
-                                 <span>Default</span>
-                             </button>
-                             <button class="mode-btn ${currentMode === 'deepthink' ? 'active' : ''}" data-mode="deepthink">
-                                 <i class="fas fa-brain"></i>
-                                 <span>DeepThink</span>
-                             </button>
-                         </div>
-                         <div class="mode-description">
-                             <p id="mode-description-text">${reasoningModes[currentMode].description}</p>
-                         </div>
-                     </div>
-                 </div>
-                 
-                 <div class="feature-points">
-                     <div class="feature-point">
-                         <i class="fas fa-brain"></i>
-                         <span>Deep analytical thinking for complex problem-solving</span>
-                     </div>
-                     <div class="feature-point">
-                         <i class="fas fa-code"></i>
-                         <span>Superior performance in mathematics and coding tasks</span>
-                     </div>
-                     <div class="feature-point">
-                         <i class="fas fa-tools"></i>
-                         <span>Adapts reasoning based on environmental feedback</span>
-                     </div>
-                 </div>
-             </div>
-         </div>
-     `;
-     
-     // Update chat title without changing the session ID
-     document.title = 'PAKNING R1';
-     
-     // Hide mode indicator
-     currentModeIndicator.classList.remove('visible');
- }
+// Function to show the welcome screen
+function showWelcomeScreen() {
+    // Keep the current session ID instead of replacing it
+    // This ensures we don't lose the reference to the current chat
+    
+    // Clear messages and show welcome screen
+    chatMessages.innerHTML = `
+        <div class="welcome-screen">
+            <div class="welcome-content">
+                <div class="welcome-logo">
+                    <div class="ning-logo large">P</div>
+                </div>
+                <h1>PAKNING R1</h1>
+                <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>
+                
+                <div class="select-mode-container">
+                    <div class="mode-selection">
+                        <p class="mode-title">Select Reasoning Mode:</p>
+                        <div class="mode-buttons">
+                            <button class="mode-btn ${currentMode === 'default' ? 'active' : ''}" data-mode="default">
+                                <i class="fas fa-balance-scale"></i>
+                                <span>Default</span>
+                            </button>
+                            <button class="mode-btn ${currentMode === 'deepthink' ? 'active' : ''}" data-mode="deepthink">
+                                <i class="fas fa-brain"></i>
+                                <span>DeepThink</span>
+                            </button>
+                        </div>
+                        <div class="mode-description">
+                            <p id="mode-description-text">${reasoningModes[currentMode].description}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-points">
+                    <div class="feature-point">
+                        <i class="fas fa-brain"></i>
+                        <span>Deep analytical thinking for complex problem-solving</span>
+                    </div>
+                    <div class="feature-point">
+                        <i class="fas fa-code"></i>
+                        <span>Superior performance in mathematics and coding tasks</span>
+                    </div>
+                    <div class="feature-point">
+                        <i class="fas fa-tools"></i>
+                        <span>Adapts reasoning based on environmental feedback</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Update chat title without changing the session ID
+    document.title = 'PAKNING R1';
+    
+    // Hide mode indicator and back button
+    currentModeIndicator.classList.remove('visible');
+    if (backToChatBtn) {
+        backToChatBtn.style.display = 'none';
+    }
+}
  
  // Function to toggle theme
  function toggleTheme() {
@@ -1190,8 +1197,11 @@ userInput.addEventListener('keydown', (e) => {
              // Clear chat and rebuild from history
              chatMessages.innerHTML = '';
              
-             // Show mode indicator
-             currentModeIndicator.classList.add('visible');
+            // Show mode indicator and back button
+            currentModeIndicator.classList.add('visible');
+            if (backToChatBtn) {
+                backToChatBtn.style.display = 'flex';
+            }
              
              // Add messages from history
              for (let i = 1; i < messagesHistory.length; i++) {
@@ -1610,5 +1620,12 @@ async function shareApplication() {
 
 // Add share button event listener
 document.getElementById('share-btn').addEventListener('click', shareApplication);
+
+// Add back to chat button event listener
+if (backToChatBtn) {
+    backToChatBtn.addEventListener('click', () => {
+        showWelcomeScreen();
+    });
+}
 
 
