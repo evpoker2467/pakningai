@@ -1240,47 +1240,50 @@ async function handleSendMessage() {
      userInput.style.height = (userInput.scrollHeight) + 'px';
  }
  
- // Function to clear chat
- function clearChat() {
-     // Reset message history with system prompt
-     messagesHistory = [
-         {
-             role: "system",
-             content: reasoningModes[currentMode].systemPrompt
-         }
-     ];
-     
-     // Clear messages on screen
-     chatMessages.innerHTML = '';
-     
-     // Remove the session from storage and sidebar
-     const sessionIndex = chatSessions.findIndex(s => s.id === currentSessionId);
-     if (sessionIndex !== -1) {
-         // Remove from array
-         chatSessions.splice(sessionIndex, 1);
-         
-         // Remove from UI
-         const historyItem = document.querySelector(`.history-item[data-id="${currentSessionId}"]`);
-         if (historyItem) {
-             historyItem.remove();
-         }
-         
-         // Save changes
-         saveChatsToLocalStorage();
-         
-         // Show welcome screen
-         showWelcomeScreen();
-         
-         // Create a new chat session
-         createNewChat();
-     }
- }
+// Function to clear chat
+function clearChat() {
+    // Show confirmation dialog
+    const chatTitle = chatSessions.find(s => s.id === currentSessionId)?.title || 'this conversation';
+    if (!confirm(`Are you sure you want to delete "${chatTitle}"? This action cannot be undone.`)) {
+        return;
+    }
+    
+    // Remove the session from storage and sidebar
+    const sessionIndex = chatSessions.findIndex(s => s.id === currentSessionId);
+    if (sessionIndex !== -1) {
+        // Remove from array
+        chatSessions.splice(sessionIndex, 1);
+        
+        // Remove from UI
+        const historyItem = document.querySelector(`.history-item[data-id="${currentSessionId}"]`);
+        if (historyItem) {
+            historyItem.remove();
+        }
+        
+        // Save changes
+        saveChatsToLocalStorage();
+        
+        // Reset current session
+        currentSessionId = null;
+        
+        // Reset message history with system prompt
+        messagesHistory = [
+            {
+                role: "system",
+                content: reasoningModes[currentMode].systemPrompt
+            }
+        ];
+        
+        // Show welcome screen
+        showWelcomeScreen();
+        
+        // Show success message
+        showMessage('Chat deleted successfully', 'success', 2000);
+    }
+}
  
 // Function to show the welcome screen
 function showWelcomeScreen() {
-    // Keep the current session ID instead of replacing it
-    // This ensures we don't lose the reference to the current chat
-    
     // Clear messages and show welcome screen
     chatMessages.innerHTML = `
         <div class="welcome-screen">
@@ -1328,7 +1331,7 @@ function showWelcomeScreen() {
         </div>
     `;
     
-    // Update chat title without changing the session ID
+    // Update chat title
     document.title = 'PAKNING R1';
     
     // Hide mode indicator and back button
@@ -1336,6 +1339,11 @@ function showWelcomeScreen() {
     if (backToChatBtn) {
         backToChatBtn.style.display = 'none';
     }
+    
+    // Remove active class from all history items
+    document.querySelectorAll('.history-item').forEach(item => {
+        item.classList.remove('active');
+    });
 }
  
  // Function to toggle theme
