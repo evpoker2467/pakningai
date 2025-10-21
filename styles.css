@@ -638,15 +638,16 @@ body.resizing .sidebar-resizer::after {
 }
 
 .welcome-screen h1 {
-    font-size: 3em;
+    font-size: 3.5em;
     margin-bottom: 0.2em;
     margin-top: 15px;
-    background: linear-gradient(135deg, var(--default-color), var(--deepthink-color));
+    background: linear-gradient(135deg, #6a5af9, #21d07c, #ff6b6b);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    font-weight: 800;
+    font-weight: 900;
     letter-spacing: -0.02em;
+    text-shadow: 0 0 30px rgba(106, 90, 249, 0.3);
 }
 
 .welcome-screen p {
@@ -694,6 +695,20 @@ body.resizing .sidebar-resizer::after {
     text-align: center;
     position: relative;
     overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.expert-btn:focus {
+    outline: 2px solid var(--default-color);
+    outline-offset: 2px;
+}
+
+.expert-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(106, 90, 249, 0.3);
 }
 
 .expert-btn:hover {
@@ -785,14 +800,60 @@ body.resizing .sidebar-resizer::after {
     background: linear-gradient(135deg, rgba(253, 126, 20, 0.2), rgba(253, 126, 20, 0.1));
 }
 
-/* NING R1 Logo Styles */
+/* Mobile responsive design for expert selection */
+@media (max-width: 768px) {
+    .expert-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .expert-btn {
+        padding: 15px 10px;
+    }
+    
+    .expert-btn i {
+        font-size: 1.5em;
+    }
+    
+    .expert-btn span {
+        font-size: 1em;
+    }
+    
+    .expert-btn small {
+        font-size: 0.8em;
+    }
+    
+    .welcome-screen h1 {
+        font-size: 2.5em;
+    }
+    
+    .welcome-content .ning-logo.large {
+        width: 80px;
+        height: 80px;
+        font-size: 36px;
+    }
+}
+
+/* PAKNING AI Logo Styles */
 .welcome-content .ning-logo.large {
-    width: 80px;
-    height: 80px;
-    font-size: 34px;
-    border-radius: 16px;
-    margin-bottom: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    width: 100px;
+    height: 100px;
+    font-size: 42px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 12px 30px rgba(106, 90, 249, 0.4);
+    background: linear-gradient(135deg, #6a5af9, #21d07c);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    animation: logoGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+    0% {
+        box-shadow: 0 12px 30px rgba(106, 90, 249, 0.4);
+    }
+    100% {
+        box-shadow: 0 12px 30px rgba(106, 90, 249, 0.6), 0 0 40px rgba(33, 208, 124, 0.3);
+    }
 }
 
 /* Feature points improved styling */

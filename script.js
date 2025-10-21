@@ -2095,8 +2095,8 @@ function showWelcomeScreen() {
                 <div class="welcome-logo">
                     <div class="ning-logo large">P</div>
                 </div>
-                <h1>PAKNING R1</h1>
-                <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>
+                <h1>PAKNING AI</h1>
+                <p>Choose your specialized AI expert for professional-grade assistance</p>
                 
                 <div class="expert-selection-container">
                     <div class="expert-selection">
@@ -2147,7 +2147,7 @@ function showWelcomeScreen() {
                 <div class="feature-points">
                     <div class="feature-point">
                         <i class="fas fa-users"></i>
-                        <span>Specialized AI experts for different domains</span>
+                        <span>7 specialized AI experts for different domains</span>
                     </div>
                     <div class="feature-point">
                         <i class="fas fa-brain"></i>
@@ -2163,7 +2163,7 @@ function showWelcomeScreen() {
     `;
     
     // Update chat title
-    document.title = 'PAKNING R1';
+    document.title = 'PAKNING AI';
     
     // Hide mode indicator and back button
     currentModeIndicator.classList.remove('visible');
@@ -2188,7 +2188,21 @@ function showWelcomeScreen() {
             this.classList.add('active');
             
             // Update description
-            document.getElementById('expert-description-text').textContent = expertModes[mode].description;
+            const descriptionElement = document.getElementById('expert-description-text');
+            if (descriptionElement) {
+                descriptionElement.textContent = expertModes[mode].description;
+            }
+            
+            // Show success message
+            showMessage(`Switched to ${expertModes[mode].title}`, 'success', 2000);
+        });
+        
+        // Add keyboard support
+        button.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
         });
     });
 }
