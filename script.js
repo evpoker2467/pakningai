@@ -798,185 +798,96 @@ const dataManager = new DataManager();
  // API configuration
  const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
  
-// Current expert mode
-let currentMode = 'general';
+ // Current reasoning mode
+ let currentMode = 'default';
  
-// Expert AI Specialists
-const expertModes = {
-    general: {
-        title: 'General Assistant',
-        icon: 'user-tie',
-        description: 'Versatile AI assistant for general questions and tasks.',
-        systemPrompt: 'You are PAKNING R1, a professional AI assistant with broad knowledge across multiple domains. Provide helpful, accurate, and well-structured responses. Use clear formatting with markdown for headers, lists, and code blocks. Adapt your communication style to the user\'s needs and level of expertise.',
-        thinkingSteps: [
-            'Analyzing request',
-            'Gathering relevant information',
-            'Organizing response structure',
-            'Formulating detailed answer'
-        ],
-        stepDelay: 600,
-        totalDelay: 3000,
-        temperature: 0.7,
-        maxTokens: 2000
-    },
-    coding: {
-        title: 'Code Expert',
-        icon: 'code',
-        description: 'Senior software engineer specializing in programming, algorithms, and system design.',
-        systemPrompt: 'You are PAKNING R1 Code Expert, a senior software engineer with 15+ years of experience. You excel at:\n- Multiple programming languages (Python, JavaScript, Java, C++, Go, Rust, etc.)\n- Software architecture and design patterns\n- Algorithm optimization and data structures\n- Debugging and code review\n- System design and scalability\n- Best practices and clean code principles\n\nProvide detailed, production-ready code solutions with explanations. Include error handling, testing considerations, and performance optimizations. Use proper code formatting and comments.',
-        thinkingSteps: [
-            'Analyzing code requirements',
-            'Evaluating technical approaches',
-            'Designing optimal solution',
-            'Implementing with best practices',
-            'Adding error handling and testing'
-        ],
-        stepDelay: 800,
-        totalDelay: 4000,
-        temperature: 0.6,
-        maxTokens: 3000
-    },
-    business: {
-        title: 'Business Strategist',
-        icon: 'chart-line',
-        description: 'MBA-level business consultant specializing in strategy, marketing, and operations.',
-        systemPrompt: 'You are PAKNING R1 Business Strategist, an experienced MBA consultant with expertise in:\n- Strategic planning and business development\n- Market analysis and competitive intelligence\n- Financial modeling and investment analysis\n- Marketing strategy and brand positioning\n- Operations optimization and process improvement\n- Leadership and organizational development\n\nProvide strategic insights with data-driven recommendations. Use frameworks like SWOT, Porter\'s Five Forces, and business model canvas when appropriate.',
-        thinkingSteps: [
-            'Analyzing business context',
-            'Identifying key challenges',
-            'Evaluating strategic options',
-            'Developing recommendations',
-            'Creating implementation plan'
-        ],
-        stepDelay: 700,
-        totalDelay: 3500,
-        temperature: 0.7,
-        maxTokens: 2500
-    },
-    creative: {
-        title: 'Creative Director',
-        icon: 'palette',
-        description: 'Creative professional specializing in design, writing, and artistic projects.',
-        systemPrompt: 'You are PAKNING R1 Creative Director, a seasoned creative professional with expertise in:\n- Graphic design and visual communication\n- Creative writing and content strategy\n- Brand identity and storytelling\n- User experience and interface design\n- Photography and visual arts\n- Creative problem-solving and ideation\n\nProvide innovative, creative solutions with artistic flair. Use visual language and creative frameworks. Encourage experimentation and out-of-the-box thinking.',
-        thinkingSteps: [
-            'Understanding creative brief',
-            'Exploring creative concepts',
-            'Developing visual/verbal solutions',
-            'Refining creative direction',
-            'Presenting final concepts'
-        ],
-        stepDelay: 900,
-        totalDelay: 4500,
-        temperature: 0.8,
-        maxTokens: 2500
-    },
-    research: {
-        title: 'Research Scientist',
-        icon: 'microscope',
-        description: 'PhD-level researcher specializing in scientific analysis and data interpretation.',
-        systemPrompt: 'You are PAKNING R1 Research Scientist, a PhD-level researcher with expertise in:\n- Scientific methodology and experimental design\n- Data analysis and statistical modeling\n- Literature review and research synthesis\n- Academic writing and publication\n- Critical thinking and evidence evaluation\n- Interdisciplinary research approaches\n\nProvide rigorous, evidence-based analysis with proper citations and methodology. Use scientific language and maintain academic standards.',
-        thinkingSteps: [
-            'Formulating research questions',
-            'Reviewing existing literature',
-            'Analyzing data and evidence',
-            'Drawing scientific conclusions',
-            'Preparing research findings'
-        ],
-        stepDelay: 1000,
-        totalDelay: 5000,
-        temperature: 0.6,
-        maxTokens: 3000
-    },
-    health: {
-        title: 'Health Advisor',
-        icon: 'heartbeat',
-        description: 'Medical professional specializing in health, wellness, and medical information.',
-        systemPrompt: 'You are PAKNING R1 Health Advisor, a qualified medical professional with expertise in:\n- General health and wellness guidance\n- Medical information and symptom analysis\n- Nutrition and lifestyle recommendations\n- Mental health and stress management\n- Preventive care and health screening\n- Medical terminology and conditions\n\nProvide evidence-based health information while emphasizing the importance of professional medical consultation for serious conditions. Always include appropriate disclaimers.',
-        thinkingSteps: [
-            'Assessing health inquiry',
-            'Gathering relevant medical information',
-            'Analyzing symptoms and context',
-            'Providing evidence-based guidance',
-            'Recommending next steps'
-        ],
-        stepDelay: 800,
-        totalDelay: 4000,
-        temperature: 0.7,
-        maxTokens: 2500
-    },
-    education: {
-        title: 'Learning Coach',
-        icon: 'graduation-cap',
-        description: 'Educational specialist focusing on learning strategies and academic support.',
-        systemPrompt: 'You are PAKNING R1 Learning Coach, an educational specialist with expertise in:\n- Learning methodologies and study techniques\n- Curriculum design and educational planning\n- Student assessment and progress tracking\n- Differentiated instruction and learning styles\n- Educational technology and tools\n- Academic writing and research skills\n\nProvide personalized learning strategies with clear explanations and practical examples. Adapt to different learning styles and academic levels.',
-        thinkingSteps: [
-            'Assessing learning needs',
-            'Identifying knowledge gaps',
-            'Designing learning approach',
-            'Creating study materials',
-            'Monitoring progress'
-        ],
-        stepDelay: 700,
-        totalDelay: 3500,
-        temperature: 0.7,
-        maxTokens: 2500
-    }
-};
+ // Mode definitions
+ const reasoningModes = {
+     default: {
+         title: 'Default',
+         icon: 'balance-scale',
+         description: 'Medium Reasoning Effort: Balanced depth and efficiency for well-thought-out responses.',
+         systemPrompt: 'You are PAKNING R1, an AI assistant focused on providing helpful, accurate, and thoughtful responses. Balance depth with efficiency, taking time to reason through complex problems but staying concise. Structure your responses with clear formatting when appropriate, using markdown for headers, lists, and code blocks. For complex or technical topics, show your reasoning process.',
+         thinkingSteps: [
+             'Analyzing request',
+             'Gathering relevant information',
+             'Organizing response structure',
+             'Formulating detailed answer'
+         ],
+         stepDelay: 600,
+         totalDelay: 3000,
+         temperature: 0.7,
+         maxTokens: 2000
+     },
+     deepthink: {
+         title: 'DeepThink',
+         icon: 'brain',
+         description: 'Maximum Reasoning Depth: Comprehensive analysis with detailed step-by-step reasoning.',
+         systemPrompt: 'You are PAKNING R1 in DeepThink mode, an AI assistant that thoroughly analyzes problems before answering. Take your time to think through all aspects of the question, exploring multiple perspectives and approaches. Break down complex problems into parts and reason step by step. Include your thought process in the response, organizing with clear headings and structure. For technical or specialized topics, demonstrate expertise with precise terminology and in-depth analysis.',
+         thinkingSteps: [
+             'Analyzing request in depth',
+             'Gathering comprehensive information',
+             'Exploring multiple perspectives',
+             'Identifying key concepts and relationships',
+             'Structuring detailed analysis',
+             'Checking for logical consistency',
+             'Formulating comprehensive response'
+         ],
+         stepDelay: 800,
+         totalDelay: 5000,
+         temperature: 0.8,
+         maxTokens: 4000
+     }
+ };
  
-// Chat history for context
-let messagesHistory = [
-    {
-        role: "system",
-        content: expertModes.general.systemPrompt
-    }
-];
+ // Chat history for context
+ let messagesHistory = [
+     {
+         role: "system",
+         content: reasoningModes.default.systemPrompt
+     }
+ ];
  
  // Chat sessions
  let chatSessions = [];
  let currentSessionId = null;
  let isWaitingForResponse = false;
  
-// Function to set expert mode
-function setExpertMode(mode) {
-    // Check if the mode exists
-    if (!expertModes[mode]) {
-        console.error(`Expert mode ${mode} not found`);
-        return;
-    }
-    
-    // Update current mode
-    currentMode = mode;
-    
-    // Update mode indicator
-    const modeConfig = expertModes[mode];
-    currentModeIcon.innerHTML = `<i class="fas fa-${modeConfig.icon}"></i>`;
-    currentModeText.textContent = modeConfig.title;
-    
-    // Update mini mode indicator in the input area
-    miniModeIndicator.textContent = modeConfig.title;
-    
-    // Add class to body to apply mode-specific styles
-    document.body.classList.remove('general-mode', 'coding-mode', 'business-mode', 'creative-mode', 'research-mode', 'health-mode', 'education-mode');
-    document.body.classList.add(`${mode}-mode`);
-    
-    // Update system prompt in messages history
-    messagesHistory[0] = {
-        role: "system",
-        content: modeConfig.systemPrompt
-    };
-    
-    // Update current session with new mode
-    if (currentSessionId) {
-        const sessionIndex = chatSessions.findIndex(s => s.id === currentSessionId);
-        if (sessionIndex !== -1) {
-            chatSessions[sessionIndex].mode = mode;
-            saveChatsToLocalStorage();
-        }
-    }
-    
-    // Log mode change
-    console.log(`Expert mode set to ${mode}: ${modeConfig.title}`);
-}
+ // Function to set reasoning mode
+ function setReasoningMode(mode) {
+     // Check if the mode exists
+     if (!reasoningModes[mode]) {
+         console.error(`Mode ${mode} not found`);
+         return;
+     }
+     
+     // Update current mode
+     currentMode = mode;
+     
+     // Update mode indicator
+     const modeConfig = reasoningModes[mode];
+     currentModeIcon.innerHTML = `<i class="fas fa-${modeConfig.icon}"></i>`;
+     currentModeText.textContent = `${modeConfig.title} Mode`;
+     
+     // Update mini mode indicator in the input area
+     miniModeIndicator.textContent = modeConfig.title;
+     
+     // Add class to body to apply mode-specific styles
+     document.body.classList.remove('default-mode', 'deepthink-mode');
+     document.body.classList.add(`${mode}-mode`);
+     
+     // Update current session with new mode
+     if (currentSessionId) {
+         const sessionIndex = chatSessions.findIndex(s => s.id === currentSessionId);
+         if (sessionIndex !== -1) {
+             chatSessions[sessionIndex].mode = mode;
+             saveChatsToLocalStorage();
+         }
+     }
+     
+     // Log mode change
+     console.log(`Mode set to ${mode}`);
+ }
  
  // Function to create a new chat session
  function createNewChat() {
@@ -1830,13 +1741,13 @@ function addMessageToChat(content, sender, isThinking = false) {
                  'X-Title': 'PAKNING R1 Chatbot', 
                  'Content-Type': 'application/json'
              },
-            body: JSON.stringify({
+             body: JSON.stringify({
                 'model': 'qwen/qwen3-14b:free',
-                'messages': messagesHistory,
-                'temperature': expertModes[currentMode].temperature,
-                'max_tokens': expertModes[currentMode].maxTokens,
-                'stream': true // Enable streaming
-            })
+                 'messages': messagesHistory,
+                 'temperature': reasoningModes[currentMode].temperature,
+                 'max_tokens': reasoningModes[currentMode].maxTokens,
+                 'stream': true // Enable streaming
+             })
          };
          
          try {
@@ -2074,7 +1985,7 @@ function clearChat() {
         messagesHistory = [
             {
                 role: "system",
-                content: expertModes[currentMode].systemPrompt
+                content: reasoningModes[currentMode].systemPrompt
             }
         ];
         
@@ -2095,67 +2006,40 @@ function showWelcomeScreen() {
                 <div class="welcome-logo">
                     <div class="ning-logo large">P</div>
                 </div>
-                <h1>PAKNING AI</h1>
-                <p>Choose your specialized AI expert for professional-grade assistance</p>
+                <h1>PAKNING R1</h1>
+                <p>Advanced reasoning AI with exceptional problem-solving capabilities</p>
                 
-                <div class="expert-selection-container">
-                    <div class="expert-selection">
-                        <p class="expert-title">Select Your AI Expert:</p>
-                        <div class="expert-grid">
-                            <button class="expert-btn ${currentMode === 'general' ? 'active' : ''}" data-mode="general">
-                                <i class="fas fa-user-tie"></i>
-                                <span>General Assistant</span>
-                                <small>Versatile AI for general tasks</small>
+                <div class="select-mode-container">
+                    <div class="mode-selection">
+                        <p class="mode-title">Select Reasoning Mode:</p>
+                        <div class="mode-buttons">
+                            <button class="mode-btn ${currentMode === 'default' ? 'active' : ''}" data-mode="default">
+                                <i class="fas fa-balance-scale"></i>
+                                <span>Default</span>
                             </button>
-                            <button class="expert-btn ${currentMode === 'coding' ? 'active' : ''}" data-mode="coding">
-                                <i class="fas fa-code"></i>
-                                <span>Code Expert</span>
-                                <small>Programming & software engineering</small>
-                            </button>
-                            <button class="expert-btn ${currentMode === 'business' ? 'active' : ''}" data-mode="business">
-                                <i class="fas fa-chart-line"></i>
-                                <span>Business Strategist</span>
-                                <small>Strategy, marketing & operations</small>
-                            </button>
-                            <button class="expert-btn ${currentMode === 'creative' ? 'active' : ''}" data-mode="creative">
-                                <i class="fas fa-palette"></i>
-                                <span>Creative Director</span>
-                                <small>Design, writing & artistic projects</small>
-                            </button>
-                            <button class="expert-btn ${currentMode === 'research' ? 'active' : ''}" data-mode="research">
-                                <i class="fas fa-microscope"></i>
-                                <span>Research Scientist</span>
-                                <small>Scientific analysis & data interpretation</small>
-                            </button>
-                            <button class="expert-btn ${currentMode === 'health' ? 'active' : ''}" data-mode="health">
-                                <i class="fas fa-heartbeat"></i>
-                                <span>Health Advisor</span>
-                                <small>Health, wellness & medical guidance</small>
-                            </button>
-                            <button class="expert-btn ${currentMode === 'education' ? 'active' : ''}" data-mode="education">
-                                <i class="fas fa-graduation-cap"></i>
-                                <span>Learning Coach</span>
-                                <small>Educational strategies & academic support</small>
+                            <button class="mode-btn ${currentMode === 'deepthink' ? 'active' : ''}" data-mode="deepthink">
+                                <i class="fas fa-brain"></i>
+                                <span>DeepThink</span>
                             </button>
                         </div>
-                        <div class="expert-description">
-                            <p id="expert-description-text">${expertModes[currentMode].description}</p>
+                        <div class="mode-description">
+                            <p id="mode-description-text">${reasoningModes[currentMode].description}</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="feature-points">
                     <div class="feature-point">
-                        <i class="fas fa-users"></i>
-                        <span>7 specialized AI experts for different domains</span>
-                    </div>
-                    <div class="feature-point">
                         <i class="fas fa-brain"></i>
-                        <span>Professional-grade expertise and insights</span>
+                        <span>Deep analytical thinking for complex problem-solving</span>
                     </div>
                     <div class="feature-point">
-                        <i class="fas fa-cogs"></i>
-                        <span>Optimized responses for each field</span>
+                        <i class="fas fa-code"></i>
+                        <span>Superior performance in mathematics and coding tasks</span>
+                    </div>
+                    <div class="feature-point">
+                        <i class="fas fa-tools"></i>
+                        <span>Adapts reasoning based on environmental feedback</span>
                     </div>
                 </div>
             </div>
@@ -2163,7 +2047,7 @@ function showWelcomeScreen() {
     `;
     
     // Update chat title
-    document.title = 'PAKNING AI';
+    document.title = 'PAKNING R1';
     
     // Hide mode indicator and back button
     currentModeIndicator.classList.remove('visible');
@@ -2174,36 +2058,6 @@ function showWelcomeScreen() {
     // Remove active class from all history items
     document.querySelectorAll('.history-item').forEach(item => {
         item.classList.remove('active');
-    });
-    
-    // Add event listeners for expert buttons
-    const expertButtons = document.querySelectorAll('.expert-btn');
-    expertButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const mode = this.getAttribute('data-mode');
-            setExpertMode(mode);
-            
-            // Update active button
-            expertButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Update description
-            const descriptionElement = document.getElementById('expert-description-text');
-            if (descriptionElement) {
-                descriptionElement.textContent = expertModes[mode].description;
-            }
-            
-            // Show success message
-            showMessage(`Switched to ${expertModes[mode].title}`, 'success', 2000);
-        });
-        
-        // Add keyboard support
-        button.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.click();
-            }
-        });
     });
 }
  
@@ -3189,8 +3043,16 @@ function updateModeButtons(isDeepThink) {
 
 // Update the initializeMode function
 function initializeMode() {
-    const savedMode = localStorage.getItem('mode') || 'general';
-    setExpertMode(savedMode);
+    const savedMode = localStorage.getItem('mode') || 'default';
+    const isDeepThink = savedMode === 'deepthink';
+    
+    // Set initial mode
+    if (isDeepThink) {
+        document.body.classList.add('deepthink-mode');
+    }
+    
+    // Update all mode switch buttons
+    updateModeButtons(isDeepThink);
 }
 
 // Function to update chat session in storage

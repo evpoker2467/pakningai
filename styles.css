@@ -638,16 +638,15 @@ body.resizing .sidebar-resizer::after {
 }
 
 .welcome-screen h1 {
-    font-size: 3.5em;
+    font-size: 3em;
     margin-bottom: 0.2em;
     margin-top: 15px;
-    background: linear-gradient(135deg, #6a5af9, #21d07c, #ff6b6b);
+    background: linear-gradient(135deg, var(--default-color), var(--deepthink-color));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    font-weight: 900;
+    font-weight: 800;
     letter-spacing: -0.02em;
-    text-shadow: 0 0 30px rgba(106, 90, 249, 0.3);
 }
 
 .welcome-screen p {
@@ -657,203 +656,21 @@ body.resizing .sidebar-resizer::after {
     margin-bottom: 15px;
 }
 
-/* Expert Selection Container */
-.expert-selection-container {
+/* Select Mode Container */
+.select-mode-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 550px;
     margin: 0 auto 25px;
 }
 
-.expert-selection {
-    text-align: center;
-}
-
-.expert-title {
-    font-size: 1.2em;
-    font-weight: 600;
-    color: var(--primary-text);
-    margin-bottom: 20px;
-}
-
-.expert-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.expert-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 15px;
-    background: rgba(0, 0, 0, 0.1);
-    border: 2px solid transparent;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-
-.expert-btn:focus {
-    outline: 2px solid var(--default-color);
-    outline-offset: 2px;
-}
-
-.expert-btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(106, 90, 249, 0.3);
-}
-
-.expert-btn:hover {
-    transform: translateY(-3px);
-    background: rgba(106, 90, 249, 0.1);
-    border-color: rgba(106, 90, 249, 0.3);
-    box-shadow: 0 8px 20px rgba(106, 90, 249, 0.2);
-}
-
-.expert-btn.active {
-    background: linear-gradient(135deg, rgba(106, 90, 249, 0.2), rgba(33, 208, 124, 0.2));
-    border-color: var(--default-color);
-    box-shadow: 0 8px 20px rgba(106, 90, 249, 0.3);
-}
-
-.expert-btn i {
-    font-size: 2em;
-    margin-bottom: 10px;
-    color: var(--default-color);
-    transition: all 0.3s ease;
-}
-
-.expert-btn:hover i {
-    transform: scale(1.1);
-    color: var(--deepthink-color);
-}
-
-.expert-btn.active i {
-    color: var(--default-color);
-    transform: scale(1.1);
-}
-
-.expert-btn span {
-    font-size: 1.1em;
-    font-weight: 600;
-    color: var(--primary-text);
-    margin-bottom: 5px;
-}
-
-.expert-btn small {
-    font-size: 0.85em;
-    color: var(--secondary-text);
-    line-height: 1.3;
-}
-
-.expert-description {
-    margin-top: 20px;
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 10px;
-    border-left: 4px solid var(--default-color);
-}
-
-.expert-description p {
-    font-size: 0.95em;
-    color: var(--secondary-text);
-    margin: 0;
-    line-height: 1.5;
-}
-
-/* Expert-specific color themes */
-.coding-mode .expert-btn.active {
-    border-color: #007acc;
-    background: linear-gradient(135deg, rgba(0, 122, 204, 0.2), rgba(0, 122, 204, 0.1));
-}
-
-.business-mode .expert-btn.active {
-    border-color: #28a745;
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(40, 167, 69, 0.1));
-}
-
-.creative-mode .expert-btn.active {
-    border-color: #e83e8c;
-    background: linear-gradient(135deg, rgba(232, 62, 140, 0.2), rgba(232, 62, 140, 0.1));
-}
-
-.research-mode .expert-btn.active {
-    border-color: #6f42c1;
-    background: linear-gradient(135deg, rgba(111, 66, 193, 0.2), rgba(111, 66, 193, 0.1));
-}
-
-.health-mode .expert-btn.active {
-    border-color: #dc3545;
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.1));
-}
-
-.education-mode .expert-btn.active {
-    border-color: #fd7e14;
-    background: linear-gradient(135deg, rgba(253, 126, 20, 0.2), rgba(253, 126, 20, 0.1));
-}
-
-/* Mobile responsive design for expert selection */
-@media (max-width: 768px) {
-    .expert-grid {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 10px;
-    }
-    
-    .expert-btn {
-        padding: 15px 10px;
-    }
-    
-    .expert-btn i {
-        font-size: 1.5em;
-    }
-    
-    .expert-btn span {
-        font-size: 1em;
-    }
-    
-    .expert-btn small {
-        font-size: 0.8em;
-    }
-    
-    .welcome-screen h1 {
-        font-size: 2.5em;
-    }
-    
-    .welcome-content .ning-logo.large {
-        width: 80px;
-        height: 80px;
-        font-size: 36px;
-    }
-}
-
-/* PAKNING AI Logo Styles */
+/* NING R1 Logo Styles */
 .welcome-content .ning-logo.large {
-    width: 100px;
-    height: 100px;
-    font-size: 42px;
-    border-radius: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 12px 30px rgba(106, 90, 249, 0.4);
-    background: linear-gradient(135deg, #6a5af9, #21d07c);
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    animation: logoGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes logoGlow {
-    0% {
-        box-shadow: 0 12px 30px rgba(106, 90, 249, 0.4);
-    }
-    100% {
-        box-shadow: 0 12px 30px rgba(106, 90, 249, 0.6), 0 0 40px rgba(33, 208, 124, 0.3);
-    }
+    width: 80px;
+    height: 80px;
+    font-size: 34px;
+    border-radius: 16px;
+    margin-bottom: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
 /* Feature points improved styling */
