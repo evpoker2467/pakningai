@@ -440,10 +440,26 @@ body.resizing .sidebar-resizer::after {
         z-index: 1000;
         width: 260px !important; /* Override any inline width */
         transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
     }
     
     .sidebar.open {
         transform: translateX(0);
+    }
+    
+    /* Mobile sidebar content layout for regular mobile view */
+    .sidebar .chat-history {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        min-height: 0; /* Important for flexbox scrolling */
+    }
+    
+    .sidebar .sidebar-footer {
+        flex-shrink: 0; /* Prevent footer from shrinking */
+        margin-top: auto; /* Push footer to bottom */
     }
 
     .welcome-screen h1 {
@@ -3038,6 +3054,9 @@ body.resizing .sidebar-resizer {
     transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .mobile-mode .sidebar.open {
@@ -3058,6 +3077,19 @@ body.resizing .sidebar-resizer {
 
 .mobile-mode .sidebar.open + .sidebar-overlay {
     opacity: 1;
+}
+
+/* Mobile sidebar content layout */
+.mobile-mode .sidebar .chat-history {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    min-height: 0; /* Important for flexbox scrolling */
+}
+
+.mobile-mode .sidebar .sidebar-footer {
+    flex-shrink: 0; /* Prevent footer from shrinking */
+    margin-top: auto; /* Push footer to bottom */
 }
 
 /* Mobile context menu */
